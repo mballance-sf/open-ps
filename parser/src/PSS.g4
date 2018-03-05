@@ -23,7 +23,7 @@ package_body_item:
 	struct_declaration 				|
 	enum_declaration 				|
 	coverspec_declaration 			|
-	import_method_decl				|
+	function_decl					|
 	import_class_decl				|
 	import_method_qualifiers		|
 	export_action					|
@@ -190,8 +190,8 @@ struct_field_modifier:
 /****************************************************************************
  * H1: Procedural Interface
  ****************************************************************************/
-import_method_decl:
-	'import' method_prototype ';'
+function_decl:
+	'function' method_prototype ';'
 ;
 
 method_prototype:
@@ -223,11 +223,11 @@ import_method_qualifiers:
 	;
 
 import_method_phase_qualifiers:
-	'import' import_function_qualifiers type_identifier ';'
+	'import' import_function_qualifiers 'function' type_identifier ';'
 ;
 
 import_method_target_template:
-	'import' language_identifier method_prototype '=' string ';'
+	'target' 'function' language_identifier method_prototype '=' string ';'
 ;
 
 import_function_qualifiers:
@@ -751,6 +751,7 @@ expression:
 	lhs=expression mul_div_mod_op rhs=expression 		|
 	lhs=expression add_sub_op rhs=expression			|
 	lhs=expression shift_op rhs=expression				|
+	lhs=expression inside_expr_term						|
     lhs=expression logical_inequality_op rhs=expression	|
     lhs=expression eq_neq_op rhs=expression				|
     lhs=expression binary_and_op rhs=expression			|
@@ -758,94 +759,36 @@ expression:
     lhs=expression binary_or_op rhs=expression			|
     lhs=expression logical_and_op rhs=expression		|
     lhs=expression logical_or_op rhs=expression			|
+    lhs=expression conditional_expr						|
 	primary
 	;
 
-//condition_expr :
-//	cond=logical_or_expr ( '?' true_expr=logical_or_expr ':' false_expr=logical_or_expr)*
-//	; 
-//
-//logical_or_expr :
-//	lhs=logical_and_expr ( '||' logical_and_expr)*
-//;
+conditional_expr :
+	'?' true_expr=expression ':' false_expr=expression
+	; 
+
 logical_or_op : '||';
-//
-//logical_and_expr :
-//	binary_or_expr ( '&&' binary_or_expr)*	
-//;
 logical_and_op : '&&';
-//
-//binary_or_expr :
-//	binary_xor_expr ( '|' binary_xor_expr)*
-//;
 binary_or_op : '|';
-//
-//binary_xor_expr :
-//	binary_and_expr ( '^' binary_and_expr)*
-//;
 binary_xor_op : '^';
-//
-//binary_and_expr :
-//	logical_equality_expr ( '&' logical_equality_expr)*
-//;
 binary_and_op : '&';
-//
-//logical_equality_expr :
-//	logical_inequality_expr ( eq_neq_op logical_inequality_expr)*
-//;
-//
-//logical_inequality_expr : 
-//		binary_shift_expr ( logical_inequality_rhs)*
-//;
-//
-//logical_inequality_rhs :
-//	inequality_expr_term | inside_expr_term
-//;
-//
-//inequality_expr_term :
-//	logical_inequality_op binary_shift_expr
-//;
-//
-//inside_expr_term :
-//	'inside' '[' open_range_list ']'
-//;
-//
+
+inside_expr_term :
+	'in' '[' open_range_list ']'
+;
+
 logical_inequality_op:
 	'<'|'<='|'>'|'>='
 ;
-//
-//binary_shift_expr :
-//	binary_add_sub_expr ( shift_op binary_add_sub_expr)*
-//;
-//
-//binary_add_sub_expr :
-//	binary_mul_div_mod_expr ( add_sub_op binary_mul_div_mod_expr)*
-//;
-//
-//binary_mul_div_mod_expr :
-//	binary_exp_expr ( mul_div_mod_op binary_exp_expr)*
-//;
-//
-//binary_exp_expr :
-//	unary_expr ( '**' unary_expr)*
-//;
 
 unary_op: '+' | '-' | '!' | '~' | '&' | '|' | '^';
 
 exp_op: '**';
 
-//
 eq_neq_op: '==' | '!=';
-//
 shift_op: '<<' | '>>';
-//
 add_sub_op: '+' | '-';
-//
 mul_div_mod_op: '*' | '/' | '%';
-//
-//unary_expr :
-//	(unary_op)? primary
-//;
 
 primary: //; :
 	number 					
@@ -994,8 +937,12 @@ DOUBLE_QUOTED_STRING	: '"' (~ [\n\r])* '"' ;
  * BNF: TRIPLE_DOUBLE_QUOTED_STRING ::= <kw>"""</kw><kw>"""</kw>
  */
 TRIPLE_DOUBLE_QUOTED_STRING:
-			'"""' ('\u0009'..'\u000d' '\u0020'..'\u007e')* '"""'
+			'"""' TripleQuotedStringPart*? '"""'
 		; 
+
+fragment TripleQuotedStringPart : EscapedTripleQuote | SourceCharacter;
+fragment EscapedTripleQuote: '\\"""';
+fragment SourceCharacter :[\u0009\u000A\u000D\u0020-\uFFFF];
 
 ID : [a-zA-Z_] [a-zA-Z0-9_]* ;
 
