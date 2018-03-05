@@ -48,13 +48,13 @@ runtime.unpack : $(PACKAGES_DIR)/$(ANTLR_RUNTIME_SRC_ZIP)
 	$(Q)cd antlr4-cpp-runtime ; $(UNZIP) $^
 	$(Q)touch $@
 
-grammar.gen : $(PSS_PARSER_SRC_DIR)/PSS.g4 $(PACKAGES_DIR)/$(ANTLR_JAR)
+pss-grammar.gen : $(PSS_PARSER_SRC_DIR)/PSS.g4 $(PACKAGES_DIR)/$(ANTLR_JAR)
 	$(Q)mkdir -p grammar
 	$(Q)java -jar $(PACKAGES_DIR)/$(ANTLR_JAR) \
 		-Dlanguage=Cpp -visitor -o grammar $(PSS_PARSER_SRC_DIR)/PSS.g4
 	$(Q)touch $@
 
-grammar/src.mk : grammar.gen
+grammar/src.mk : pss-grammar.gen
 	$(Q)echo 'PSS_GRAMMAR_SRC += $$(notdir $$(wildcard grammar/*.cpp))' > $@
 	
 antlr4-cpp-runtime/src.mk : runtime.unpack

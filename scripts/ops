@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# First, determine where we are
+if test -f $0; then
+  ops_bindir=`dirname $0`
+  ops_bindir=`cd $ops_bindir; pwd`
+  export OPS_HOME=`dirname $ops_bindir`
+else
+  ops=`which ops`
+  if "x$ops" = "x"; then
+    echo "Error: ops is not in the path"
+    exit 1;
+  fi
+
+  ops_bindir=`dirname $ops`
+  export OPS_HOME=`dirname $ops_bindir`  
+fi
+
+OPS_PLATFORM=linux_x86_64
+
+export LD_LIBRARY_PATH=${OPS_HOME}/${OPS_PLATFORM}/lib:${LD_LIBRARY_PATH}
+
+exec ${OPS_HOME}/${OPS_PLATFORM}/bin/ops "$@"
