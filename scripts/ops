@@ -16,7 +16,12 @@ else
   export OPS_HOME=`dirname $ops_bindir`  
 fi
 
+uname_o=`uname -o`
+if test $uname_o = "Msys"; then
+OPS_PLATFORM=win64
+else
 OPS_PLATFORM=linux_x86_64
+fi
 
 export LD_LIBRARY_PATH=${OPS_HOME}/${OPS_PLATFORM}/lib:${LD_LIBRARY_PATH}
 

@@ -9,8 +9,10 @@ uname_o := $(shell uname -o)
 
 ifeq (Msys,$(uname_o))
 IS_WIN := true
+IS_MSYS := true
 else
 IS_WIN := false
+IS_MSYS := false
 endif
 
 ifeq (true,$(IS_WIN))
@@ -100,10 +102,15 @@ __release :	__build
 	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/$(PLATFORM)/bin
 	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/$(PLATFORM)/lib
 	$(Q)cp $(QPSSKW_BUILD_DIR)/ops$(EXEEXT) $(QPSSKW_BUILD_DIR)/ops-$(version)/$(PLATFORM)/bin
-ifeq (false,$(IS_WIN))
 	$(Q)cp $(SCRIPTS_DIR)/ops $(QPSSKW_BUILD_DIR)/ops-$(version)/bin
+ifeq (false,$(IS_WIN))
 	$(Q)chmod +x $(QPSSKW_BUILD_DIR)/ops-$(version)/bin/ops
 	$(Q)cp $(LIBSTDCPP) $(LIBSTDCPP6) $(QPSSKW_BUILD_DIR)/ops-$(version)/linux_x86_64/lib
+else
+	$(Q)cp $(SCRIPTS_DIR)/ops.bat $(QPSSKW_BUILD_DIR)/ops-$(version)/bin
+	$(Q)cp /mingw64/bin/libwinpthread-1.dll $(QPSSKW_BUILD_DIR)/ops-$(version)/win64/bin
+	$(Q)cp /mingw64/bin/libgcc_s_seh-1.dll $(QPSSKW_BUILD_DIR)/ops-$(version)/win64/bin
+	$(Q)cp /mingw64/bin/libstdc++-6.dll $(QPSSKW_BUILD_DIR)/ops-$(version)/win64/bin
 endif
 	
 endif
