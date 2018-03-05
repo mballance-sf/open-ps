@@ -759,13 +759,14 @@ expression:
     lhs=expression binary_or_op rhs=expression			|
     lhs=expression logical_and_op rhs=expression		|
     lhs=expression logical_or_op rhs=expression			|
+    lhs=expression conditional_expr						|
 	primary
 	;
 
-//condition_expr :
-//	cond=logical_or_expr ( '?' true_expr=logical_or_expr ':' false_expr=logical_or_expr)*
-//	; 
-//
+conditional_expr :
+	'?' true_expr=expression ':' false_expr=expression
+	; 
+
 logical_or_op : '||';
 logical_and_op : '&&';
 binary_or_op : '|';
