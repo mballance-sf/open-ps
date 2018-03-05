@@ -8,6 +8,8 @@ ANTLR_VERSION:=4.7.1
 # http://www.antlr.org/download/antlr4-cpp-runtime-4.7.1-source.zip
 ANTLR_RUNTIME_SRC_ZIP:=antlr4-cpp-runtime-$(ANTLR_VERSION)-source.zip
 ANTLR_RUNTIME_SRC_URL:=$(ANTLR_DOWNLOAD_URL)/$(ANTLR_RUNTIME_SRC_ZIP)
+ANTLR_RUNTIME_WIN_ZIP:=antlr4-cpp-runtime-4.7.1-vs2015.zip
+ANTLR_RUNTIME_WIN_URL:=$(ANTLR_DOWNLOAD_URL)/$(ANTLR_RUNTIME_WIN_ZIP)
 ANTLR_JAR:=antlr-$(ANTLR_VERSION)-complete.jar
 ANTLR_JAR_URL:=$(ANTLR_DOWNLOAD_URL)/$(ANTLR_JAR)
 
@@ -21,6 +23,8 @@ ifneq (1, $(RULES))
 -include antlr4-cpp-runtime/src.mk
 
 ANTLR4_CPP_RUNTIME_DIR=antlr4-cpp-runtime/runtime/src
+ANTLR4_RUNTIME_LINK=libantlr_runtime.a
+ANTLR4_RUNTIME_DEPS=libantlr_runtime.a
 
 CXXFLAGS += -DANTLR4CPP_EXPORTS
 SRC_DIRS += $(ANTLR4_CPP_RUNTIME_DIR) $(ANTLR4_CPP_RUNTIME_DIR)/atn 
@@ -54,7 +58,7 @@ pss-grammar.gen : $(PSS_PARSER_SRC_DIR)/PSS.g4 $(PACKAGES_DIR)/$(ANTLR_JAR)
 		-Dlanguage=Cpp -visitor -o grammar $(PSS_PARSER_SRC_DIR)/PSS.g4
 	$(Q)touch $@
 
-grammar/src.mk : pss-grammar.gen
+grammar/src.mk : pss-grammar.gen runtime.unpack
 	$(Q)echo 'PSS_GRAMMAR_SRC += $$(notdir $$(wildcard grammar/*.cpp))' > $@
 	
 antlr4-cpp-runtime/src.mk : runtime.unpack
@@ -74,6 +78,10 @@ $(PACKAGES_DIR)/$(ANTLR_JAR) :
 $(PACKAGES_DIR)/$(ANTLR_RUNTIME_SRC_ZIP) : 
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(WGET) -O $@ $(ANTLR_RUNTIME_SRC_URL)
+	
+$(PACKAGES_DIR)/$(ANTLR_RUNTIME_WIN_ZIP) : 
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(Q)$(WGET) -O $@ $(ANTLR_RUNTIME_WIN_URL)
 
 endif # End Rules
 

@@ -5,7 +5,23 @@ SCRIPTS_DIR:=$(shell cd $(SCRIPTS_DIR); pwd)
 OPEN_PS_DIR:=$(shell cd $(SCRIPTS_DIR)/.. ; pwd)
 PACKAGES_DIR := $(OPEN_PS_DIR)/packages
 
+uname_o := $(shell uname -o)
+
+ifeq (Msys,$(uname_o))
+IS_WIN := true
+else
+IS_WIN := false
+endif
+
+ifeq (true,$(IS_WIN))
+DLIBEXT := .dll
+EXEEXT := .exe
+PLATFORM := win64
+else
 DLIBEXT := .so
+EXEEXT :=
+PLATFORM := linux_x86_64
+endif
 
 ifeq ($(PWD),$(SCRIPTS_DIR))
 	QPSSKW_BUILD_DIR:=$(OPEN_PS_DIR)/build
@@ -81,12 +97,14 @@ __release :	__build
 	$(Q)rm -rf $(QPSSKW_BUILD_DIR)/ops-$(version)
 	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)
 	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/bin
-	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/linux_x86_64/bin
-	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/linux_x86_64/lib
-	$(Q)cp $(QPSSKW_BUILD_DIR)/ops $(QPSSKW_BUILD_DIR)/ops-$(version)/linux_x86_64/bin
+	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/$(PLATFORM)/bin
+	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/$(PLATFORM)/lib
+	$(Q)cp $(QPSSKW_BUILD_DIR)/ops$(EXEEXT) $(QPSSKW_BUILD_DIR)/ops-$(version)/$(PLATFORM)/bin
+ifeq (false,$(IS_WIN))
 	$(Q)cp $(SCRIPTS_DIR)/ops $(QPSSKW_BUILD_DIR)/ops-$(version)/bin
 	$(Q)chmod +x $(QPSSKW_BUILD_DIR)/ops-$(version)/bin/ops
 	$(Q)cp $(LIBSTDCPP) $(LIBSTDCPP6) $(QPSSKW_BUILD_DIR)/ops-$(version)/linux_x86_64/lib
+endif
 	
 endif
 
