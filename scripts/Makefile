@@ -15,7 +15,7 @@ endif
 
 MK_INCLUDES += $(OPEN_PS_DIR)/parser/src/pss-parser.mk
 MK_INCLUDES += $(OPEN_PS_DIR)/ops/ops.mk
-MK_INCLUDES := $(OPEN_PS_DIR)/etc/open-ps.info
+MK_INCLUDES += $(OPEN_PS_DIR)/etc/open-ps.info
 #MK_INCLUDES += $(OPEN_PS_DIR)/psi/psi.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/qpssc/qpssc.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/qpsrt/qpsrt.mk
@@ -58,11 +58,10 @@ all :
 	$(Q)if test "x$(PWD)" = "x$(SCRIPTS_DIR)"; then \
 		echo "Running from scripts dir"; \
 		if test ! -d $(QPSSKW_BUILD_DIR); then mkdir -p $(QPSSKW_BUILD_DIR); fi ; \
-		$(MAKE) BUILD=true -C $(QPSSKW_BUILD_DIR) -f $(SCRIPTS_DIR)/Makefile __build; \
-		$(MAKE) BUILD=true -C $(QPSSKW_BUILD_DIR) -f $(SCRIPTS_DIR)/Makefile __release; \
+		$(MAKE) BUILD=true -C $(QPSSKW_BUILD_DIR) -f $(SCRIPTS_DIR)/Makefile __release ; \
 	else \
 		echo "Running from remote build dir"; \
-		$(MAKE) BUILD=true -f $(SCRIPTS_DIR)/Makefile __build; \
+		$(MAKE) BUILD=true -f $(SCRIPTS_DIR)/Makefile __release ; \
 	fi 
 	
 clean :
@@ -75,8 +74,10 @@ clean :
 	fi \
 
 ifeq (true,$(BUILD))	
-__build :	$(LIB_TARGETS) $(EXE_TARGETS)
-__release :	
+__build : $(LIB_TARGETS) $(EXE_TARGETS)
+	echo "__build: $(LIB_TARGETS) $(EXE_TARGETS) $(MK_INCLUDES)"
+
+__release :	__build
 	$(Q)rm -rf $(QPSSKW_BUILD_DIR)/ops-$(version)
 	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)
 	$(Q)mkdir -p $(QPSSKW_BUILD_DIR)/ops-$(version)/bin
