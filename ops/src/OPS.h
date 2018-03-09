@@ -9,6 +9,7 @@
 #define OPS_SRC_OPS_H_
 #include <vector>
 #include <string>
+#include "IModel.h"
 
 class OPS {
 public:
@@ -22,6 +23,7 @@ public:
 
 private:
 	std::vector<std::string>		m_source_files;
+	psi_api::IModel					*m_model;
 };
 
 #endif /* OPS_SRC_OPS_H_ */

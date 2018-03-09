@@ -30,7 +30,7 @@ void RefExprImpl::setExpr(IExpr *expr) {
 	*m_expr_ref = expr;
 }
 
-virtual IExpr *RefExprImpl::clone() const {
+IExpr *RefExprImpl::clone() const {
 	RefExprImpl *ret = new RefExprImpl(m_scope, m_path);
 	ret->setExprRef(m_expr_ref);
 

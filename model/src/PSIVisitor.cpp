@@ -23,7 +23,6 @@
  */
 
 #include "PSIVisitor.h"
-#include "PSIUtil.h"
 #include "ModelImpl.h"
 #include <stdio.h>
 #include <stdint.h>
@@ -518,7 +517,7 @@ std::string PSIVisitor::type2string(IBaseItem *it) {
 	std::string ret;
 
 	while (it) {
-		INamedItem *ni = PSIUtil::toNamedItem(it);
+		INamedItem *ni = dynamic_cast<INamedItem *>(it);
 
 		if (ni) {
 			if (ret.size() > 0) {

@@ -1090,7 +1090,7 @@ antlrcpp::Any PSS2PSIVisitor::visitMethod_prototype(PSSParser::Method_prototypeC
 	return ret;
 }
 
-antlrcpp::Any PSS2PSIVisitor::visitImport_method_decl(PSSParser::Import_method_declContext *ctx) {
+antlrcpp::Any PSS2PSIVisitor::visitFunction_decl(PSSParser::Function_declContext *ctx) {
 	return ctx->method_prototype()->accept(this);
 }
 

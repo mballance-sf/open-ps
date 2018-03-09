@@ -61,9 +61,15 @@ namespace psi {
 
 			virtual void setParent(IBaseItem *p) { m_parent = p; }
 
+			virtual const ILocation *getStart() const { return m_start; }
+
+			virtual void setStart(ILocation *start) { m_start = start; }
+
+
 		private:
 			IBaseItem::ItemType					m_type;
 			IBaseItem							*m_parent;
+			ILocation							*m_start;
 };
 
 } /* namespace psi */

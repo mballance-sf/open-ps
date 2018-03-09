@@ -26,6 +26,7 @@
 #ifndef SRC_API_IBASEITEM_H_
 #define SRC_API_IBASEITEM_H_
 #include "IAttributes.h"
+#include "ILocation.h"
 
 namespace psi_api {
 	class IItemFactory;
@@ -76,6 +77,10 @@ namespace psi_api {
 			virtual void setParent(IBaseItem *it) = 0;
 
 			virtual IBaseItem *clone() const = 0;
+
+			virtual const ILocation *getStart() const = 0;
+
+			virtual void setStart(ILocation *start) = 0;
 	};
 
 

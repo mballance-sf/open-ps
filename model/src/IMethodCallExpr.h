@@ -25,6 +25,7 @@
 #ifndef INCLUDED_IMETHOD_CALL_EXPR_H
 #define INCLUDED_IMETHOD_CALL_EXPR_H
 #include "IExpr.h"
+#include "IImportFunc.h"
 
 namespace psi_api {
 
