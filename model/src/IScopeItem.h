@@ -29,6 +29,7 @@
 #include <string>
 
 #include "IBaseItem.h"
+#include "ILocation.h"
 
 namespace psi_api {
 	class IField;
@@ -48,7 +49,13 @@ namespace psi_api {
 		 */
 		virtual IField *getField(const std::string &name) = 0;
 
-//		virtual const std::string &getName() const = 0;
+		virtual const ILocation *getStart() const = 0;
+
+		virtual void setStart(ILocation *start) = 0;
+
+		virtual const ILocation *getEnd() const = 0;
+
+		virtual void setEnd(ILocation *end) = 0;
 
 	};
 }

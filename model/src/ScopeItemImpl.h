@@ -53,8 +53,18 @@ public:
 	 */
 	virtual IField *getField(const std::string &name);
 
+	virtual ILocation *getStart() const { return m_start; }
+
+	virtual void setStart(ILocation *start) { m_start = start; }
+
+	virtual ILocation *getEnd() const { return m_end; }
+
+	virtual void setEnd(ILocation *end) { m_end = end; }
+
 private:
 	std::vector<IBaseItem *>				m_children;
+	ILocation								*m_start;
+	ILocation								*m_end;
 
 };
 

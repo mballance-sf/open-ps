@@ -62,6 +62,14 @@ class ModelImpl:
 
 		virtual void add(IBaseItem *it);
 
+		virtual const ILocation *getStart() const { return 0; }
+
+		virtual void setStart(ILocation *start)  { }
+
+		virtual const ILocation *getEnd() const { return 0; }
+
+		virtual void setEnd(ILocation *start)  { }
+
 		virtual IPackage *findPackage(const std::string &name, bool create=false);
 
 		/**

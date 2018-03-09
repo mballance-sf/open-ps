@@ -12,12 +12,15 @@
 #include <stdint.h>
 #include "PSSLexer.h"
 #include "PSSParser.h"
+#include "ModelImpl.h"
+#include "PSS2PSIVisitor.h"
 
 using namespace antlr4;
 
 OPS::OPS() {
 	// TODO Auto-generated constructor stub
 
+	m_model = new psi::ModelImpl();
 }
 
 OPS::~OPS() {
@@ -52,6 +55,10 @@ bool OPS::parse() {
 				ret = false;
 				break;
 			}
+
+			PSS2PSIVisitor pss2psi_visitor(m_model, (*it));
+			pss2psi_visitor.visitModel(ctxt);
+
 		} else {
 			fprintf(stdout, "Error: failed to open file\n");
 			ret = false;

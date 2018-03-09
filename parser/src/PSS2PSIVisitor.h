@@ -50,7 +50,7 @@ public:
 	antlrcpp::Any visitExec_body_stmt(PSSParser::Exec_body_stmtContext *ctx);
 	antlrcpp::Any visitExtend_stmt(PSSParser::Extend_stmtContext *ctx);
 	antlrcpp::Any visitMethod_prototype(PSSParser::Method_prototypeContext *ctx);
-	antlrcpp::Any visitImport_method_decl(PSSParser::Import_method_declContext *ctx);
+	antlrcpp::Any visitFunction_decl(PSSParser::Function_declContext *ctx) override;
 	antlrcpp::Any visitUser_defined_datatype(PSSParser::User_defined_datatypeContext *ctx);
 
 	IFieldRef *elaborate_field_ref(

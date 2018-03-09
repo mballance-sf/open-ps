@@ -17,8 +17,13 @@ else
 fi
 
 uname_o=`uname -o`
-if test $uname_o = "Msys"; then
-OPS_PLATFORM=win64
+uname_m=`uname -m`
+if test $uname_o = "Msys" || test $uname_o = "Cygwin"; then
+  if test $uname_m = "x86_64"; then
+    OPS_PLATFORM=win64
+  else
+    OPS_PLATFORM=win32
+  fi
 else
 OPS_PLATFORM=linux_x86_64
 fi

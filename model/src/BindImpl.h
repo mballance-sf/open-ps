@@ -27,7 +27,6 @@
 #define IMPL_BINDIMPL_H_
 #include <vector>
 
-#include "psi_api.h"
 #include "IBind.h"
 #include "BaseItemImpl.h"
 

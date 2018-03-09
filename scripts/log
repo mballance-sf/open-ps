@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 make: Warning: File `Makefile' has modification time 9108 s in the future
 PWD=/project/fun/open-ps/open-ps-ballance/scripts SCRIPTS_DIR=/project/fun/open-ps/open-ps-ballance/scripts
 Running from scripts dir
@@ -323,3 +324,49 @@ __build: libpss_parser.a libantlr_runtime.a ops /project/fun/open-ps/open-ps-bal
 make[1]: warning:  Clock skew detected.  Your build may be incomplete.
 make[1]: Leaving directory `/project/fun/open-ps/open-ps-ballance/build'
 make: warning:  Clock skew detected.  Your build may be incomplete.
+=======
+PWD=/c/usr1/fun/open-ps/open-ps/scripts SCRIPTS_DIR=/c/usr1/fun/open-ps/open-ps/scripts
+Running from scripts dir
+make[1]: Entering directory '/c/usr1/fun/open-ps/open-ps/build'
+g++ -DANTLR4CPP_EXPORTS -I/c/usr1/fun/open-ps/open-ps/model//src -std=c++11 -fPIC -g   -c -o MethodCallExprImpl.o /c/usr1/fun/open-ps/open-ps/model//src/MethodCallExprImpl.cpp
+a - BindImpl.o
+a - PackageImpl.o
+a - PSIVisitor.o
+a - ConstraintImpliesImpl.o
+a - RulesExecActionItem.o
+a - RulesExecStmtIfItem.o
+a - ConstraintExprImpl.o
+a - FieldRefImpl.o
+a - BindPathImpl.o
+a - AttributesImpl.o
+a - BaseItemImpl.o
+a - RefExprImpl.o
+a - BinaryExprImpl.o
+a - LiteralImpl.o
+a - ConstraintBlockImpl.o
+a - ActivityRepeatStmtImpl.o
+a - ComponentImpl.o
+a - NamedItemImpl.o
+a - ConstraintIfImpl.o
+a - ModelImpl.o
+a - ScalarTypeImpl.o
+a - FieldImpl.o
+a - RulesActionItem.o
+a - ExecImpl.o
+a - RulesExecStmtItem.o
+a - StructImpl.o
+a - ScopeItemImpl.o
+a - ActionImpl.o
+a - ActivityBlockStmtImpl.o
+a - MethodCallExprImpl.o
+a - GraphTraverseStmtImpl.o
+a - ExecStmtImpl.o
+a - ExtendImpl.o
+a - ExecExprStmtImpl.o
+a - RulesItem.o
+a - ImportFuncImpl.o
+a - ExprImpl.o
+a - ItemFactoryImpl.o
+a - NamedScopeItemImpl.o
+make[1]: Leaving directory '/c/usr1/fun/open-ps/open-ps/build'
+>>>>>>> origin/master
