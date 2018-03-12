@@ -1,0 +1,10 @@
+
+// Example: 12.1.8.3
+
+struct my_struct {
+	rand bit[4] in [0..15] A, B, C;
+	
+	constraint unique_abc_c {
+		unique {A, B, C};
+	}
+}

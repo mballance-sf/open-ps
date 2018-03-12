@@ -1,0 +1,15 @@
+
+// Example from 6.4
+
+struct string_s {
+	rand bit a;
+	rand string s;
+	
+	constraint {
+ 		if (a == 1) {
+ 			s == "FOO";
+		} else {
+			s == "BAR";
+		}
+	}
+}

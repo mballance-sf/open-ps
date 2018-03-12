@@ -1,0 +1,10 @@
+
+// Example: 12.1.5.3
+
+struct impl_s {
+	rand bit[7:0] a, b;
+
+	constraint ab_c {
+		(a > 5) -> b == 1;
+	}
+}

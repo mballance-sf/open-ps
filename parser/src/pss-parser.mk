@@ -13,6 +13,8 @@ ANTLR_RUNTIME_WIN_URL:=$(ANTLR_DOWNLOAD_URL)/$(ANTLR_RUNTIME_WIN_ZIP)
 ANTLR_JAR:=antlr-$(ANTLR_VERSION)-complete.jar
 ANTLR_JAR_URL:=$(ANTLR_DOWNLOAD_URL)/$(ANTLR_JAR)
 
+PSS_PARSER_SRC = $(notdir $(wildcard $(PSS_PARSER_SRC_DIR)/*.cpp))
+
 ifeq (,$(UNZIP))
 UNZIP := unzip -o
 endif
@@ -39,7 +41,11 @@ LIB_TARGETS += libpss_parser.a libantlr_runtime.a
 
 else # Rules
 
-libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o)
+libpss_processor.a : $(PSS_PARSER_SRC:.cpp=.o)
+	$(Q)rm -f $@
+	$(Q)$(AR) vcq $@ $(filter-out build-%,$^)
+
+libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o) 
 	$(Q)rm -f $@
 	$(Q)$(AR) vcq $@ $(filter-out build-%,$^)
 

@@ -41,11 +41,14 @@ class ComponentImpl:
 		public virtual ScopeItemImpl {
 
 public:
-	ComponentImpl(const std::string &name);
+	ComponentImpl(const std::string &name, IBaseItem *super_type);
 
 	virtual ~ComponentImpl();
 
 	virtual IBaseItem *clone() const;
+
+private:
+	IBaseItem				*m_super_type;
 
 };
 

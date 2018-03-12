@@ -1,0 +1,22 @@
+
+// Example: 11.3.4.3
+component top {
+	resource R {}
+	
+	pool[4] R R_pool;
+	bind R_pool *;
+	
+	action A { lock r R; }
+	action B {}
+	action C {}
+	action D { lock r R;}
+	
+	action my_test {
+		activity {
+			schedule {
+				{do A; do B;}
+				{do C; do D;}
+			}
+		}
+	}
+}

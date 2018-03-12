@@ -29,7 +29,7 @@ namespace psi {
 
 ActionImpl::ActionImpl(
 		const std::string 	&name,
-		IAction 			*super_type) :
+		IBaseItem 			*super_type) :
 				BaseItemImpl(IBaseItem::TypeAction),
 				NamedItemImpl(name), m_super_type(super_type), m_graph(0) {
 

@@ -11,7 +11,7 @@ using namespace antlrcpp;
 
 
 PSS2PSIVisitor::PSS2PSIVisitor(IModel *model, const std::string &path) :
-		m_model(model), m_file(path) {
+		m_model(model), m_factory(model->getItemFactory()), m_file(path) {
 }
 
 PSS2PSIVisitor::~PSS2PSIVisitor() {
@@ -32,14 +32,15 @@ antlrcpp::Any PSS2PSIVisitor::visitModel(PSSParser::ModelContext *ctx) {
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitAction_declaration(PSSParser::Action_declarationContext *ctx) {
-	IAction *super_type = 0;
+	IBaseItem *super_type = 0;
 	IBaseItem *ret = 0;
 
 	if (ctx->action_super_spec()) {
-		fprintf(stdout, "TODO: find super spec\n");
+		super_type = m_factory->mkRefType(scope(),
+				type2vector(ctx->action_super_spec()->type_identifier()));
 	}
 
-	IAction *action = m_model->mkAction(
+	IAction *action = m_factory->mkAction(
 			ctx->action_identifier()->identifier()->ID()->toString(),
 			super_type);
 	ret = action;
@@ -77,7 +78,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 
 	IAction *action = dynamic_cast<IAction *>(scope());
 	if (ctx->activity_stmt().size() == 0 || ctx->activity_stmt().size() > 1) {
-		IGraphBlockStmt *block = m_model->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
+		IGraphBlockStmt *block = m_factory->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
 		for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
 			block->add(ctx->activity_stmt(i)->accept(this));
 		}
@@ -103,7 +104,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 		// <type>
 		std::vector<PSSParser::Variable_refContext *> path;
 		path.push_back(ctx->variable_ref());
-		ret = m_model->mkGraphTraverseStmt(elaborate_field_ref(path), with_c);
+		ret = m_factory->mkGraphTraverseStmt(elaborate_field_ref(path), with_c);
 	}
 
 	return ret;
@@ -112,7 +113,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 antlrcpp::Any PSS2PSIVisitor::visitActivity_parallel_stmt(PSSParser::Activity_parallel_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
 
-	IGraphBlockStmt *parallel = m_model->mkGraphBlockStmt(IGraphStmt::GraphStmt_Parallel);
+	IGraphBlockStmt *parallel = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Parallel);
 
 	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
 		IGraphStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
@@ -120,7 +121,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_parallel_stmt(PSSParser::Activity_pa
 				dynamic_cast<IGraphBlockStmt *>(stmt)->getStmtType() == IGraphBlockStmt::GraphStmt_Block) {
 			parallel->add(stmt);
 		} else {
-			IGraphBlockStmt *stmt_b = m_model->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+			IGraphBlockStmt *stmt_b = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
 			stmt_b->add(stmt);
 			parallel->add(stmt_b);
 		}
@@ -134,7 +135,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 	IGraphStmt *ret = 0;
 	IExpr *expr = 0;
 	IGraphRepeatStmt::RepeatType type = IGraphRepeatStmt::RepeatType_Forever;
-	IGraphBlockStmt *body = m_model->mkGraphBlockStmt();
+	IGraphBlockStmt *body = m_factory->mkGraphBlockStmt();
 
 	if (ctx->expression()) {
 		expr = ctx->expression()->accept(this);
@@ -155,7 +156,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 		body->add(ctx->activity_sequence_block_stmt()->activity_stmt(i)->accept(this));
 	}
 
-	ret = m_model->mkGraphRepeatStmt(type, expr, body);
+	ret = m_factory->mkGraphRepeatStmt(type, expr, body);
 
 	return ret;
 }
@@ -163,7 +164,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_select_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
 
-	IGraphBlockStmt *select = m_model->mkGraphBlockStmt(IGraphStmt::GraphStmt_Select);
+	IGraphBlockStmt *select = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Select);
 
 	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
 		IGraphStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
@@ -171,7 +172,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_sele
 				dynamic_cast<IGraphBlockStmt *>(stmt)->getStmtType() == IGraphBlockStmt::GraphStmt_Block) {
 			select->add(stmt);
 		} else {
-			IGraphBlockStmt *stmt_b = m_model->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+			IGraphBlockStmt *stmt_b = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
 			stmt_b->add(stmt);
 			select->add(stmt_b);
 		}
@@ -184,7 +185,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_sele
 antlrcpp::Any PSS2PSIVisitor::visitActivity_sequence_block_stmt(PSSParser::Activity_sequence_block_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
 
-	IGraphBlockStmt *seq = m_model->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+	IGraphBlockStmt *seq = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
 	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
 		seq->add(ctx->activity_stmt(i)->accept(this));
 	}
@@ -195,10 +196,11 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_sequence_block_stmt(PSSParser::Activ
 
 antlrcpp::Any PSS2PSIVisitor::visitStruct_declaration(PSSParser::Struct_declarationContext *ctx) {
 	IBaseItem *ret = 0;
-	IStruct *super_type = 0;
+	IBaseItem *super_type = 0;
 
 	if (ctx->struct_super_spec()) {
-		fprintf(stdout, "TODO: find super spec\n");
+		super_type = m_factory->mkRefType(scope(),
+				type2vector(ctx->struct_super_spec()->type_identifier()));
 	}
 
 	IStruct::StructType t;
@@ -217,7 +219,7 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_declaration(PSSParser::Struct_declarat
 				ctx->struct_type()->img->getText().c_str());
 	}
 
-	IStruct *s = m_model->mkStruct(
+	IStruct *s = m_factory->mkStruct(
 			ctx->identifier()->ID()->toString(),
 			t, super_type);
 	push_scope(s);
@@ -259,7 +261,7 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_field_declaration(PSSParser::Struct_fi
 			fprintf(stdout, "TODO: array_dim\n");
 		}
 
-		IField *field = m_model->mkField(
+		IField *field = m_factory->mkField(
 				di->identifier()->getText(),
 				data_type,
 				attr,
@@ -305,7 +307,7 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 			fprintf(stdout, "TODO: array_dim\n");
 		}
 
-		IField *field = m_model->mkField(
+		IField *field = m_factory->mkField(
 				di->identifier()->getText(),
 				data_type,
 				attr,
@@ -335,9 +337,9 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 	IBaseItem *ret = 0;
 
 	if (ctx->bool_type()) {
-		ret = m_model->mkScalarType(IScalarType::ScalarType_Bool, 0, 0);
+		ret = m_factory->mkScalarType(IScalarType::ScalarType_Bool, 0, 0);
 	} else if (ctx->chandle_type()) {
-		ret = m_model->mkScalarType(IScalarType::ScalarType_Chandle, 0, 0);
+		ret = m_factory->mkScalarType(IScalarType::ScalarType_Chandle, 0, 0);
 	} else if (ctx->integer_type()) {
 		// TODO: get range
 		IExpr *msb=0, *lsb=0;
@@ -347,11 +349,11 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 				lsb = ctx->integer_type()->expression(1)->accept(this);
 			} else {
 				// WIDTH-1:0
-				msb = m_model->mkBinExpr(
+				msb = m_factory->mkBinExpr(
 								ctx->integer_type()->expression(0)->accept(this),
 								IBinaryExpr::BinOp_Minus,
-								m_model->mkIntLiteral(1));
-				lsb = m_model->mkIntLiteral(0);
+								m_factory->mkIntLiteral(1));
+				lsb = m_factory->mkIntLiteral(0);
 			}
 		} else {
 			fprintf(stdout, "Error: support domain\n");
@@ -359,22 +361,22 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 
 		if (ctx->integer_type()->integer_atom_type()->getText() == "int") {
 			if (!msb) {
-				msb = m_model->mkIntLiteral(31);
-				lsb = m_model->mkIntLiteral(0);
+				msb = m_factory->mkIntLiteral(31);
+				lsb = m_factory->mkIntLiteral(0);
 			}
-			ret = m_model->mkScalarType(IScalarType::ScalarType_Int, msb, lsb);
+			ret = m_factory->mkScalarType(IScalarType::ScalarType_Int, msb, lsb);
 		} else if (ctx->integer_type()->integer_atom_type()->getText() == "bit") {
 			if (!msb) {
-				msb = m_model->mkIntLiteral(0);
-				lsb = m_model->mkIntLiteral(0);
+				msb = m_factory->mkIntLiteral(0);
+				lsb = m_factory->mkIntLiteral(0);
 			}
-			ret = m_model->mkScalarType(IScalarType::ScalarType_Bit, msb, lsb);
+			ret = m_factory->mkScalarType(IScalarType::ScalarType_Bit, msb, lsb);
 		} else {
 			fprintf(stdout, "Error: unknown scalar data-type %s\n",
 					ctx->integer_type()->integer_atom_type()->getText().c_str());
 		}
 	} else if (ctx->string_type()) {
-		ret = m_model->mkScalarType(IScalarType::ScalarType_String, 0, 0);
+		ret = m_factory->mkScalarType(IScalarType::ScalarType_String, 0, 0);
 	} else {
 		fprintf(stdout, "Error: unknown scalar type %s\n", ctx->getText().c_str());
 	}
@@ -417,7 +419,7 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 			fprintf(stdout, "TODO: array_dim\n");
 		}
 
-		IField *field = m_model->mkField(
+		IField *field = m_factory->mkField(
 				di->identifier()->getText(),
 				data_type,
 				attr,
@@ -439,8 +441,16 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_pool_declaration(PSSParser::Compone
 
 antlrcpp::Any PSS2PSIVisitor::visitComponent_declaration(PSSParser::Component_declarationContext *ctx) {
 	IBaseItem *ret = 0;
-	IComponent *comp = m_model->mkComponent(
-			ctx->component_identifier()->identifier()->ID()->toString());
+	IBaseItem *super_type = 0;
+
+	if (ctx->component_super_spec()) {
+		super_type = m_factory->mkRefType(scope(),
+				type2vector(ctx->component_super_spec()->type_identifier()));
+	}
+
+	IComponent *comp = m_factory->mkComponent(
+			ctx->component_identifier()->identifier()->ID()->toString(),
+			super_type);
 
 	ret = comp;
 
@@ -473,7 +483,7 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 		}
 	}
 
-	ret = m_model->mkConstraintBlock(name, constraints);
+	ret = m_factory->mkConstraintBlock(name, constraints);
     scope()->add(ret);
 
     return ret;
@@ -483,10 +493,10 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression_constraint_item(PSSParser::Express
 	IExpr *expr = ctx->expression()->accept(this);
 
 	if (ctx->implicand_constraint_item()) {
-		ret = m_model->mkConstraintImplies(expr,
+		ret = m_factory->mkConstraintImplies(expr,
 				ctx->implicand_constraint_item()->accept(this));
 	} else {
-		ret = m_model->mkConstraintExpr(expr);
+		ret = m_factory->mkConstraintExpr(expr);
 	}
 
 	return ret;
@@ -503,7 +513,7 @@ antlrcpp::Any PSS2PSIVisitor::visitIf_constraint_item(PSSParser::If_constraint_i
 		false_cs = ctx->constraint_set(1)->accept(this);
 	}
 
-	ret = m_model->mkConstraintIf(cond, true_cs, false_cs);
+	ret = m_factory->mkConstraintIf(cond, true_cs, false_cs);
 
     return ret;
 }
@@ -528,7 +538,7 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_block(PSSParser::Constraint_blockC
 		constraints.push_back(ctx->constraint_body_item(i)->accept(this));
 	}
 
-	ret = m_model->mkConstraintBlock("", constraints);
+	ret = m_factory->mkConstraintBlock("", constraints);
 
 	return ret;
 }
@@ -574,7 +584,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 		IExpr *lhs = ctx->lhs->accept(this);
 		IExpr *rhs = ctx->rhs->accept(this);
 
-		ret = m_model->mkBinExpr(lhs, op, rhs);
+		ret = m_factory->mkBinExpr(lhs, op, rhs);
 	} else if (ctx->add_sub_op()) {
 		IBinaryExpr::BinOpType op = IBinaryExpr::BinOp_Eq;
 			if (ctx->add_sub_op()->getText() == "+") {
@@ -583,7 +593,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 				op = IBinaryExpr::BinOp_Minus;
 			}
 
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), op,
 				ctx->rhs->accept(this));
 	} else if (ctx->shift_op()) {
@@ -593,7 +603,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 			} else if (ctx->shift_op()->getText() == ">>") {
 //				op = IBinaryExpr::BinOp_ TODO
 			}
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), op,
 				ctx->rhs->accept(this));
 	} else if (ctx->eq_neq_op()) {
@@ -603,7 +613,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 		} else if (ctx->eq_neq_op()->getText() == "!=") {
 			op = IBinaryExpr::BinOp_NotEq;
 		}
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), op,
 				ctx->rhs->accept(this));
 	} else if (ctx->logical_inequality_op()) {
@@ -617,28 +627,28 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 		} else if (ctx->logical_inequality_op()->getText() == ">=") {
 			op = IBinaryExpr::BinOp_GE;
 		}
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), op,
 				ctx->rhs->accept(this));
 	} else if (ctx->binary_and_op()) {
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), IBinaryExpr::BinOp_And,
 				ctx->rhs->accept(this));
 	} else if (ctx->binary_xor_op()) {
 		// TODO:
-//		ret = m_model->mkBinExpr(
+//		ret = m_factory->mkBinExpr(
 //				ctx->lhs->accept(this), IBinaryExpr::BinOp_Xor,
 //				ctx->rhs->accept(this));
 	} else if (ctx->binary_or_op()) {
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), IBinaryExpr::BinOp_Or,
 				ctx->rhs->accept(this));
 	} else if (ctx->logical_and_op()) {
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), IBinaryExpr::BinOp_AndAnd,
 				ctx->rhs->accept(this));
 	} else if (ctx->logical_or_op()) {
-		ret = m_model->mkBinExpr(
+		ret = m_factory->mkBinExpr(
 				ctx->lhs->accept(this), IBinaryExpr::BinOp_OrOr,
 				ctx->rhs->accept(this));
 	} else if (ctx->primary()) {
@@ -667,15 +677,15 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 		} else {
 			fprintf(stdout, "Error: unsupported number format\n");
 		}
-		ret = m_model->mkBitLiteral(v); // TODO:
+		ret = m_factory->mkBitLiteral(v); // TODO:
 	} else if (ctx->bool_literal()) {
-		ret = m_model->mkBoolLiteral(
+		ret = m_factory->mkBoolLiteral(
 				(ctx->bool_literal()->getText() == "true"));
 	} else if (ctx->paren_expr()) {
 		// TODO: should create a dedicated paren expression
 		ret = ctx->paren_expr()->expression()->accept(this);
 	} else if (ctx->string_literal()) {
-		ret = m_model->mkStringLiteral(
+		ret = m_factory->mkStringLiteral(
 				ctx->string_literal()->getText());
 	} else if (ctx->variable_ref_path()) {
 		ret = elaborate_field_ref(ctx->variable_ref_path()->variable_ref());
@@ -689,7 +699,7 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 			parameters.push_back(param_ctx.at(i)->accept(this));
 		}
 		IImportFunc *func = find_import_func(ctx->method_function_call()->function_call()); // TODO: find
-		ret = m_model->mkMethodCallExpr(func, parameters);
+		ret = m_factory->mkMethodCallExpr(func, parameters);
 	} else {
 		fprintf(stdout, "Error: unknown primary %s\n",
 				ctx->getText().c_str());
@@ -846,7 +856,7 @@ IFieldRef *PSS2PSIVisitor::elaborate_field_ref(
             }
     }
 
-	return m_model->mkFieldRef(fields);
+	return m_factory->mkFieldRef(fields);
 }
 
 IImportFunc *PSS2PSIVisitor::find_import_func(
@@ -966,9 +976,9 @@ antlrcpp::Any PSS2PSIVisitor::visitExec_block_stmt(PSSParser::Exec_block_stmtCon
 			stmts.push_back(ctx->exec_block()->exec_body_stmt(i)->accept(this));
 		}
 
-		exec = m_model->mkNativeExec(kind, stmts);
+		exec = m_factory->mkNativeExec(kind, stmts);
 	} else if (ctx->target_code_exec_block()) {
-		exec = m_model->mkTargetTemplateExec(kind,
+		exec = m_factory->mkTargetTemplateExec(kind,
 				ctx->target_code_exec_block()->language_identifier()->getText(),
 				ctx->target_code_exec_block()->string()->getText());
 	} else if (ctx->target_file_exec_block()) {
@@ -1007,12 +1017,12 @@ antlrcpp::Any PSS2PSIVisitor::visitExec_body_stmt(PSSParser::Exec_body_stmtConte
 			fprintf(stdout, "Unknown assignment op %s\n", op_s.c_str());
 		}
 
-		ret = m_model->mkExecExprStmt((IFieldRef *)expr, op,
+		ret = m_factory->mkExecExprStmt((IFieldRef *)expr, op,
 				ctx->expression(1)->accept(this));
 	} else {
 		// Just an expression statement
 		// TODO: must support expression on LHS
-		ret = m_model->mkExecExprStmt((IFieldRef *)expr, IExecExprStmt::AssignOp_None, 0);
+		ret = m_factory->mkExecExprStmt((IFieldRef *)expr, IExecExprStmt::AssignOp_None, 0);
 	}
 
 	return ret;
@@ -1024,7 +1034,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 
 	IBaseItem *target = find_type(ctx->type_identifier());
 
-	IExtend *ext = m_model->mkExtend(target);
+	IExtend *ext = m_factory->mkExtend(target);
 
 	if (type == "action") {
 		for (uint32_t i=0; i<ctx->action_body_item().size(); i++) {
@@ -1079,10 +1089,10 @@ antlrcpp::Any PSS2PSIVisitor::visitMethod_prototype(PSSParser::Method_prototypeC
 		IBaseItem *type = p->data_type()->accept(this);
 		const std::string &id = p->identifier()->getText();
 
-		parameters.push_back(m_model->mkField(id, type, attr, 0));
+		parameters.push_back(m_factory->mkField(id, type, attr, 0));
 	}
 
-	IImportFunc *method = m_model->mkImportFunc(
+	IImportFunc *method = m_factory->mkImportFunc(
 			name, ret_type, parameters);
 
 	ret = method;
@@ -1114,14 +1124,23 @@ IScopeItem *PSS2PSIVisitor::pop_scope() {
 }
 
 IScopeItem *PSS2PSIVisitor::getSuperType(IScopeItem *it) {
+	IBaseItem *super = 0;
+
 	if (dynamic_cast<IAction *>(it)) {
-		return dynamic_cast<IAction *>(it)->getSuperType();
+		super = dynamic_cast<IAction *>(it)->getSuperType();
 	} else if (dynamic_cast<IStruct *>(it)) {
-		return dynamic_cast<IStruct *>(it)->getSuperType();
+		super = dynamic_cast<IStruct *>(it)->getSuperType();
 	} else if (dynamic_cast<IComponent *>(it)) {
 // TODO:		return dynamic_cast<IComponent *>(it)->getSuperType();
 	}
-	return 0;
+
+	if (super) {
+		if (super->getType() == IBaseItem::TypeRefType) {
+			super = dynamic_cast<IRefType *>(super)->getTargetType();
+		}
+	}
+
+	return dynamic_cast<IScopeItem *>(super);
 }
 
 std::pair<IBaseItem *, IScopeItem *> PSS2PSIVisitor::find_type(const std::string &name) {
@@ -1159,6 +1178,15 @@ IBaseItem *PSS2PSIVisitor::find_type(IScopeItem *scope, const std::string &name)
 		}
 	}
 	return 0;
+}
+
+std::vector<std::string> PSS2PSIVisitor::type2vector(PSSParser::Type_identifierContext *type) {
+	std::vector<std::string> ret;
+	for (uint32_t i=0; i<type->ID().size(); i++) {
+		ret.push_back(type->ID(i)->getText());
+	}
+
+	return ret;
 }
 
 void PSS2PSIVisitor::fatal(const std::string &msg) {

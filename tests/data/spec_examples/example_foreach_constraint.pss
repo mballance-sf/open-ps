@@ -1,0 +1,14 @@
+
+// Example: 12.1.7.3
+
+struct foreach_s {
+	rand bit[9:0] fixed_arr[10];
+
+	constraint fill_arr_elem_c {
+		foreach (fixed_arr[i]) {
+			if (i > 0) {
+				fixed_arr[i] > fixed_arr[i-1];
+			}
+		}
+	}
+}

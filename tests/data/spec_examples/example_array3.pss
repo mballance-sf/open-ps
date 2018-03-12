@@ -1,0 +1,9 @@
+
+// Example 2 from 6.8.3.3
+
+struct s {
+	bit [7:0] data [4];
+ 	constraint data_c {
+ 		data.size < 10;
+ 	}
+}

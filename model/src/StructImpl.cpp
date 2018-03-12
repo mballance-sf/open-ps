@@ -30,7 +30,7 @@ namespace psi {
 StructImpl::StructImpl(
 		const std::string 		&name,
 		IStruct::StructType		t,
-		IStruct 				*super_type) :
+		IBaseItem 				*super_type) :
 				BaseItemImpl(IBaseItem::TypeStruct),
 				NamedItemImpl(name),
 				m_struct_type(t), m_super_type(super_type) {

@@ -1,0 +1,22 @@
+
+// Example: 11.3.3.2
+
+component top {
+	resource R {};
+	pool[4] R R_pool;
+	bind R_pool *;
+	
+	action A { lock R r; };
+	action B {};
+	action C {};
+	action D { lock R r;};
+	
+	action my_test {
+		activity {
+			parallel {
+				{do A; do B;}
+				{do C; do D;}
+			}
+		}
+	}
+}

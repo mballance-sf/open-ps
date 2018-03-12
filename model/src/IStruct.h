@@ -51,7 +51,7 @@ namespace psi_api {
 
 			virtual ~IStruct() { }
 
-			virtual IStruct *getSuperType() const = 0;
+			virtual IBaseItem *getSuperType() const = 0;
 
 			virtual StructType getStructType() const = 0;
 

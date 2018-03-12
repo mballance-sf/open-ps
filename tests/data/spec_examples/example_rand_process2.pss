@@ -1,0 +1,18 @@
+
+// Example: 12.2.1.2
+
+component top {
+	action A {
+		rand bit[3:0] a;
+	}
+
+	action B {
+		A a_1, a_2;
+		rand bit[3:0] b;
+
+		activity {
+			a_1;
+			a_2;
+		}
+	}
+}

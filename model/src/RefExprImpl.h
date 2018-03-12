@@ -14,7 +14,7 @@ namespace psi_api {
 class RefExprImpl: public virtual psi_api::IRefExpr {
 public:
 	RefExprImpl(
-			IBaseItem						*scope,
+			IScopeItem						*scope,
 			const std::vector<std::string>	&path);
 
 	virtual ExprType getType() const { return IExpr::ExprType_Ref; }
@@ -23,16 +23,16 @@ public:
 
 	virtual const std::vector<std::string> &getPath() const { return m_path; }
 
-	void setExprRef(IExpr **expr);
+	virtual IExpr *getExpr() const;
 
-	void setExpr(IExpr *expr);
+	virtual void setExpr(IExpr *expr);
 
 	virtual IExpr *clone() const;
 
 private:
-	IBaseItem					*m_scope;
+	IScopeItem					*m_scope;
 	std::vector<std::string>	m_path;
-	IExpr						**m_expr_ref;
+	IExpr						*m_expr;
 
 };
 

@@ -1,0 +1,9 @@
+function chandle do_init();
+
+struct info_s {
+	chandle ptr;
+
+	exec pre_solve {
+		ptr = do_init();
+	}
+}

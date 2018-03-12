@@ -45,7 +45,7 @@ namespace psi_api {
 
 			virtual ~IAction() { };
 
-			virtual IAction *getSuperType() const = 0;
+			virtual IBaseItem *getSuperType() const = 0;
 
 			/**
 			 * Returns the activity body, or null if there is none

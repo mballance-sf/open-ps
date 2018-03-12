@@ -31,8 +31,8 @@ BinaryExprImpl::BinaryExprImpl(
 		IExpr					*lhs,
 		IBinaryExpr::BinOpType	op,
 		IExpr					*rhs) {
-	ExprImpl::set(&m_lhs, lhs);
-	ExprImpl::set(&m_rhs, rhs);
+	m_lhs = lhs;
+	m_rhs = rhs;
 	m_op = op;
 }
 

@@ -27,6 +27,7 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
+#include "IAction.h"
 #include "IBinaryExpr.h"
 #include "IBind.h"
 #include "IBindPath.h"
@@ -48,6 +49,7 @@
 #include "IImportFunc.h"
 #include "IMethodCallExpr.h"
 #include "IRefExpr.h"
+#include "IRefType.h"
 
 namespace psi_api {
 
@@ -72,7 +74,7 @@ public:
 	/**
 	 * action
 	 */
-	virtual IAction *mkAction(const std::string &name, IAction *super_type) = 0;
+	virtual IAction *mkAction(const std::string &name, IBaseItem *super_type) = 0;
 
 	/**
 	 * Creates a new bind statement
@@ -85,7 +87,7 @@ public:
 	/**
 	 * Create a new component type
 	 */
-	virtual IComponent *mkComponent(const std::string &name) = 0;
+	virtual IComponent *mkComponent(const std::string &name, IBaseItem	*super_type) = 0;
 
 	virtual IExec *mkTargetTemplateExec(
 			IExec::ExecKind 		kind,
@@ -115,7 +117,7 @@ public:
 	virtual IStruct *mkStruct(
 			const std::string 		&name,
 			IStruct::StructType		t,
-			IStruct 				*super_type) = 0;
+			IBaseItem 				*super_type) = 0;
 
 	virtual IExtend *mkExtend(IBaseItem	*target) = 0;
 
@@ -135,8 +137,8 @@ public:
 			IExpr 					*rhs) = 0;
 
 	virtual IRefExpr *mkRefExpr(
-			IBaseItem						*scope,
-			const std::vector<std::string>	&path);
+			IScopeItem						*scope,
+			const std::vector<std::string>	&path) = 0;
 
 	virtual IFieldRef *mkFieldRef(
 			const std::vector<IField *>		&field_path) = 0;
@@ -164,6 +166,10 @@ public:
 	virtual ILiteral *mkBoolLiteral(bool v) = 0;
 
 	virtual ILiteral *mkStringLiteral(const std::string &v) = 0;
+
+	virtual IRefType *mkRefType(
+			IScopeItem 						*scope,
+			const std::vector<std::string>	&type) = 0;
 
 	/**
 	 * Construct a new constraint block. The constraint block is

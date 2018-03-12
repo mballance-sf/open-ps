@@ -1,0 +1,9 @@
+
+// Example: 13.7.4
+
+coverspec size_cs (bit[12] size) {
+	size_cp : coverpoint size {
+		bins size_bins [1] [2] [3] [4..1022] [1025..4095];
+	}
+}
+

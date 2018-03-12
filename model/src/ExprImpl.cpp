@@ -37,11 +37,4 @@ ExprImpl::~ExprImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-void ExprImpl::set(IExpr **lhs, IExpr *rhs) {
-	if (dynamic_cast<IRefExpr *>(rhs)) {
-		dynamic_cast<RefExprImpl *>(rhs)->setExprRef(lhs);
-	}
-	*lhs = rhs;
-}
-
 } /* namespace psi */

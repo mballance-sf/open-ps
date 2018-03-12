@@ -39,8 +39,6 @@ public:
 
 	virtual IExpr::ExprType getType() const { return m_type; }
 
-	static void set(IExpr **lhs, IExpr *rhs);
-
 private:
 
 	IExpr::ExprType				m_type;

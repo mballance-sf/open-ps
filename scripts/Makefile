@@ -55,10 +55,12 @@ endif
 
 ifeq (true,$(BUILD))	
 include $(MK_INCLUDES)
-LIBSTDCPP = $(shell g++ --print-file-name=libstdc++.so)
-LIBSTDCPP6 = $(shell g++ --print-file-name=libstdc++.so.6)
 else # not build
+ifeq (,$(J))
 NUM_CORES:=$(shell cat /proc/cpuinfo | grep 'processor.*:' | wc -l)
+else
+NUM_CORES:=$(J)
+endif
 
 ifeq (,$(MAKEFLAGS))
 MAKEFLAGS += -j$(NUM_CORES)

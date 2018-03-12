@@ -1,0 +1,17 @@
+
+// Example: 11.4.1.3
+
+component top {
+	action my_test {
+		
+		activity {
+			repeat (i : 10) {
+				if ((i % 4) == 0) {
+					do my_action1;
+				} else {
+					do my_action2;
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,10 @@
+
+// Example: 16.7.3
+
+import class base {
+	void base_method();
+}
+
+import class ext : base {
+	void ext_method();
+}

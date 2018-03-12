@@ -1,0 +1,15 @@
+
+// Example from 6.3.3
+
+enum config_modes_e {UNKNOWN, MODE_A=10, MODE_B=20};
+
+component uart_c {
+	action configure {
+		rand config_modes_e mode;
+		
+		constraint {
+			mode != UNKNOWN;
+		}
+	}
+}
+

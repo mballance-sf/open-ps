@@ -45,11 +45,11 @@ class StructImpl:
 		public virtual NamedItemImpl {
 public:
 
-	StructImpl(const std::string &name, psi_api::IStruct::StructType t, IStruct *super_type);
+	StructImpl(const std::string &name, psi_api::IStruct::StructType t, IBaseItem *super_type);
 
 	virtual ~StructImpl();
 
-	virtual IStruct *getSuperType() const { return m_super_type; }
+	virtual IBaseItem *getSuperType() const { return m_super_type; }
 
 	virtual psi_api::IStruct::StructType getStructType() const {
 		return m_struct_type;
@@ -59,7 +59,7 @@ public:
 
 private:
 	psi_api::IStruct::StructType	m_struct_type;
-	IStruct							*m_super_type;
+	IBaseItem							*m_super_type;
 
 };
 

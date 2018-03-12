@@ -48,11 +48,11 @@ namespace psi {
 
 			ActionImpl(
 					const std::string 	&name,
-					IAction 			*super_type);
+					IBaseItem 			*super_type);
 
 			virtual ~ActionImpl();
 
-			virtual IAction *getSuperType() const { return m_super_type; }
+			virtual IBaseItem *getSuperType() const { return m_super_type; }
 
 			virtual IGraphStmt *getGraph() const { return m_graph; }
 
@@ -62,7 +62,7 @@ namespace psi {
 
 
 		private:
-			IAction						*m_super_type;
+			IBaseItem					*m_super_type;
 			IGraphStmt					*m_graph;
 
 };

@@ -10,10 +10,10 @@
 namespace psi_api {
 
 RefExprImpl::RefExprImpl(
-		IBaseItem						*scope,
+		IScopeItem						*scope,
 		const std::vector<std::string>	&path) :
-				m_scope(scope), m_path(path), m_expr_ref(0) {
-	// TODO Auto-generated constructor stub
+				m_scope(scope), m_path(path),
+				m_expr(0) {
 
 }
 
@@ -21,18 +21,17 @@ RefExprImpl::~RefExprImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-void RefExprImpl::setExprRef(IExpr **ref) {
-	m_expr_ref = ref;
+IExpr *RefExprImpl::getExpr() const {
+	return m_expr;
 }
 
 void RefExprImpl::setExpr(IExpr *expr) {
-	// Replace the reference
-	*m_expr_ref = expr;
+	m_expr = expr;
 }
 
 IExpr *RefExprImpl::clone() const {
 	RefExprImpl *ret = new RefExprImpl(m_scope, m_path);
-	ret->setExprRef(m_expr_ref);
+	ret->m_expr = m_expr;
 
 	return ret;
 }

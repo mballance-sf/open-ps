@@ -1,0 +1,22 @@
+
+// Example: 10.6.2
+component vid_pipe_c {
+	action activate { /* ... */}
+}
+
+component codec_c {
+	vid_pipe_c pipe;
+	action multi_activate {
+		rand int in [2..6] count;
+		
+		activity {
+			repeat (count) {
+				do vid_pipe_c::activate;
+			}
+		}
+	}
+}
+
+component pss_top {
+	codec_c codecs[4];
+}

@@ -1,0 +1,26 @@
+
+// Example: 12.1.3
+
+component top {
+	action A {
+		rand bit[3:0] f;
+	}
+	
+	action B {
+		A a1, a2, a3, a4;
+
+		constraint c1 { a1.f in [8..15]; }
+		constraint c2 { a1.f == a4.f; }
+		
+		activity {
+			a1;
+			a2 with {
+				f in [8..15]; // same effect as constraint c1 has on a1
+			};
+			a3 with {
+				f == a4.f; // illegal - a4.f is unresolved at this point
+			};
+			a4;
+		}
+	}
+}

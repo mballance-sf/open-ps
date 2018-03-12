@@ -1,0 +1,13 @@
+
+// Example: 11.3.4.3
+component top {
+	action my_test {
+		activity {
+			do A;
+			schedule {
+				do B;
+				do C;
+			}
+		}
+	}
+}

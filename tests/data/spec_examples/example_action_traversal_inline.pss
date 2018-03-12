@@ -1,0 +1,27 @@
+
+// Example: 12.1.3
+
+component top {
+	
+	action A {
+		rand int f;
+		rand int g;
+	}
+	
+	action B {
+		rand int f;
+		rand int h;
+		A a;
+		
+		activity {
+			a with {
+				f < h; // sub-action's f and containing action's h
+				g == this.f; // sub-action's g and containing action's f
+				comp == this.comp.sub1; // sub-action's component is sub-component
+										// 'sub1' of the parent action's component
+			};
+		}
+	}
+}
+
+

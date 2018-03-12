@@ -1,0 +1,31 @@
+
+// Example: 12.2.9
+
+component top {
+	action A {
+		rand bit[3:0] val;
+	}
+	
+	action dyn {
+		A a, b;
+
+		dynamic constraint d1 {
+			b.val < a.val;
+			b.val <= 5;
+		}
+
+		dynamic constraint d2 {
+			b.val > a.val;
+			b.val <= 7;
+		}
+
+		activity {
+			a;
+			select {
+				d1;
+				d2;
+			}
+			b;
+		}
+	}
+}

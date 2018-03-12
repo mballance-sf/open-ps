@@ -79,6 +79,8 @@ private:
 
 	static IBaseItem *find_type(IScopeItem *scope, const std::string &name);
 
+	std::vector<std::string> type2vector(PSSParser::Type_identifierContext *type);
+
 
 	void fatal(const std::string &msg);
 
@@ -87,6 +89,7 @@ private:
 private:
 
 	IModel						*m_model;
+	IItemFactory				*m_factory;
 	std::string					 m_file;
 	std::vector<IScopeItem *>	m_scopes;
 	IExpr						*m_expr;

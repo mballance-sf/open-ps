@@ -1,0 +1,42 @@
+
+// Example 8.5.2 (3)
+
+component sub_c {
+	int base_addr = 0x1000;
+
+	action A {
+		// ...
+		rand int x;
+	}
+
+	action B {
+		A a1;
+ 	
+ 		activity {
+			// Reference base_addr in containing component
+			a1 with { x == comp.base_addr+10;};
+		}
+	}
+}
+
+component pss_top {
+	sub_c s1, s2;
+
+	exec init {
+		s1.base_addr = 0x1000;
+		s2.base_addr = 0x2000;
+	}
+
+	action entry {
+		sub_c::B b;
+
+		activity {
+			repeat (2) {
+				b; 	// Runs sub_c::A with 0x1000 as base_addr when associated
+					// with s1
+					// Runs sub_c::A with 0x2000 as base_addr when associated
+					// with s2;
+			}
+		}
+	}
+}

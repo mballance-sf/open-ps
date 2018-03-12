@@ -8,6 +8,7 @@
 #ifndef MODEL_SRC_IREFEXPR_H_
 #define MODEL_SRC_IREFEXPR_H_
 #include "IBaseItem.h"
+#include "IScopeItem.h"
 #include "IExpr.h"
 #include <vector>
 #include <string>
@@ -20,7 +21,10 @@ public:
 
 	virtual const std::vector<std::string> &getPath() const = 0;
 
+	virtual IExpr *getExpr() const = 0;
+
 	virtual void setExpr(IExpr *expr) = 0;
+
 
 };
 }

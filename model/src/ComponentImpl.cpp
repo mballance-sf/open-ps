@@ -28,9 +28,9 @@
 
 namespace psi {
 
-ComponentImpl::ComponentImpl(const std::string &name) :
+ComponentImpl::ComponentImpl(const std::string &name, IBaseItem *super_type) :
 		BaseItemImpl(IBaseItem::TypeComponent),
-		NamedItemImpl(name) {
+		NamedItemImpl(name), m_super_type(super_type) {
 
 }
 
@@ -39,7 +39,7 @@ ComponentImpl::~ComponentImpl() {
 }
 
 IBaseItem *ComponentImpl::clone() const {
-	ComponentImpl *ret = new ComponentImpl(getName());
+	ComponentImpl *ret = new ComponentImpl(getName(), m_super_type);
 
 	for (std::vector<IBaseItem *>::const_iterator it=getItems().begin();
 			it!=getItems().end(); it++) {
