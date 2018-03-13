@@ -133,8 +133,10 @@ IStruct *ItemFactoryImpl::mkStruct(
 	return new StructImpl(name, t, super_type);
 }
 
-IExtend *ItemFactoryImpl::mkExtend(IBaseItem *target) {
-	return new ExtendImpl(target);
+IExtend *ItemFactoryImpl::mkExtend(
+		IExtend::ExtendType			type,
+		IBaseItem 					*target) {
+	return new ExtendImpl(type, target);
 }
 
 /**

@@ -181,7 +181,11 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_sele
 			select->add(stmt);
 		} else {
 			IGraphBlockStmt *stmt_b = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
-			stmt_b->add(stmt);
+			if (stmt) {
+				stmt_b->add(stmt);
+			} else {
+				fprintf(stdout, "Error: null select statement\n");
+			}
 			select->add(stmt_b);
 		}
 	}
@@ -970,19 +974,23 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 
 	IBaseItem *target = find_type(ctx->type_identifier());
 
-	IExtend *ext = m_factory->mkExtend(target);
+	IExtend *ext = 0;
 
 	if (type == "action") {
+		ext = m_factory->mkExtend(IExtend::ExtendType_Action, target);
 		for (uint32_t i=0; i<ctx->action_body_item().size(); i++) {
 			ext->add(ctx->action_body_item(i)->accept(this));
 		}
 	} else if (type == "struct") {
+		ext = m_factory->mkExtend(IExtend::ExtendType_Struct, target);
 		for (uint32_t i=0; i<ctx->struct_body_item().size(); i++) {
 			ext->add(ctx->struct_body_item(i)->accept(this));
 		}
 	} else if (type == "enum") {
 		fprintf(stdout, "TODO: enum type extension\n");
+		ext = m_factory->mkExtend(IExtend::ExtendType_Enum, target);
 	} else if (type == "component") {
+		ext = m_factory->mkExtend(IExtend::ExtendType_Component, target);
 		for (uint32_t i=0; i<ctx->component_body_item().size(); i++) {
 			ext->add(ctx->component_body_item(i)->accept(this));
 		}

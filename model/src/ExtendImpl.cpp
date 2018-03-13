@@ -28,15 +28,10 @@
 
 namespace psi {
 
-ExtendImpl::ExtendImpl(IBaseItem *target) :
-		BaseItemImpl(IBaseItem::TypeExtend), m_target(target) {
-	switch (target->getType()) {
-		case IBaseItem::TypeAction: m_extendType = ExtendType_Action; break;
-		case IBaseItem::TypeStruct: m_extendType = ExtendType_Struct; break;
-		case IBaseItem::TypeComponent: m_extendType = ExtendType_Component; break;
-		default: // error
-			m_extendType = ExtendType_Action;
-	}
+ExtendImpl::ExtendImpl(
+		IExtend::ExtendType		type,
+		IBaseItem 				*target) :
+		BaseItemImpl(IBaseItem::TypeExtend), m_extendType(type), m_target(target) {
 }
 
 ExtendImpl::~ExtendImpl() {
@@ -44,7 +39,7 @@ ExtendImpl::~ExtendImpl() {
 }
 
 IBaseItem *ExtendImpl::clone() const {
-	ExtendImpl *ret = new ExtendImpl(getTarget());
+	ExtendImpl *ret = new ExtendImpl(m_extendType, getTarget());
 
 	for (std::vector<IBaseItem *>::const_iterator it=getItems().begin();
 			it!=getItems().end(); it++) {

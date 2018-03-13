@@ -37,7 +37,8 @@ public:
 	enum ExtendType {
 		ExtendType_Action,
 		ExtendType_Component,
-		ExtendType_Struct
+		ExtendType_Struct,
+		ExtendType_Enum
 	};
 
 	virtual ExtendType getExtendType() const = 0;

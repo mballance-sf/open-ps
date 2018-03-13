@@ -119,7 +119,9 @@ public:
 			IStruct::StructType		t,
 			IBaseItem 				*super_type) = 0;
 
-	virtual IExtend *mkExtend(IBaseItem	*target) = 0;
+	virtual IExtend *mkExtend(
+			IExtend::ExtendType		type,
+			IBaseItem				*target) = 0;
 
 	/**
 	 * Create a field for use in declaring the contents of an

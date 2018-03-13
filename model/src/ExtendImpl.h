@@ -39,7 +39,9 @@ class ExtendImpl:
 		public virtual BaseItemImpl,
 		public virtual ScopeItemImpl {
 public:
-	ExtendImpl(IBaseItem *target);
+	ExtendImpl(
+			IExtend::ExtendType		type,
+			IBaseItem 				*target);
 	virtual ~ExtendImpl();
 
 	virtual ExtendType getExtendType() const { return m_extendType; }
