@@ -53,6 +53,7 @@
 #include "ICallbackContext.h"
 #include "IItemFactory.h"
 #include "IMethodCallExpr.h"
+#include "IRefType.h"
 
 namespace psi_api {
 

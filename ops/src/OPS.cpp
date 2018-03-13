@@ -10,10 +10,11 @@
 #include <iostream>
 #include <fstream>
 #include <stdint.h>
+
+#include "../../processor/src/PSS2PSIVisitor.h"
 #include "PSSLexer.h"
 #include "PSSParser.h"
 #include "ModelImpl.h"
-#include "PSS2PSIVisitor.h"
 
 using namespace antlr4;
 

@@ -41,8 +41,9 @@ public:
 
 	virtual ~PSIVisitor();
 
-protected:
 	virtual void visit_model(IModel *model);
+
+protected:
 
 	virtual void visit_package(IPackage *pkg);
 
@@ -55,8 +56,6 @@ protected:
 	virtual void visit_struct(IStruct *str);
 
 	virtual void visit_component(IComponent *c);
-
-	virtual void visit_comp_pkg_body(const std::vector<IBaseItem *> &items);
 
 	virtual void visit_constraint(IConstraintBlock *c);
 
@@ -108,23 +107,29 @@ protected:
 
 	virtual void visit_import_func(IImportFunc *f);
 
+	virtual void visit_item(IBaseItem *it);
+
+	virtual void visit_ref_type(IRefType *ref);
+
 	virtual void visit_vendor_item(IBaseItem *it);
 
 	virtual void remove();
 
 	virtual void visit_scope(IScopeItem *s);
 
+	virtual void push_scope(IScopeItem *scope);
+
+	virtual IScopeItem *scope() const;
+
+	virtual const std::vector<IScopeItem *> &scopes() const;
+
+	virtual IScopeItem *pop_scope();
+
 	static std::string type2string(IBaseItem *it);
 
 	static std::string path2string(IFieldRef *f);
 
 	static std::string path2string(const std::vector<IField *> &path);
-
-	void push_scope(IBaseItem *it);
-
-	void pop_scope();
-
-	IBaseItem *scope_parent(IBaseItem *it=0);
 
 	void push_graph(IGraphStmt *it);
 
@@ -134,7 +139,7 @@ protected:
 
 private:
 	bool						m_removed;
-	std::vector<IBaseItem *>	m_scope_stack;
+	std::vector<IScopeItem *>	m_scope_stack;
 	std::vector<IGraphStmt *>	m_graph_stack;
 
 };

@@ -1,4 +1,7 @@
 
+struct route {
+} 
+
 struct s {
 	int fixed_sized_arr [16]; // array of 16 signed integers
 	bit [7:0] byte_arr [256]; // array of 256 bytes

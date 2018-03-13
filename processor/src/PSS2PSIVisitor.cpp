@@ -6,6 +6,7 @@
  */
 
 #include "PSS2PSIVisitor.h"
+
 #include <cstdio>
 using namespace antlrcpp;
 
@@ -77,15 +78,16 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 	IBaseItem *ret = 0;
 
 	IAction *action = dynamic_cast<IAction *>(scope());
-	if (ctx->activity_stmt().size() == 0 || ctx->activity_stmt().size() > 1) {
-		IGraphBlockStmt *block = m_factory->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
-		for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
-			block->add(ctx->activity_stmt(i)->accept(this));
+	IGraphBlockStmt *block = m_factory->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
+	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
+		IGraphStmt *stmt = ctx->activity_stmt(i)->accept(this);
+		if (stmt) {
+			block->add(stmt);
+		} else {
+			fprintf(stdout, "Error: null activity stmt\n");
 		}
-		action->setGraph(block);
-	} else {
-		action->setGraph(ctx->activity_stmt(0)->accept(this));
 	}
+	action->setGraph(block);
 
 	return ret;
 }
@@ -100,6 +102,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 
 	if (ctx->is_do) {
 		// Do <type>
+		fprintf(stdout, "Error: do <action::type> unimplemented\n");
 	} else {
 		// <type>
 		std::vector<PSSParser::Variable_refContext *> path;
@@ -153,7 +156,12 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 	}
 
 	for (uint32_t i=0; i<ctx->activity_sequence_block_stmt()->activity_stmt().size(); i++) {
-		body->add(ctx->activity_sequence_block_stmt()->activity_stmt(i)->accept(this));
+		IGraphStmt *stmt = ctx->activity_sequence_block_stmt()->activity_stmt(i)->accept(this);
+		if (stmt) {
+			body->add(stmt);
+		} else {
+			fprintf(stdout, "Error: null repeat-body statement\n");
+		}
 	}
 
 	ret = m_factory->mkGraphRepeatStmt(type, expr, body);
@@ -709,80 +717,8 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitUser_defined_datatype(PSSParser::User_defined_datatypeContext *ctx) {
-	IBaseItem *ret = 0;
-
-	if (ctx->type_identifier()->ID().size() > 1) {
-		IScopeItem *scope = 0;
-
-		fprintf(stdout, "Note: hierarchical type specified\n");
-		for (uint32_t i=0; i<ctx->type_identifier()->ID().size(); i++) {
-			const std::string name = ctx->type_identifier()->ID().at(i)->getText();
-			if (i == 0) {
-				// Find the root first
-				fprintf(stdout, "  Searching for root type %s\n", name.c_str());
-				std::pair<IBaseItem *, IScopeItem *> root = find_type(name);
-
-				if (root.first) {
-					fprintf(stdout, "    Found\n");
-					scope = dynamic_cast<IScopeItem *>(root.first);
-				} else {
-					fprintf(stdout, "    Did not find\n");
-					break;
-				}
-			} else {
-				fprintf(stdout, "  Searching for non-root type %s\n", name.c_str());
-				IBaseItem *item = find_type(scope, name);
-
-				if (item) {
-					fprintf(stdout, "    Found\n");
-
-					if (i+1 < ctx->type_identifier()->ID().size()) {
-						scope = dynamic_cast<IScopeItem *>(item);
-					} else {
-						ret = item;
-					}
-				} else {
-					fprintf(stdout, "    Did not find\n");
-				}
-			}
-		}
-	} else {
-		for (int32_t i=m_scopes.size()-1; i>=0; i--) {
-			IScopeItem *scope = m_scopes.at(i);
-
-			for (uint32_t j=0; j<scope->getItems().size(); j++) {
-				IBaseItem::ItemType t = scope->getItems().at(j)->getType();
-
-				if (t == IBaseItem::TypeStruct ||
-						t == IBaseItem::TypeAction ||
-						t == IBaseItem::TypeComponent) {
-					INamedItem *ni = dynamic_cast<INamedItem *>(scope->getItems().at(j));
-					if (ni->getName() == ctx->type_identifier()->ID(0)->getText()) {
-						ret = scope->getItems().at(j);
-						break;
-					}
-				}
-			}
-
-			if (ret) {
-				break;
-			}
-		}
-	}
-
-	if (!ret) {
-		// Compose an error message
-		std::string msg = "Failed to find type ";
-
-		for (uint32_t i=0; i<ctx->type_identifier()->ID().size(); i++) {
-			msg += ctx->type_identifier()->ID(i)->getText();
-			if (i+1 < ctx->type_identifier()->ID().size()) {
-				msg.append("::");
-			}
-		}
-
-		fatal(msg);
-	}
+	IBaseItem *ret = m_factory->mkRefType(scope(),
+			type2vector(ctx->type_identifier()));
 
 	return ret;
 }

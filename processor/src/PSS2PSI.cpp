@@ -6,13 +6,14 @@
  */
 
 #include "PSS2PSI.h"
+
 #include "PSSLexer.h"
 #include "PSSParser.h"
 #include "PSSBaseVisitor.h"
-#include "PSS2PSIVisitor.h"
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#include "PSS2PSIVisitor.h"
 
 using namespace antlr4;
 

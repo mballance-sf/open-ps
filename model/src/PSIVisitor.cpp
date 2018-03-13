@@ -48,79 +48,29 @@ void PSIVisitor::visit_model(IModel *model) {
 	visit_scope(model_i);
 	pop_scope();
 	m_removed = false;
-
-//	for (int32_t i=0; i<model->getItems().size(); i++) {
-//		IBaseItem *it = model->getItems().at(i);
-//		fprintf(stdout, "-- it=%p %d\n", it, it->getType());
-//
-//		m_removed = false;
-//		if (it->getType() == IBaseItem::TypePackage) {
-//			IPackage *pkg = dynamic_cast<IPackage *>(it);
-//			visit_package(pkg);
-//		} else if (it->getType() == IBaseItem::TypeComponent) {
-//			visit_component(dynamic_cast<IComponent *>(it));
-//		} else {
-//			// Really shouldn't be anything else in the global scope
-//		}
-//		pop_scope();
-//
-//		if (m_removed) {
-//			model_i->remove(it);
-//			delete it;
-//			i--;
-//		}
-//	}
 }
 
 void PSIVisitor::visit_package(IPackage *pkg) {
 	std::vector<IBaseItem *>::const_iterator it=pkg->getItems().begin();
 
+	push_scope(pkg);
 	visit_scope(pkg);
-
-//	for (int32_t i=0; i<pkg->getItems().size(); i++) {
-//		IBaseItem *it = pkg->getItems().at(i);
-//
-//		visit_scope(it);
-//		push_scope(it);
-//		m_removed = false;
-//		switch (it->getType()) {
-//			case IBaseItem::TypeAction:
-//				// TODO:
-//				break;
-//
-//			case IBaseItem::TypeStruct:
-//				visit_struct(dynamic_cast<IStruct *>(it));
-//				break;
-//
-//			case IBaseItem::TypeExtend:
-//				visit_extend(dynamic_cast<IExtend *>(it));
-//				break;
-//
-//			case IBaseItem::TypeImportFunc:
-//				visit_import_func(dynamic_cast<IImportFunc *>(it));
-//				break;
-//
-//			default:
-//				fprintf(stdout, "Error: Unhandled package item: %d\n", it->getType());
-//		}
-//		pop_scope();
-//
-//		if (m_removed) {
-//			dynamic_cast<PackageImpl *>(pkg)->remove(it);
-//			delete it;
-//		}
-//	}
-//
-//	m_removed = false;
+	pop_scope();
 }
 
 void PSIVisitor::visit_action(IAction *a) {
 
+	if (a->getSuperType()) {
+		visit_ref_type(dynamic_cast<IRefType *>(a->getSuperType()));
+	}
+
+	push_scope(a);
 	visit_scope(a);
 
 	if (a->getGraph()) {
 		visit_graph(a->getGraph());
 	}
+	pop_scope();
 
 	m_removed = false;
 }
@@ -173,32 +123,23 @@ void PSIVisitor::visit_body(IBaseItem *p, const std::vector<IBaseItem *> &items)
 void PSIVisitor::visit_struct(IStruct *str) {
 	m_removed = false;
 
+	if (str->getSuperType()) {
+		visit_ref_type(dynamic_cast<IRefType *>(str->getSuperType()));
+	}
+
+	push_scope(str);
 	visit_scope(str);
-//	visit_body(str, str->getItems());
+	pop_scope();
 
 	m_removed = false;
 }
 
 void PSIVisitor::visit_component(IComponent *c) {
+
+	// TODO: visit super
+	push_scope(c);
 	visit_scope(c);
-}
-
-void PSIVisitor::visit_comp_pkg_body(const std::vector<IBaseItem *> &items) {
-	std::vector<IBaseItem *>::const_iterator it=items.begin();
-
-	for (; it!=items.end(); it++) {
-		push_scope(*it);
-		switch ((*it)->getType()) {
-			case IBaseItem::TypeAction:
-				visit_action(dynamic_cast<IAction *>(*it));
-				break;
-
-			case IBaseItem::TypeStruct:
-				visit_struct(dynamic_cast<IStruct *>(*it));
-				break;
-		}
-		pop_scope();
-	}
+	pop_scope();
 }
 
 void PSIVisitor::visit_constraint(IConstraintBlock *c) {
@@ -314,7 +255,10 @@ void PSIVisitor::visit_expr(IExpr *e) {
 }
 
 void PSIVisitor::visit_extend(IExtend *e) {
+	visit_item(e->getTarget());
+	push_scope(e);
 	visit_body(e, e->getItems());
+	pop_scope();
 }
 
 void PSIVisitor::visit_binary_expr(IBinaryExpr *be) {
@@ -332,7 +276,7 @@ void PSIVisitor::visit_literal_expr(ILiteral *l) {
 
 
 void PSIVisitor::visit_field(IField *f) {
-
+	visit_item(f->getDataType());
 }
 
 void PSIVisitor::visit_graph(IGraphStmt *activity) {
@@ -446,62 +390,9 @@ void PSIVisitor::visit_scope(IScopeItem *s) {
 		IBaseItem *it = s->getItems().at(i);
 		IScopeItem *ss = dynamic_cast<IScopeItem *>(ss);
 
-//		if (ss) {
-			push_scope(it);
-//		}
 		m_removed = false;
 
-		switch (it->getType()) {
-		case IBaseItem::TypePackage:
-			visit_package(dynamic_cast<IPackage *>(it));
-			break;
-
-		case IBaseItem::TypeComponent:
-			visit_component(dynamic_cast<IComponent *>(it));
-			break;
-
-		case IBaseItem::TypeAction:
-			visit_action(dynamic_cast<IAction *>(it));
-			break;
-
-		case IBaseItem::TypeStruct:
-			visit_struct(dynamic_cast<IStruct *>(it));
-			break;
-
-		case IBaseItem::TypeExtend:
-			visit_extend(dynamic_cast<IExtend *>(it));
-			break;
-
-		case IBaseItem::TypeImportFunc:
-			visit_import_func(dynamic_cast<IImportFunc *>(it));
-			break;
-
-		case IBaseItem::TypeBind:
-			visit_bind(dynamic_cast<IBind *>(it));
-			break;
-
-		case IBaseItem::TypeConstraint:
-			visit_constraint(dynamic_cast<IConstraintBlock *>(it));
-			break;
-
-		case IBaseItem::TypeField:
-			visit_field(dynamic_cast<IField *>(it));
-			break;
-
-		case IBaseItem::TypeExec:
-			visit_exec(dynamic_cast<IExec *>(it));
-			break;
-
-		case IBaseItem::TypeVendor:
-			visit_vendor_item(it);
-			break;
-
-		default:
-			fprintf(stdout, "Error: unhandled scope item %d\n", it->getType());
-			break;
-		}
-
-		pop_scope();
+		visit_item(it);
 
 		if (m_removed) {
 			fprintf(stdout, "Remove: %p %d\n", it, it->getType());
@@ -510,7 +401,72 @@ void PSIVisitor::visit_scope(IScopeItem *s) {
 			i--;
 		}
 	}
+
 	m_removed = false;
+}
+
+void PSIVisitor::visit_item(IBaseItem *it) {
+	switch (it->getType()) {
+	case IBaseItem::TypePackage:
+		visit_package(dynamic_cast<IPackage *>(it));
+		break;
+
+	case IBaseItem::TypeComponent:
+		visit_component(dynamic_cast<IComponent *>(it));
+		break;
+
+	case IBaseItem::TypeAction:
+		visit_action(dynamic_cast<IAction *>(it));
+		break;
+
+	case IBaseItem::TypeStruct:
+		visit_struct(dynamic_cast<IStruct *>(it));
+		break;
+
+	case IBaseItem::TypeExtend:
+		visit_extend(dynamic_cast<IExtend *>(it));
+		break;
+
+	case IBaseItem::TypeImportFunc:
+		visit_import_func(dynamic_cast<IImportFunc *>(it));
+		break;
+
+	case IBaseItem::TypeBind:
+		visit_bind(dynamic_cast<IBind *>(it));
+		break;
+
+	case IBaseItem::TypeConstraint:
+		visit_constraint(dynamic_cast<IConstraintBlock *>(it));
+		break;
+
+	case IBaseItem::TypeField:
+		visit_field(dynamic_cast<IField *>(it));
+		break;
+
+	case IBaseItem::TypeExec:
+		visit_exec(dynamic_cast<IExec *>(it));
+		break;
+
+	case IBaseItem::TypeVendor:
+		visit_vendor_item(it);
+		break;
+
+	case IBaseItem::TypeRefType:
+		visit_ref_type(dynamic_cast<IRefType *>(it));
+		break;
+
+	case IBaseItem::TypeScalar:
+		// TODO: Ignore
+		break;
+
+	default:
+		fprintf(stdout, "Error: unhandled item %d\n", it->getType());
+		break;
+	}
+}
+
+void PSIVisitor::visit_ref_type(IRefType *ref) {
+
 }
 
 std::string PSIVisitor::type2string(IBaseItem *it) {
@@ -566,29 +522,23 @@ std::string PSIVisitor::path2string(const std::vector<IField *> &path) {
 	return ret;
 }
 
-void PSIVisitor::push_scope(IBaseItem *it) {
-	m_scope_stack.push_back(it);
+void PSIVisitor::push_scope(IScopeItem *scope) {
+	m_scope_stack.push_back(scope);
 }
 
-void PSIVisitor::pop_scope() {
-	if (m_scope_stack.size() > 0) {
-		m_scope_stack.pop_back();
-	}
+const std::vector<IScopeItem *> &PSIVisitor::scopes() const {
+	return m_scope_stack;
 }
 
-IBaseItem *PSIVisitor::scope_parent(IBaseItem *it) {
-	if (it) {
-		for (int32_t i=m_scope_stack.size(); i>=0; i--) {
-			if (m_scope_stack.at(i) == it && i>0) {
-				return m_scope_stack.at(i-1);
-			}
-		}
-	} else {
-		if (m_scope_stack.size() > 0) {
-			return m_scope_stack.at(m_scope_stack.size()-1);
-		}
-	}
-	return 0;
+IScopeItem *PSIVisitor::scope() const {
+	return m_scope_stack.back();
+}
+
+IScopeItem *PSIVisitor::pop_scope() {
+	IScopeItem *ret = m_scope_stack.back();
+	m_scope_stack.pop_back();
+
+	return ret;
 }
 
 void PSIVisitor::push_graph(IGraphStmt *it) {

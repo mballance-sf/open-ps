@@ -41,10 +41,6 @@ LIB_TARGETS += libpss_parser.a libantlr_runtime.a
 
 else # Rules
 
-libpss_processor.a : $(PSS_PARSER_SRC:.cpp=.o)
-	$(Q)rm -f $@
-	$(Q)$(AR) vcq $@ $(filter-out build-%,$^)
-
 libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o) 
 	$(Q)rm -f $@
 	$(Q)$(AR) vcq $@ $(filter-out build-%,$^)
