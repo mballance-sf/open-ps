@@ -1,4 +1,9 @@
 
+component vid_pipe_c {
+	action program {
+	}
+}
+
 // Example: 10.6.2
 component codec_c {
 	vid_pipe_c pipeA, pipeB;

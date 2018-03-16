@@ -33,9 +33,17 @@ protected:
 private:
 	IBaseItem *find_type(const std::vector<std::string> &type);
 
+	IBaseItem *find_type(const std::string &name);
+
 	IBaseItem *find_type(IScopeItem *scope, const std::string &name);
 
+	void debug(const char *fmt, ...);
+
+	void todo(const char *fmt, ...);
+
 private:
+
+	bool				m_debug;
 
 
 };

@@ -39,3 +39,15 @@ IBaseItem *RefTypeImpl::clone() const {
 	// TODO:
 	return 0;
 }
+
+std::string RefTypeImpl::toString() const {
+	std::string ret;
+	for (uint32_t i=0; i<m_typeid.size(); i++) {
+		ret += m_typeid.at(i);
+		if (i+1 < m_typeid.size()) {
+			ret += "::";
+		}
+	}
+
+	return ret;
+}

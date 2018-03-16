@@ -27,6 +27,8 @@ public:
 
 	virtual void setTargetType(IBaseItem *) = 0;
 
+	virtual std::string toString() const = 0;
+
 };
 
 

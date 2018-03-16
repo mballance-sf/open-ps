@@ -31,6 +31,8 @@ public:
 
 	virtual IBaseItem *clone() const;
 
+	virtual std::string toString() const;
+
 private:
 
 	IScopeItem					*m_scope;

@@ -9,10 +9,10 @@
 #include "UndefinedTypeException.h"
 #include "IScopeItem.h"
 #include <stdio.h>
+#include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	// TODO Auto-generated constructor stub
-
+	m_debug = true;
 }
 
 ResolveRefsProcessor::~ResolveRefsProcessor() {
@@ -24,8 +24,9 @@ bool ResolveRefsProcessor::process(IModel *model) {
 
 	try {
 		visit_model(model);
-	} catch (UndefinedTypeException e) {
-		fprintf(stdout, "Error: Failed to find type\n");
+	} catch (UndefinedTypeException &e) {
+		fprintf(stdout, "Error: Failed to find type %s\n",
+				e.type_ref()->toString().c_str());
 		ret = false;
 	}
 
@@ -46,19 +47,35 @@ IBaseItem *ResolveRefsProcessor::find_type(
 		const std::vector<std::string> &type) {
 	IBaseItem *ret = 0;
 
-	if (type.size() > 1) {
-	} else {
-		// Search for unqualified type
-		for (int32_t i=scopes().size()-1; i>=0; i--) {
-			IScopeItem *s = scopes().at(i);
-			ret = find_type(s, type.at(0));
+	ret = find_type(type.at(0));
 
-			if (ret) {
+	if (ret && type.size() > 1) {
+		IBaseItem *t = ret;
+		for (uint32_t i=1; i<type.size(); i++) {
+			t = find_type(dynamic_cast<IScopeItem *>(t), type.at(i));
+
+			if (!t) {
 				break;
 			}
 		}
+		ret = t;
 	}
 
+	return ret;
+}
+
+IBaseItem *ResolveRefsProcessor::find_type(const std::string &name) {
+	IBaseItem *ret = 0;
+
+	// Search for unqualified type
+	for (int32_t i=scopes().size()-1; i>=0; i--) {
+		IScopeItem *s = scopes().at(i);
+		ret = find_type(s, name);
+
+		if (ret) {
+			break;
+		}
+	}
 	return ret;
 }
 
@@ -66,15 +83,21 @@ IBaseItem *ResolveRefsProcessor::find_type(
 		IScopeItem 			*scope,
 		const std::string	&name) {
 	IBaseItem *ret = 0;
-//	fprintf(stdout, "Search for %s in %p\n",name.c_str(), scope);
+	if (m_debug) {
+		INamedItem *ni = dynamic_cast<INamedItem *>(scope);
+		debug("Search for %s in %p (%s)",name.c_str(),
+				scope, (ni)?ni->getName().c_str():"unnamed");
+	}
 
 	for (uint32_t i=0; i<scope->getItems().size(); i++) {
 		IBaseItem *it = scope->getItems().at(i);
 		INamedItem *ni = dynamic_cast<INamedItem *>(it);
 
-//		if (dynamic_cast<IScopeItem *>(it) && ni) {
-//			fprintf(stdout, "  name=%s\n", ni->getName().c_str());
-//		}
+		if (m_debug) {
+			if (dynamic_cast<IScopeItem *>(it) && ni) {
+				debug("  name=%s", ni->getName().c_str());
+			}
+		}
 		if (dynamic_cast<IScopeItem *>(it) &&
 				ni && ni->getName() == name) {
 			ret = scope->getItems().at(i);
@@ -84,3 +107,24 @@ IBaseItem *ResolveRefsProcessor::find_type(
 
 	return ret;
 }
+
+void ResolveRefsProcessor::debug(const char *fmt, ...) {
+	va_list ap;
+	if (m_debug) {
+		va_start(ap, fmt);
+		fprintf(stdout, "[DEBUG] ");
+		vfprintf(stdout, fmt, ap);
+		fprintf(stdout, "\n");
+		va_end(ap);
+	}
+}
+
+void ResolveRefsProcessor::todo(const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	fprintf(stdout, "TODO: ");
+	vfprintf(stdout, fmt, ap);
+	fprintf(stdout, "\n");
+	va_end(ap);
+}
+

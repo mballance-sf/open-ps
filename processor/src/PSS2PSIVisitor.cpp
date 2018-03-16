@@ -8,11 +8,16 @@
 #include "PSS2PSIVisitor.h"
 
 #include <cstdio>
+#include <exception>
+#include <typeinfo>
+#include <stdarg.h>
+
 using namespace antlrcpp;
 
 
 PSS2PSIVisitor::PSS2PSIVisitor(IModel *model, const std::string &path) :
 		m_model(model), m_factory(model->getItemFactory()), m_file(path) {
+	m_debug = false;
 }
 
 PSS2PSIVisitor::~PSS2PSIVisitor() {
@@ -20,21 +25,31 @@ PSS2PSIVisitor::~PSS2PSIVisitor() {
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitModel(PSSParser::ModelContext *ctx) {
+
+	enter("visitModel");
 	push_scope(m_model);
 	for (uint32_t i=0; i<ctx->portable_stimulus_description().size(); i++) {
+		try {
 		IBaseItem *it = ctx->portable_stimulus_description(i)->accept(this);
 		if (it && it->getType() != IBaseItem::TypePackage) {
 			m_model->add(it);
 		}
+		} catch (std::bad_cast &e) {
+			error("Bad Cast: %s", e.what());
+		}
 	}
 	pop_scope();
 
-	return 0;
+	leave("visitModel");
+
+	return (IBaseItem *)0;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitAction_declaration(PSSParser::Action_declarationContext *ctx) {
 	IBaseItem *super_type = 0;
 	IBaseItem *ret = 0;
+
+	enter("visitAction_declaration");
 
 	if (ctx->action_super_spec()) {
 		super_type = m_factory->mkRefType(scope(),
@@ -53,9 +68,21 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_declaration(PSSParser::Action_declarat
 
 		if (it) {
 			action->add(it);
+		} else {
+			error("null action item");
 		}
 	}
 	pop_scope();
+
+	leave("visitAction_declaration");
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitAbstract_action_declaration(PSSParser::Abstract_action_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitAbstract_action_declaration");
+
+	leave("visitAbstract_action_declaration");
 
 	return ret;
 }
@@ -63,19 +90,25 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_declaration(PSSParser::Action_declarat
 antlrcpp::Any PSS2PSIVisitor::visitAction_data_type(PSSParser::Action_data_typeContext *ctx) {
 	IBaseItem *ret = 0;
 
+	enter("visitAction_data_type");
+
 	if (ctx->scalar_data_type()) {
 		ret = ctx->scalar_data_type()->accept(this);
 	} else if (ctx->user_defined_datatype()) {
 		ret = ctx->user_defined_datatype()->accept(this);
 	} else {
-		fprintf(stdout, "Error: Unknown action data type\n");
+		error("Unknown action data type");
 	}
+
+	leave("visitAction_data_type");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_declarationContext *ctx) {
 	IBaseItem *ret = 0;
+
+	enter("visitActivity_declaration");
 
 	IAction *action = dynamic_cast<IAction *>(scope());
 	IGraphBlockStmt *block = m_factory->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
@@ -84,10 +117,22 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 		if (stmt) {
 			block->add(stmt);
 		} else {
-			fprintf(stdout, "Error: null activity stmt\n");
+			error("null activity stmt");
 		}
 	}
 	action->setGraph(block);
+
+	leave("visitActivity_declaration");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitActivity_bind_stmt(PSSParser::Activity_bind_stmtContext *ctx) {
+	IGraphStmt *ret = 0;
+
+	enter("visitActivity_bind_stmt");
+	todo("visitActivity_bind_stmt\n");
+	leave("visitActivity_bind_stmt");
 
 	return ret;
 }
@@ -96,25 +141,32 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 	IGraphStmt *ret = 0;
 	IConstraint *with_c = 0;
 
+	enter("visitActivity_action_traveral_stmt");
+
 	if (ctx->inline_with_constraint()) {
-		fprintf(stdout, "TODO: inline constraint\n");
+		todo("inline constraint");
 	}
 
 	if (ctx->is_do) {
 		// Do <type>
-		fprintf(stdout, "Error: do <action::type> unimplemented\n");
+		todo("do <action::type> unimplemented");
 	} else {
 		// <type>
 		std::vector<PSSParser::Variable_refContext *> path;
 		path.push_back(ctx->variable_ref());
-		ret = m_factory->mkGraphTraverseStmt(elaborate_field_ref(path), with_c);
+//		ret = m_factory->mkGraphTraverseStmt(elaborate_field_ref(path), with_c);
+		todo("mkGraphTraverseStmt");
 	}
+
+	leave("visitActivity_action_traveral_stmt");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_parallel_stmt(PSSParser::Activity_parallel_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
+
+	enter("visitActivity_parallel_stmt");
 
 	IGraphBlockStmt *parallel = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Parallel);
 
@@ -125,18 +177,24 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_parallel_stmt(PSSParser::Activity_pa
 			parallel->add(stmt);
 		} else {
 			IGraphBlockStmt *stmt_b = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
-			stmt_b->add(stmt);
+			if (stmt) {
+				stmt_b->add(stmt);
+			}
 			parallel->add(stmt_b);
 		}
 	}
 	ret = parallel;
 
+	leave("visitActivity_parallel_stmt");
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repeat_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
 	IExpr *expr = 0;
+
+	enter("visitActivity_repeat_stmt");
+
 	IGraphRepeatStmt::RepeatType type = IGraphRepeatStmt::RepeatType_Forever;
 	IGraphBlockStmt *body = m_factory->mkGraphBlockStmt();
 
@@ -160,17 +218,41 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 		if (stmt) {
 			body->add(stmt);
 		} else {
-			fprintf(stdout, "Error: null repeat-body statement\n");
+			error("null repeat-body statement");
 		}
 	}
 
 	ret = m_factory->mkGraphRepeatStmt(type, expr, body);
+
+	leave("visitActivity_repeat_stmt");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitActivity_constraint_stmt(PSSParser::Activity_constraint_stmtContext *ctx) {
+	IGraphStmt *ret = 0;
+	enter("visitActivity_constraint_stmt");
+
+	todo("visitActivity_constraint_stmt\n");
+
+	leave("visitActivity_constraint_stmt");
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitActivity_if_else_stmt(PSSParser::Activity_if_else_stmtContext *ctx) {
+	IGraphStmt *ret = 0;
+
+	enter("visitActivity_if_else_stmt");
+	todo("visitActivity_if_else_stmt");
+	leave("visitActivity_if_else_stmt");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_select_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
+
+	enter("visitActivity_select_stmt");
 
 	IGraphBlockStmt *select = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Select);
 
@@ -184,31 +266,74 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_sele
 			if (stmt) {
 				stmt_b->add(stmt);
 			} else {
-				fprintf(stdout, "Error: null select statement\n");
+				error("null select statement");
 			}
 			select->add(stmt_b);
 		}
 	}
 
 	ret = select;
+
+	leave("visitActivity_select_stmt");
     return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitActivity_schedule_stmt(PSSParser::Activity_schedule_stmtContext *ctx) {
+	IGraphStmt *ret = 0;
+
+	enter("visitActivity_schedule_stmt");
+	todo("visitActivity_schedule_stmt");
+	leave("visitActivity_schedule_stmt");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitActivity_foreach_stmt(PSSParser::Activity_foreach_stmtContext *ctx) {
+	IGraphStmt *ret = 0;
+	enter("visitActivity_schedule_stmt");
+
+	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_sequence_block_stmt(PSSParser::Activity_sequence_block_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
 
+	enter("visitActivity_sequence_block_stmt");
+
 	IGraphBlockStmt *seq = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
 	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
-		seq->add(ctx->activity_stmt(i)->accept(this));
+		IGraphStmt *stmt = ctx->activity_stmt(i)->accept(this);
+		if (stmt) {
+			seq->add(stmt);
+		}
 	}
 	ret = seq;
 
+	leave("visitActivity_sequence_block_stmt");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitSymbol_declaration(PSSParser::Symbol_declarationContext *ctx) {
+	enter("visitSymbol_declaration");
+	todo("support symbol declaration");
+	leave("visitSymbol_declaration");
+	return (IBaseItem *)0;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitOverrides_declaration(PSSParser::Overrides_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitOverrides_declaration");
+	todo("visitOverrides_declaration");
+	leave("visitOverrides_declaration");
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitStruct_declaration(PSSParser::Struct_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 	IBaseItem *super_type = 0;
+
+	enter("visitStruct_declaration");
 
 	if (ctx->struct_super_spec()) {
 		super_type = m_factory->mkRefType(scope(),
@@ -227,7 +352,7 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_declaration(PSSParser::Struct_declarat
 	} else if (ctx->struct_type()->getText() == "resource") {
 		t = IStruct::Resource;
 	} else {
-		fprintf(stdout, "Unknown struct type \"%s\"\n",
+		error("Unknown struct type \"%s\"\n",
 				ctx->struct_type()->img->getText().c_str());
 	}
 
@@ -246,6 +371,8 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_declaration(PSSParser::Struct_declarat
 
 	pop_scope();
 
+	leave("visitStruct_declaration");
+
     return ret;
 }
 
@@ -253,11 +380,13 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_field_declaration(PSSParser::Struct_fi
 	IBaseItem *ret = 0;
 	IField::FieldAttr attr = IField::FieldAttr_None;
 
+	enter("visitStruct_field_declaration");
+
 	if (ctx->struct_field_modifier()) {
 		if (ctx->struct_field_modifier()->getText() == "rand") {
 			attr = IField::FieldAttr_Rand;
 		} else {
-			fprintf(stdout, "Unknown field modifier \"%s\"\n",
+			error("Unknown field modifier \"%s\"",
 					ctx->struct_field_modifier()->getText().c_str());
 		}
 	}
@@ -270,7 +399,7 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_field_declaration(PSSParser::Struct_fi
 		IExpr *array_dim = 0;
 
 		if (di->array_dim()) {
-			fprintf(stdout, "TODO: array_dim\n");
+			todo("TODO: array_dim");
 		}
 
 		IField *field = m_factory->mkField(
@@ -282,12 +411,16 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_field_declaration(PSSParser::Struct_fi
 		scope()->add(field);
 	}
 
+	leave("visitStruct_field_declaration");
+
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_field_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 	IField::FieldAttr attr = IField::FieldAttr_None;
+
+	enter("visitAction_field_declaration");
 
 	if (ctx->action_field_modifier()) {
 		const std::string &modifier = ctx->action_field_modifier()->getText();
@@ -316,7 +449,7 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 		IExpr *array_dim = 0;
 
 		if (di->array_dim()) {
-			fprintf(stdout, "TODO: array_dim\n");
+			todo("array_dim");
 		}
 
 		IField *field = m_factory->mkField(
@@ -328,25 +461,33 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 		scope()->add(field);
 	}
 
+	leave("visitAction_field_declaration");
+
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitData_type(PSSParser::Data_typeContext *ctx) {
 	IBaseItem *ret = 0;
 
+	enter("visitData_type");
+
 	if (ctx->scalar_data_type()) {
 		ret = ctx->scalar_data_type()->accept(this);
 	} else if (ctx->user_defined_datatype()) {
 		ret = ctx->user_defined_datatype()->accept(this);
 	} else {
-		fprintf(stdout, "TODO: user data-type\n");
+		todo("TODO: user data-type");
 	}
+
+	leave("visitData_type");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeContext *ctx) {
 	IBaseItem *ret = 0;
+
+	enter("visitScalar_data_type");
 
 	if (ctx->bool_type()) {
 		ret = m_factory->mkScalarType(IScalarType::ScalarType_Bool, 0, 0);
@@ -368,7 +509,7 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 				lsb = m_factory->mkIntLiteral(0);
 			}
 		} else {
-			fprintf(stdout, "Error: support domain\n");
+			todo("support domain");
 		}
 
 		if (ctx->integer_type()->integer_atom_type()->getText() == "int") {
@@ -384,30 +525,48 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 			}
 			ret = m_factory->mkScalarType(IScalarType::ScalarType_Bit, msb, lsb);
 		} else {
-			fprintf(stdout, "Error: unknown scalar data-type %s\n",
+			error("unknown scalar data-type %s",
 					ctx->integer_type()->integer_atom_type()->getText().c_str());
 		}
 	} else if (ctx->string_type()) {
 		ret = m_factory->mkScalarType(IScalarType::ScalarType_String, 0, 0);
 	} else {
-		fprintf(stdout, "Error: unknown scalar type %s\n", ctx->getText().c_str());
+		error("unknown scalar type %s", ctx->getText().c_str());
 	}
+
+	leave("visitScalar_data_type");
 
 	return ret;
 }
 
+antlrcpp::Any PSS2PSIVisitor::visitEnum_declaration(PSSParser::Enum_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitEnum_declaration");
+
+	todo("enum_declaration");
+
+	leave("visitEnum_declaration");
+	return ret;
+}
+
 antlrcpp::Any PSS2PSIVisitor::visitComponent_field_declaration(PSSParser::Component_field_declarationContext *ctx) {
-	fprintf(stdout, "field_declaration\n");
+	IBaseItem *ret = 0;
+	enter("visitComponent_field_declaration");
+
+	todo("field_declaration");
 	if (ctx->component_data_declaration()) {
-		return ctx->component_data_declaration()->accept(this);
+		ret = ctx->component_data_declaration()->accept(this);
 	} else {
-		return ctx->component_pool_declaration()->accept(this);
+		ret = ctx->component_pool_declaration()->accept(this);
 	}
+
+	leave("visitComponent_field_declaration");
+	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Component_data_declarationContext *ctx) {
 	IBaseItem *ret = 0;
-	fprintf(stdout, "data_declaration\n");
+	enter("visitComponent_data_declaration");
 
 	IField::FieldAttr attr = IField::FieldAttr_None;
 
@@ -428,7 +587,7 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 		IExpr *array_dim = 0;
 
 		if (di->array_dim()) {
-			fprintf(stdout, "TODO: array_dim\n");
+			todo("array_dim");
 		}
 
 		IField *field = m_factory->mkField(
@@ -440,13 +599,27 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 		scope()->add(field);
 	}
 
+	leave("visitComponent_data_declaration");
+
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitComponent_pool_declaration(PSSParser::Component_pool_declarationContext *ctx) {
 	IBaseItem *ret = 0;
-	fprintf(stdout, "pool_declaration\n");
+	enter("visitComponent_pool_declaration");
+	todo("pool_declaration");
 
+	leave("visitComponent_pool_declaration");
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitObject_bind_stmt(PSSParser::Object_bind_stmtContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitObject_bind_stmt");
+
+	todo("object_bind_stmt");
+
+	leave("visitObject_bind_stmt");
 	return ret;
 }
 
@@ -454,6 +627,8 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_pool_declaration(PSSParser::Compone
 antlrcpp::Any PSS2PSIVisitor::visitComponent_declaration(PSSParser::Component_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 	IBaseItem *super_type = 0;
+
+	enter("visitComponent_declaration");
 
 	if (ctx->component_super_spec()) {
 		super_type = m_factory->mkRefType(scope(),
@@ -468,13 +643,17 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_declaration(PSSParser::Component_de
 
 	push_scope(comp);
 	for (uint32_t i=0; i<ctx->component_body_item().size(); i++) {
+		enter("component_body_item()");
 		IBaseItem *it = ctx->component_body_item(i)->accept(this);
+		leave("component_body_item()");
 
 		if (it) {
 			comp->add(it);
 		}
 	}
 	pop_scope();
+
+	leave("visitComponent_declaration");
 
 	return ret;
 }
@@ -485,23 +664,36 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 	std::string name;
 	bool is_dynamic = false;
 
+	enter("visitConstraint_declaration");
+
 	if (ctx->single_stmt_constraint()) {
 		constraints.push_back(ctx->single_stmt_constraint()->accept(this));
 	} else {
 		is_dynamic = (ctx->is_dynamic != 0);
 
 		for (uint32_t i=0; i<ctx->constraint_body_item().size(); i++) {
-			constraints.push_back(ctx->constraint_body_item(i)->accept(this));
+			IConstraint *c = ctx->constraint_body_item(i)->accept(this);
+
+			if (c) {
+				constraints.push_back(c);
+			} else {
+				error("null constraint");
+			}
 		}
 	}
 
 	ret = m_factory->mkConstraintBlock(name, constraints);
     scope()->add(ret);
 
+	leave("visitConstraint_declaration");
+
     return ret;
 }
 antlrcpp::Any PSS2PSIVisitor::visitExpression_constraint_item(PSSParser::Expression_constraint_itemContext *ctx) {
 	IConstraint *ret = 0;
+
+	enter("visitExpression_constraint_item");
+
 	IExpr *expr = ctx->expression()->accept(this);
 
 	if (ctx->implicand_constraint_item()) {
@@ -511,11 +703,15 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression_constraint_item(PSSParser::Express
 		ret = m_factory->mkConstraintExpr(expr);
 	}
 
+	leave("visitExpression_constraint_item");
+
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitIf_constraint_item(PSSParser::If_constraint_itemContext *ctx) {
 	IConstraint *ret = 0;
+
+	enter("visitIf_constraint_item");
 
 	IExpr *cond = ctx->expression()->accept(this);
 	IConstraint *true_cs = ctx->constraint_set(0)->accept(this);
@@ -527,11 +723,24 @@ antlrcpp::Any PSS2PSIVisitor::visitIf_constraint_item(PSSParser::If_constraint_i
 
 	ret = m_factory->mkConstraintIf(cond, true_cs, false_cs);
 
+	leave("visitIf_constraint_item");
+
     return ret;
+}
+antlrcpp::Any PSS2PSIVisitor::visitForeach_constraint_item(PSSParser::Foreach_constraint_itemContext *ctx) {
+	IConstraint *ret = 0;
+
+	enter("visitForeach_constraint_item");
+	todo("visitForeach_constraint_item");
+	leave("visitForeach_constraint_item");
+
+	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitConstraint_set(PSSParser::Constraint_setContext *ctx) {
 	IConstraint *ret = 0;
+
+	enter("visitConstraint_set");
 
 	if (ctx->constraint_body_item()) {
 		ret = ctx->constraint_body_item()->accept(this);
@@ -539,6 +748,7 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_set(PSSParser::Constraint_setConte
 		ret = ctx->constraint_block()->accept(this);
 	}
 
+	leave("visitConstraint_set");
 	return ret;
 }
 
@@ -546,17 +756,54 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_block(PSSParser::Constraint_blockC
 	IConstraint *ret = 0;
 	std::vector<IConstraint *> constraints;
 
+	enter("visitConstraint_block");
+
 	for (uint32_t i=0; i<ctx->constraint_body_item().size(); i++) {
-		constraints.push_back(ctx->constraint_body_item(i)->accept(this));
+		IConstraint *c = ctx->constraint_body_item(i)->accept(this);
+		if (c) {
+			constraints.push_back(c);
+		} else {
+			error("null constraint");
+		}
 	}
 
 	ret = m_factory->mkConstraintBlock("", constraints);
+
+	leave("visitConstraint_block");
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitUnique_constraint_item(PSSParser::Unique_constraint_itemContext *ctx) {
+	enter("visitUnique_constraint_item");
+	todo("unique constraint");
+	leave("visitUnique_constraint_item");
+	return (IConstraint *)0;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitBins_declaration(PSSParser::Bins_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitBins_declaration");
+	todo("visitBins_declaration");
+	enter("visitBins_declaration");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitCoverspec_declaration(PSSParser::Coverspec_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitCoverspec_declaration");
+	todo("visitCoverspec_declaration");
+	leave("visitCoverspec_declaration");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitPackage_declaration(PSSParser::Package_declarationContext *ctx) {
 	IBaseItem *ret;
+
+	enter("visitPackage_declaration");
+
 	IPackage *pkg = m_model->findPackage(
 			ctx->package_identifier()->type_identifier()->ID(0)->toString(), true);
 	push_scope(pkg);
@@ -570,6 +817,7 @@ antlrcpp::Any PSS2PSIVisitor::visitPackage_declaration(PSSParser::Package_declar
 	}
 	pop_scope();
 
+	leave("visitPackage_declaration");
 	return ret;
 }
 
@@ -577,6 +825,9 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 	bool is_bin_op;
 	IExpr *ret = 0;
 	IExpr *expr = m_expr;
+
+	enter("visitExpression");
+
 	if (ctx->unary_op()) {
 		// TODO: unary op
 		ret = ctx->lhs->accept(this);
@@ -666,16 +917,20 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 	} else if (ctx->primary()) {
 		ret = ctx->primary()->accept(this);
 	} else {
-		fprintf(stdout, "--> unknown %s\n", ctx->getText().c_str());
+		enter("unknown %s\n", ctx->getText().c_str());
 		/* ret = */ visitChildren(ctx);
-		fprintf(stdout, "<-- unknown\n");
+		leave("unknown");
 	}
+
+	leave("visitExpression");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 	IExpr *ret = 0;
+
+	enter("visitPrimary");
 
 	if (ctx->number()) {
 		uint64_t v = 0;
@@ -687,7 +942,7 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 		} else if (ctx->number()->oct_number()) {
 			v = strtoul(ctx->number()->getText().c_str(), 0, 8);
 		} else {
-			fprintf(stdout, "Error: unsupported number format\n");
+			error("unsupported number format");
 		}
 		ret = m_factory->mkBitLiteral(v); // TODO:
 	} else if (ctx->bool_literal()) {
@@ -700,7 +955,12 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 		ret = m_factory->mkStringLiteral(
 				ctx->string_literal()->getText());
 	} else if (ctx->variable_ref_path()) {
-		ret = elaborate_field_ref(ctx->variable_ref_path()->variable_ref());
+		// Deref <FieldRef> [optional_part_select] [optional_follow_on]
+		todo("variable_ref_path");
+//		ret = m_factory->mkRefExpr(scope(),
+//				ctx->variable_ref_path()->variable_ref());
+//				path)
+//		ret = elaborate_field_ref(ctx->variable_ref_path()->variable_ref());
 	} else if (ctx->method_function_call()) {
 		ctx->method_function_call()->function_call()->method_parameter_list()->expression().size();
 		const std::vector<PSSParser::ExpressionContext *> &param_ctx =
@@ -713,16 +973,21 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 		IImportFunc *func = find_import_func(ctx->method_function_call()->function_call()); // TODO: find
 		ret = m_factory->mkMethodCallExpr(func, parameters);
 	} else {
-		fprintf(stdout, "Error: unknown primary %s\n",
-				ctx->getText().c_str());
+		error("unknown primary %s", ctx->getText().c_str());
 	}
+
+	leave("visitPrimary");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitUser_defined_datatype(PSSParser::User_defined_datatypeContext *ctx) {
+	enter("visitUser_defined_datatype");
+
 	IBaseItem *ret = m_factory->mkRefType(scope(),
 			type2vector(ctx->type_identifier()));
+
+	leave("visitUser_defined_datatype");
 
 	return ret;
 }
@@ -731,6 +996,8 @@ antlrcpp::Any PSS2PSIVisitor::visitUser_defined_datatype(PSSParser::User_defined
 IFieldRef *PSS2PSIVisitor::elaborate_field_ref(
 			const std::vector<PSSParser::Variable_refContext *> &path) {
 	std::vector<IField *> fields;
+
+	enter("elaborate_field_ref");
 
     // This is the active scope
     IScopeItem *active_scope = dynamic_cast<IScopeItem *>(scope());
@@ -775,12 +1042,13 @@ IFieldRef *PSS2PSIVisitor::elaborate_field_ref(
                                 break;
                             }
                         } else {
-                            fprintf(stdout, "Error: field %s doesn't have a type\n", field->getName().c_str());
+                            error("field %s doesn't have a type",
+                            		field->getName().c_str());
                             break;
                         }
                     }
                 } else {
-                	fprintf(stdout, "Error: Field \"%s\" is not a field\n", name.c_str());
+                	error("Field \"%s\" is not a field", name.c_str());
                 }
             } else {
             	std::string error = "Failed to find field ";
@@ -792,9 +1060,11 @@ IFieldRef *PSS2PSIVisitor::elaborate_field_ref(
             	}
 //            	error += " at " + path.at(0)->getStart()->getLine();
             	fatal(path.at(0)->getStart(), error);
-                	fprintf(stdout, "Error: failed to find field %s\n", name.c_str());
+//                	error("failed to find field %s", name.c_str());
             }
     }
+
+	leave("elaborate_field_ref");
 
 	return m_factory->mkFieldRef(fields);
 }
@@ -832,12 +1102,12 @@ IImportFunc *PSS2PSIVisitor::find_import_func(
             IScopeItem *super_scope_s = getSuperType(search_s);
 
             if (super_scope_s) {
-            	fprintf(stdout, "TODO: search super-scope\n");
+            	todo("search super-scope");
             }
         }
 	} else {
 		//
-		fprintf(stdout, "TODO: full-context lookup for function ID\n");
+		todo("full-context lookup for function ID");
 	}
 
 	return ret;
@@ -862,40 +1132,33 @@ IBaseItem *PSS2PSIVisitor::find_type(PSSParser::Type_identifierContext *type) {
 				}
 			}
 			if (!it) {
-				fprintf(stdout, "Error: Failed to file item %s\n", name.c_str());
+				error("Failed to file item %s", name.c_str());
 				return 0;
 			} else {
 				if (dynamic_cast<IScopeItem *>(it)) {
 					s = dynamic_cast<IScopeItem *>(it);
 				} else {
-					fprintf(stdout, "Error: %s is not a scope\n", name.c_str());
+					error("%s is not a scope", name.c_str());
 					return 0;
 				}
 			}
 
 			if (i+1 == type->ID().size()) {
-				fprintf(stdout, "Final result: %p\n", it);
+				debug("Final result: %p\n", it);
 				ret = it;
 			}
 		}
 	} else {
-		fprintf(stdout, "TODO: must provide relative-path lookup\n");
+		todo("must provide relative-path lookup");
 	}
 
 	return ret;
 }
 
-antlrcpp::Any PSS2PSIVisitor::visitExec_block_stmt(PSSParser::Exec_block_stmtContext *ctx) {
+antlrcpp::Any PSS2PSIVisitor::visitExec_block(PSSParser::Exec_blockContext *ctx) {
 	IBaseItem *ret = 0;
 	IExec *exec = 0;
-
-	std::string kind_s;
-
-	if (ctx->exec_block()) {
-		kind_s = ctx->exec_block()->exec_kind_identifier()->getText();
-	} else if (ctx->target_code_exec_block()) {
-		kind_s = ctx->target_code_exec_block()->exec_kind_identifier()->getText();
-	}
+	std::string kind_s = ctx->exec_kind_identifier()->getText();
 
 	IExec::ExecKind kind;
 
@@ -906,34 +1169,82 @@ antlrcpp::Any PSS2PSIVisitor::visitExec_block_stmt(PSSParser::Exec_block_stmtCon
 	} else if (kind_s == "post_solve") {
 		kind = IExec::PostSolve;
 	} else {
-		fprintf(stdout, "Error: unknown exec kind \"%s\"\n", kind_s.c_str());
+		error("unknown exec kind \"%s\"", kind_s.c_str());
 	}
 
-	if (ctx->exec_block()) {
-		std::vector<IExecStmt *> stmts;
+	enter("visitExec_block");
+	std::vector<IExecStmt *> stmts;
 
-		for (uint32_t i=0; i<ctx->exec_block()->exec_body_stmt().size(); i++) {
-			stmts.push_back(ctx->exec_block()->exec_body_stmt(i)->accept(this));
+	for (uint32_t i=0; i<ctx->exec_body_stmt().size(); i++) {
+		IExecStmt *stmt = 0;
+		try {
+			stmt = ctx->exec_body_stmt(i)->accept(this);
+		} catch (std::bad_cast &e) {
+			error("IExecStmt: bad-cast\n");
 		}
-
-		exec = m_factory->mkNativeExec(kind, stmts);
-	} else if (ctx->target_code_exec_block()) {
-		exec = m_factory->mkTargetTemplateExec(kind,
-				ctx->target_code_exec_block()->language_identifier()->getText(),
-				ctx->target_code_exec_block()->string()->getText());
-	} else if (ctx->target_file_exec_block()) {
-	} else {
-		fprintf(stdout, "Error: unknown exec-block type\n");
+		if (stmt) {
+			stmts.push_back(stmt);
+		} else {
+			error("null exec stmt");
+		}
 	}
+
+	exec = m_factory->mkNativeExec(kind, stmts);
+	leave("visitExec_block");
 
 	ret = exec;
-    return ret;
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code_exec_blockContext *ctx) {
+	IExec *exec = 0;
+	IBaseItem *ret = 0;
+
+	enter("visitTarget_code_exec_block");
+
+	std::string kind_s = ctx->exec_kind_identifier()->getText();
+
+	IExec::ExecKind kind;
+
+	if (kind_s == "body") {
+		kind = IExec::Body;
+	} else if (kind_s == "pre_solve") {
+		kind = IExec::PreSolve;
+	} else if (kind_s == "post_solve") {
+		kind = IExec::PostSolve;
+	} else {
+		error("unknown exec kind \"%s\"", kind_s.c_str());
+	}
+
+	exec = m_factory->mkTargetTemplateExec(
+			kind,
+			ctx->language_identifier()->getText(),
+			ctx->string()->getText());
+
+	leave("visitTarget_code_exec_block");
+
+	ret = exec;
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitTarget_file_exec_block(PSSParser::Target_file_exec_blockContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitTarget_file_exec_block");
+	todo("visitTarget_file_exec_block");
+	leave("visitTarget_file_exec_block");
+
+	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitExec_body_stmt(PSSParser::Exec_body_stmtContext *ctx) {
-	IExecStmt *ret;
+	IExecStmt *ret = 0;
 
+	enter("visitExec_body_stmt\n");
+
+	enter("visit_expression");
 	IExpr *expr = ctx->expression(0)->accept(this);
+	leave("visit_expression");
 
 	if (ctx->assign_op()) {
 		const std::string &op_s = ctx->assign_op()->getText();
@@ -954,16 +1265,20 @@ antlrcpp::Any PSS2PSIVisitor::visitExec_body_stmt(PSSParser::Exec_body_stmtConte
 		} else if (op_s == "&=") {
 			op = IExecExprStmt::AssignOp_AndEq;
 		} else {
-			fprintf(stdout, "Unknown assignment op %s\n", op_s.c_str());
+			error("Unknown assignment op %s", op_s.c_str());
 		}
 
+		enter("visit_expression (2)");
 		ret = m_factory->mkExecExprStmt((IFieldRef *)expr, op,
 				ctx->expression(1)->accept(this));
+		leave("visit_expression (2)");
 	} else {
 		// Just an expression statement
 		// TODO: must support expression on LHS
 		ret = m_factory->mkExecExprStmt((IFieldRef *)expr, IExecExprStmt::AssignOp_None, 0);
 	}
+
+	leave("visitExec_body_stmt\n");
 
 	return ret;
 }
@@ -972,7 +1287,10 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 	IBaseItem *ret = 0;
 	std::string type = ctx->ext_type->getText();
 
-	IBaseItem *target = find_type(ctx->type_identifier());
+	enter("visitExtend_stmt");
+
+	IRefType *target = m_factory->mkRefType(scope(),
+			type2vector(ctx->type_identifier()));
 
 	IExtend *ext = 0;
 
@@ -987,7 +1305,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 			ext->add(ctx->struct_body_item(i)->accept(this));
 		}
 	} else if (type == "enum") {
-		fprintf(stdout, "TODO: enum type extension\n");
+		todo("enum type extension");
 		ext = m_factory->mkExtend(IExtend::ExtendType_Enum, target);
 	} else if (type == "component") {
 		ext = m_factory->mkExtend(IExtend::ExtendType_Component, target);
@@ -995,15 +1313,28 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 			ext->add(ctx->component_body_item(i)->accept(this));
 		}
 	} else {
-		fprintf(stdout, "Error: unknown extension type %s\n", type.c_str());
+		error("unknown extension type %s", type.c_str());
 	}
+
+	leave("visitExtend_stmt");
 
 	ret = ext;
 	return ret;
 }
 
+antlrcpp::Any PSS2PSIVisitor::visitImport_stmt(PSSParser::Import_stmtContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitImport_stmt");
+
+	leave("visitImport_stmt");
+
+	return ret;
+}
+
 antlrcpp::Any PSS2PSIVisitor::visitMethod_prototype(PSSParser::Method_prototypeContext *ctx) {
 	IBaseItem *ret;
+
+	enter("visitMethod_prototype");
 
 	const std::string &name = ctx->method_identifier()->getText();
 
@@ -1026,7 +1357,7 @@ antlrcpp::Any PSS2PSIVisitor::visitMethod_prototype(PSSParser::Method_prototypeC
 			} else if (dir == "inout") {
 				attr = IField::FieldAttr_Inout;
 			} else {
-				fprintf(stdout, "Error: unknown parameter direction %s\n", dir.c_str());
+				error("unknown parameter direction %s", dir.c_str());
 			}
 		}
 
@@ -1041,11 +1372,46 @@ antlrcpp::Any PSS2PSIVisitor::visitMethod_prototype(PSSParser::Method_prototypeC
 
 	ret = method;
 
+	leave("visitMethod_prototype");
+
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitFunction_decl(PSSParser::Function_declContext *ctx) {
 	return ctx->method_prototype()->accept(this);
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitImport_method_phase_qualifiers(PSSParser::Import_method_phase_qualifiersContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitMethod_prototype");
+
+	todo("visitMethod_prototype");
+
+	leave("visitMethod_prototype");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitImport_class_decl(PSSParser::Import_class_declContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitImport_class_decl");
+
+	todo("visitImport_class_decl");
+
+	leave("visitImport_class_decl");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitExport_action(PSSParser::Export_actionContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitExport_action");
+	todo("visitExport_action");
+	leave("visitExport_action");
+
+	return ret;
 }
 
 IExpr *PSS2PSIVisitor::expression(PSSParser::ExpressionContext *ctx) {
@@ -1131,6 +1497,57 @@ std::vector<std::string> PSS2PSIVisitor::type2vector(PSSParser::Type_identifierC
 	}
 
 	return ret;
+}
+
+void PSS2PSIVisitor::enter(const char *fmt, ...) {
+	va_list ap;
+	if (m_debug) {
+		va_start(ap, fmt);
+		fprintf(stdout, "--> ");
+		vfprintf(stdout, fmt, ap);
+		fprintf(stdout, "\n");
+		va_end(ap);
+	}
+}
+
+void PSS2PSIVisitor::leave(const char *fmt, ...) {
+	va_list ap;
+	if (m_debug) {
+		va_start(ap, fmt);
+		fprintf(stdout, "<-- ");
+		vfprintf(stdout, fmt, ap);
+		fprintf(stdout, "\n");
+		va_end(ap);
+	}
+}
+
+void PSS2PSIVisitor::error(const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	fprintf(stdout, "Error: ");
+	vfprintf(stdout, fmt, ap);
+	fprintf(stdout, "\n");
+	va_end(ap);
+}
+
+void PSS2PSIVisitor::todo(const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	fprintf(stdout, "TODO: ");
+	vfprintf(stdout, fmt, ap);
+	fprintf(stdout, "\n");
+	va_end(ap);
+}
+
+void PSS2PSIVisitor::debug(const char *fmt, ...) {
+	va_list ap;
+	if (m_debug) {
+		va_start(ap, fmt);
+		fprintf(stdout, "[DEBUG] ");
+		vfprintf(stdout, fmt, ap);
+		fprintf(stdout, "\n");
+		va_end(ap);
+	}
 }
 
 void PSS2PSIVisitor::fatal(const std::string &msg) {
