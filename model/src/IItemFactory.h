@@ -52,8 +52,8 @@
 #include "IImport.h"
 #include "IImportFunc.h"
 #include "IMethodCallExpr.h"
-#include "IRefExpr.h"
 #include "IRefType.h"
+#include "IVariableRef.h"
 
 namespace psi_api {
 
@@ -152,9 +152,11 @@ public:
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs) = 0;
 
-	virtual IRefExpr *mkRefExpr(
-			IScopeItem						*scope,
-			const std::vector<std::string>	&path) = 0;
+	virtual IVariableRef *mkVariableRef(
+			IBaseItem				*scope,
+			const std::string		&id,
+			IExpr					*index_lhs,
+			IExpr					*index_rhs) = 0;
 
 	virtual IFieldRef *mkFieldRef(
 			const std::vector<IField *>		&field_path) = 0;

@@ -24,7 +24,6 @@
  */
 
 #include "ExprImpl.h"
-#include "RefExprImpl.h"
 
 namespace psi {
 

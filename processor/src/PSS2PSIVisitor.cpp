@@ -977,12 +977,33 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 		ret = m_factory->mkStringLiteral(
 				ctx->string_literal()->getText());
 	} else if (ctx->variable_ref_path()) {
-		// Deref <FieldRef> [optional_part_select] [optional_follow_on]
-		todo("variable_ref_path");
-//		ret = m_factory->mkRefExpr(scope(),
-//				ctx->variable_ref_path()->variable_ref());
-//				path)
-//		ret = elaborate_field_ref(ctx->variable_ref_path()->variable_ref());
+		IVariableRef *vref = 0;
+		IVariableRef *prev = 0;
+		IBaseItem *s = dynamic_cast<IBaseItem *>(scope());
+
+		for (uint32_t i=0; i<ctx->variable_ref_path()->variable_ref().size(); i++) {
+			PSSParser::Variable_refContext *ref_ctx = ctx->variable_ref_path()->variable_ref(i);
+			const std::string &id = ref_ctx->identifier()->getText();
+			IExpr *index_lhs = 0, *index_rhs = 0;
+			if (ref_ctx->expression(0)) {
+				index_lhs = ref_ctx->expression(0)->accept(this);
+			}
+			if (ref_ctx->expression(1)) {
+				index_rhs = ref_ctx->expression(1)->accept(this);
+			}
+
+			IVariableRef *ref = m_factory->mkVariableRef(s, id, index_lhs, index_rhs);
+
+			if (i == 0) {
+				vref = ref;
+			}
+			if (prev) {
+				prev->setNext(ref);
+			}
+			prev = ref;
+		}
+
+		ret = vref;
 	} else if (ctx->method_function_call()) {
 		ctx->method_function_call()->function_call()->method_parameter_list()->expression().size();
 		const std::vector<PSSParser::ExpressionContext *> &param_ctx =

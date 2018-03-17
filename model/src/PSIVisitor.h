@@ -113,6 +113,8 @@ protected:
 
 	virtual void visit_ref_type(IRefType *ref);
 
+	virtual void visit_variable_ref(IVariableRef *ref);
+
 	virtual void visit_vendor_item(IBaseItem *it);
 
 	virtual void remove();

@@ -34,7 +34,7 @@ public:
 		ExprType_BinOp,
 		ExprType_FieldRef,
 		ExprType_MethodCall,
-		ExprType_Ref
+		ExprType_VariableRef
 	};
 
 public:

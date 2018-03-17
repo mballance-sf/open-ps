@@ -54,6 +54,7 @@
 #include "IItemFactory.h"
 #include "IMethodCallExpr.h"
 #include "IRefType.h"
+#include "IVariableRef.h"
 
 namespace psi_api {
 

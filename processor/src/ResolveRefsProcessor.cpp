@@ -12,7 +12,8 @@
 #include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	m_debug = false;
+	m_debug = true;
+	m_phase = 0;
 }
 
 ResolveRefsProcessor::~ResolveRefsProcessor() {
@@ -20,27 +21,46 @@ ResolveRefsProcessor::~ResolveRefsProcessor() {
 }
 
 bool ResolveRefsProcessor::process(IModel *model) {
-	bool ret = true;
 
+	m_phase = 1; // type-resolution phase
 	try {
 		visit_model(model);
 	} catch (UndefinedTypeException &e) {
 		fprintf(stdout, "Error: Failed to find type %s\n",
 				e.type_ref()->toString().c_str());
-		ret = false;
+		return false;
+	}
+
+	m_phase = 2; // variable-resolution phase
+	try {
+		visit_model(model);
+	} catch (UndefinedTypeException &e) {
+		fprintf(stdout, "Error: Failed to find type %s\n",
+				e.type_ref()->toString().c_str());
+		return false;
 	}
 
 	return true;
 }
 
 void ResolveRefsProcessor::visit_ref_type(IRefType *ref) {
-	IBaseItem *type = find_type(ref->getTypeId());
+	if (m_phase == 1) { // type-resolution
+		IBaseItem *type = find_type(ref->getTypeId());
 
-	if (!type) {
-		throw UndefinedTypeException(scope(), ref);
+		if (!type) {
+			throw UndefinedTypeException(scope(), ref);
+		}
+
+		ref->setTargetType(type);
 	}
+}
 
-	ref->setTargetType(type);
+void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
+	if (m_phase == 2) {
+		if (m_debug) {
+			debug("Resolve variable-ref %s", ref->toString().c_str());
+		}
+	}
 }
 
 IBaseItem *ResolveRefsProcessor::find_type(

@@ -207,9 +207,21 @@ void PSIVisitor::visit_expr(IExpr *e) {
 		return;
 	}
 	switch (e->getType()) {
-		case IExpr::ExprType_BinOp: visit_binary_expr(dynamic_cast<IBinaryExpr *>(e)); break;
-		case IExpr::ExprType_FieldRef: visit_fieldref_expr(dynamic_cast<IFieldRef *>(e)); break;
-		case IExpr::ExprType_Literal: visit_literal_expr(dynamic_cast<ILiteral *>(e)); break;
+		case IExpr::ExprType_BinOp:
+			visit_binary_expr(dynamic_cast<IBinaryExpr *>(e));
+			break;
+		case IExpr::ExprType_FieldRef:
+			visit_fieldref_expr(dynamic_cast<IFieldRef *>(e));
+			break;
+		case IExpr::ExprType_Literal:
+			visit_literal_expr(dynamic_cast<ILiteral *>(e));
+			break;
+		case IExpr::ExprType_VariableRef:
+			visit_variable_ref(dynamic_cast<IVariableRef *>(e));
+			break;
+		default:
+			fprintf(stdout, "Error: unhandled expr type %d\n", e->getType());
+			break;
 	}
 }
 
@@ -444,6 +456,18 @@ void PSIVisitor::visit_item(IBaseItem *it) {
 
 void PSIVisitor::visit_ref_type(IRefType *ref) {
 
+}
+
+void PSIVisitor::visit_variable_ref(IVariableRef *ref) {
+	if (ref->getIndexLhs()) {
+		visit_expr(ref->getIndexLhs());
+	}
+	if (ref->getIndexRhs()) {
+		visit_expr(ref->getIndexRhs());
+	}
+	if (ref->getNext()) {
+		visit_variable_ref(ref->getNext());
+	}
 }
 
 std::string PSIVisitor::type2string(IBaseItem *it) {

@@ -49,8 +49,8 @@
 #include "ConstraintImpliesImpl.h"
 #include "ImportFuncImpl.h"
 #include "ImportImpl.h"
-#include "RefExprImpl.h"
 #include "RefTypeImpl.h"
+#include "VariableRefImpl.h"
 
 
 using namespace psi;
@@ -147,6 +147,14 @@ IMethodCallExpr *ItemFactoryImpl::mkMethodCallExpr(
 	return new MethodCallExprImpl(func, parameters);
 }
 
+IVariableRef *ItemFactoryImpl::mkVariableRef(
+		IBaseItem					*scope,
+		const std::string			&id,
+		IExpr						*index_lhs,
+		IExpr						*index_rhs) {
+	return new VariableRefImpl(scope, id, index_lhs, index_rhs);
+}
+
 IStruct *ItemFactoryImpl::mkStruct(
 		const std::string 		&name,
 		IStruct::StructType		t,
@@ -192,12 +200,6 @@ IBinaryExpr *ItemFactoryImpl::mkBinExpr(
 		IBinaryExpr::BinOpType	op,
 		IExpr 					*rhs) {
 	return new BinaryExprImpl(lhs, op, rhs);
-}
-
-IRefExpr *ItemFactoryImpl::mkRefExpr(
-			IScopeItem						*scope,
-			const std::vector<std::string>	&path) {
-	return new RefExprImpl(scope, path);
 }
 
 IFieldRef *ItemFactoryImpl::mkFieldRef(

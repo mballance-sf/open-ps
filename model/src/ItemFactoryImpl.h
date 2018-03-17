@@ -91,6 +91,12 @@ public:
 			IImportFunc					*func,
 			const std::vector<IExpr *>	&parameters);
 
+	virtual IVariableRef *mkVariableRef(
+			IBaseItem					*scope,
+			const std::string			&id,
+			IExpr						*index_lhs,
+			IExpr						*index_rhs);
+
 	virtual IStruct *mkStruct(
 			const std::string 		&name,
 			IStruct::StructType		t,
@@ -125,10 +131,6 @@ public:
 			IExpr 					*lhs,
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs);
-
-	virtual IRefExpr *mkRefExpr(
-			IScopeItem						*scope,
-			const std::vector<std::string>	&path);
 
 	virtual IFieldRef *mkFieldRef(
 			const std::vector<IField *>		&field_path);

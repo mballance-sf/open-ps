@@ -30,6 +30,8 @@ protected:
 
 	virtual void visit_ref_type(IRefType *ref) override;
 
+	virtual void visit_variable_ref(IVariableRef *ref) override;
+
 private:
 	IBaseItem *find_type(const std::vector<std::string> &type);
 
@@ -50,6 +52,7 @@ private:
 private:
 
 	bool				m_debug;
+	uint32_t			m_phase;
 
 
 };
