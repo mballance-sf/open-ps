@@ -61,7 +61,7 @@ import_stmt:
 ;
 
 package_import_pattern:
-	type_identifier ('::' '*')?
+	type_identifier ('::' wildcard='*')?
 ;
 
 /****************************************************************************

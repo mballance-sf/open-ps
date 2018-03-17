@@ -2,6 +2,11 @@
 // Example: 11.3.3.2
 
 component top {
+	// Added
+	action A { }
+	action B { }
+	action C { }
+
 	action my_test {
 		A a;
 		B b;

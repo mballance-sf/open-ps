@@ -6,10 +6,10 @@ component top {
 	pool[4] R R_pool;
 	bind R_pool *;
 	
-	action A { lock r R; }
+	action A { lock R r; }
 	action B {}
 	action C {}
-	action D { lock r R;}
+	action D { lock R r;}
 	
 	action my_test {
 		activity {

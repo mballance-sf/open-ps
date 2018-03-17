@@ -541,11 +541,30 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 
 antlrcpp::Any PSS2PSIVisitor::visitEnum_declaration(PSSParser::Enum_declarationContext *ctx) {
 	IBaseItem *ret = 0;
+	std::vector<IEnumerator *> enumerators;
 	enter("visitEnum_declaration");
+
+	for (uint32_t i=0; i<ctx->enum_item().size(); i++) {
+		IExpr *value = 0;
+
+		if (ctx->enum_item(i)->constant_expression()) {
+			value = ctx->enum_item(i)->constant_expression()->accept(this);
+		}
+
+		enumerators.push_back(
+				m_factory->mkEnumerator(
+						ctx->enum_item(i)->identifier()->getText(),
+						value));
+	}
+
+	IEnumType *e = m_factory->mkEnumType(
+			ctx->enum_identifier()->getText(),
+			enumerators);
 
 	todo("enum_declaration");
 
 	leave("visitEnum_declaration");
+	ret = e;
 	return ret;
 }
 
@@ -793,8 +812,11 @@ antlrcpp::Any PSS2PSIVisitor::visitBins_declaration(PSSParser::Bins_declarationC
 antlrcpp::Any PSS2PSIVisitor::visitCoverspec_declaration(PSSParser::Coverspec_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 	enter("visitCoverspec_declaration");
+	ICoverspec *cs = m_factory->mkCoverspec(ctx->identifier()->getText());
 	todo("visitCoverspec_declaration");
 	leave("visitCoverspec_declaration");
+
+	ret = cs;
 
 	return ret;
 }
@@ -1325,6 +1347,12 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 antlrcpp::Any PSS2PSIVisitor::visitImport_stmt(PSSParser::Import_stmtContext *ctx) {
 	IBaseItem *ret = 0;
 	enter("visitImport_stmt");
+	IImport *imp = m_factory->mkImport(
+			m_factory->mkRefType(scope(),
+					type2vector(ctx->package_import_pattern()->type_identifier())),
+			ctx->package_import_pattern()->wildcard);
+
+	ret = imp;
 
 	leave("visitImport_stmt");
 

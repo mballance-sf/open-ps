@@ -79,47 +79,6 @@ void PSIVisitor::visit_bind(IBind *b) {
 
 }
 
-void PSIVisitor::visit_body(IBaseItem *p, const std::vector<IBaseItem *> &items) {
-	std::vector<IBaseItem *>::const_iterator it = items.begin();
-
-	for (int32_t i=0; i<items.size(); i++) {
-		IBaseItem *it = items.at(i);
-		m_removed = false;
-
-		switch (it->getType()) {
-		case IBaseItem::TypeBind:
-			visit_bind(dynamic_cast<IBind *>(it));
-			break;
-		case IBaseItem::TypeConstraint:
-			visit_constraint(dynamic_cast<IConstraintBlock *>(it));
-			break;
-
-		case IBaseItem::TypeField:
-			visit_field(dynamic_cast<IField *>(it));
-			break;
-
-		case IBaseItem::TypeExec:
-			visit_exec(dynamic_cast<IExec *>(it));
-			break;
-
-		case IBaseItem::TypeVendor:
-			visit_vendor_item(it);
-			break;
-
-		default:
-			fprintf(stdout, "Error: Unknown body item %d\n", it->getType());
-		}
-
-		if (m_removed) {
-			ScopeItemImpl *s = dynamic_cast<ScopeItemImpl *>(p);
-			s->remove(it);
-			delete it;
-		}
-	}
-
-	m_removed = false;
-}
-
 void PSIVisitor::visit_struct(IStruct *str) {
 	m_removed = false;
 
@@ -257,7 +216,7 @@ void PSIVisitor::visit_expr(IExpr *e) {
 void PSIVisitor::visit_extend(IExtend *e) {
 	visit_item(e->getTarget());
 	push_scope(e);
-	visit_body(e, e->getItems());
+	visit_scope(e);
 	pop_scope();
 }
 
@@ -267,6 +226,10 @@ void PSIVisitor::visit_binary_expr(IBinaryExpr *be) {
 }
 
 void PSIVisitor::visit_fieldref_expr(IFieldRef *ref) {
+
+}
+
+void PSIVisitor::visit_enum_type(IEnumType *e) {
 
 }
 
@@ -362,6 +325,12 @@ void PSIVisitor::visit_graph_traverse_stmt(IGraphTraverseStmt *t) {
 	}
 }
 
+void PSIVisitor::visit_import(IImport *imp) {
+	if (imp->getTargetType()) {
+		visit_item(imp->getTargetType());
+	}
+}
+
 void PSIVisitor::visit_import_func(IImportFunc *f) {
 	// NOP
 }
@@ -388,7 +357,7 @@ void PSIVisitor::visit_scope(IScopeItem *s) {
 
 	for (int32_t i=0; i<s->getItems().size(); i++) {
 		IBaseItem *it = s->getItems().at(i);
-		IScopeItem *ss = dynamic_cast<IScopeItem *>(ss);
+//		IScopeItem *ss = dynamic_cast<IScopeItem *>(ss);
 
 		m_removed = false;
 
@@ -423,8 +392,16 @@ void PSIVisitor::visit_item(IBaseItem *it) {
 		visit_struct(dynamic_cast<IStruct *>(it));
 		break;
 
+	case IBaseItem::TypeEnum:
+		visit_enum_type(dynamic_cast<IEnumType *>(it));
+		break;
+
 	case IBaseItem::TypeExtend:
 		visit_extend(dynamic_cast<IExtend *>(it));
+		break;
+
+	case IBaseItem::TypeImport:
+		visit_import(dynamic_cast<IImport *>(it));
 		break;
 
 	case IBaseItem::TypeImportFunc:

@@ -28,6 +28,9 @@
 #include "BindPathImpl.h"
 #include "ActionImpl.h"
 #include "ComponentImpl.h"
+#include "CoverspecImpl.h"
+#include "EnumeratorImpl.h"
+#include "EnumTypeImpl.h"
 #include "ExecImpl.h"
 #include "ExecExprStmtImpl.h"
 #include "MethodCallExprImpl.h"
@@ -45,6 +48,7 @@
 #include "ConstraintIfImpl.h"
 #include "ConstraintImpliesImpl.h"
 #include "ImportFuncImpl.h"
+#include "ImportImpl.h"
 #include "RefExprImpl.h"
 #include "RefTypeImpl.h"
 
@@ -94,6 +98,10 @@ IComponent *ItemFactoryImpl::mkComponent(const std::string &name, IBaseItem *sup
 	return new ComponentImpl(name, super_type);
 }
 
+ICoverspec *ItemFactoryImpl::mkCoverspec(const std::string &name) {
+	return new CoverspecImpl(name);
+}
+
 IExec *ItemFactoryImpl::mkTargetTemplateExec(
 		IExec::ExecKind			kind,
 		const std::string		&language,
@@ -119,6 +127,19 @@ IExecExprStmt *ItemFactoryImpl::mkExecExprStmt(
 		IExpr					*rhs) {
 	return new ExecExprStmtImpl(lhs, op, rhs);
 }
+
+IEnumerator *ItemFactoryImpl::mkEnumerator(
+		const std::string		&name,
+		IExpr					*value) {
+	return new EnumeratorImpl(name, value);
+}
+
+IEnumType *ItemFactoryImpl::mkEnumType(
+		const std::string					&name,
+		const std::vector<IEnumerator *>	&enumerators) {
+	return new EnumTypeImpl(name, enumerators);
+}
+
 
 IMethodCallExpr *ItemFactoryImpl::mkMethodCallExpr(
 		IImportFunc					*func,
@@ -244,6 +265,12 @@ IConstraintImplies *ItemFactoryImpl::mkConstraintImplies(
 				IExpr			*cond,
 				IConstraint		*imp) {
 	return new ConstraintImpliesImpl(cond, imp);
+}
+
+IImport *ItemFactoryImpl::mkImport(
+		IBaseItem						*target,
+		bool							is_wildcard) {
+	return new ImportImpl(target, is_wildcard);
 }
 
 IImportFunc *ItemFactoryImpl::mkImportFunc(

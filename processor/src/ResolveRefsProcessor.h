@@ -37,9 +37,15 @@ private:
 
 	IBaseItem *find_type(IScopeItem *scope, const std::string &name);
 
+	static bool is_type(IBaseItem *it);
+
+	static bool is_type(IScopeItem *it);
+
 	void debug(const char *fmt, ...);
 
 	void todo(const char *fmt, ...);
+
+	std::string type2string(const std::vector<std::string> &type);
 
 private:
 

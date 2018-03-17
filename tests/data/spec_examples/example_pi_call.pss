@@ -22,6 +22,8 @@ package external_functions_pkg {
 }
 
 component mem_xfer {
+	// Added
+	import external_functions_pkg::*;
 
 	action xfer_a {
 		input mem_segment_s in_buff;

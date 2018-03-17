@@ -1,4 +1,8 @@
 
+component dma_c {
+	action mem2mem_xfer { }
+}
+
 // Example: 14.1.5
 
 package mem_defs_pkg { // reusable definitions

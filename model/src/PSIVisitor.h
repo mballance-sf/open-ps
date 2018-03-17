@@ -51,8 +51,6 @@ protected:
 
 	virtual void visit_bind(IBind *b);
 
-	virtual void visit_body(IBaseItem *p, const std::vector<IBaseItem *> &items);
-
 	virtual void visit_struct(IStruct *str);
 
 	virtual void visit_component(IComponent *c);
@@ -87,6 +85,8 @@ protected:
 
 	virtual void visit_literal_expr(ILiteral *l);
 
+	virtual void visit_enum_type(IEnumType *e);
+
 	virtual void visit_field(IField *f);
 
 	virtual void visit_graph(IGraphStmt *activity);
@@ -104,6 +104,8 @@ protected:
 	virtual void visit_graph_select_stmt(IGraphBlockStmt *s);
 
 	virtual void visit_graph_traverse_stmt(IGraphTraverseStmt *t);
+
+	virtual void visit_import(IImport *imp);
 
 	virtual void visit_import_func(IImportFunc *f);
 

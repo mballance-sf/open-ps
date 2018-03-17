@@ -23,7 +23,7 @@ struct transaction {
  }
  
  // Coverspec instance
- trans_cov tc(this);
+ transaction::trans_cov tc(this);
  
 }
 

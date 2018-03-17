@@ -45,17 +45,19 @@ namespace psi_api {
 			TypeBind,
 			TypeComponent,
 			TypeConstraint,
-			TypeField,
-			TypeImport, // 5
+			TypeCoverspec,
+			TypeField,		// 5
+			TypeImport,
+			TypeEnum,
 			TypeExec,
 			TypeExtend,
-			TypeGraphStmt,
+			TypeGraphStmt,	// 10
 			TypeImportFunc,
-			TypeModel,  // 10
+			TypeModel,
 			TypeObject,
 			TypePackage,
-			TypeScalar,
-			TypeStruct, // 14
+			TypeScalar,		// 15
+			TypeStruct,
 			TypeSymbol,
 			TypeRefType,
 			TypeVendor

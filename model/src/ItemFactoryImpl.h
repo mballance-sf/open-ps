@@ -58,6 +58,8 @@ public:
 
 	virtual IComponent *mkComponent(const std::string &name, IBaseItem *super_type);
 
+	virtual ICoverspec *mkCoverspec(const std::string &name);
+
 	virtual IExec *mkTargetTemplateExec(
 			IExec::ExecKind			kind,
 			const std::string		&language,
@@ -75,6 +77,15 @@ public:
 			IExpr					*lhs,
 			IExecExprStmt::AssignOp	op,
 			IExpr					*rhs);
+
+	virtual IEnumerator *mkEnumerator(
+			const std::string		&name,
+			IExpr					*value);
+
+	virtual IEnumType *mkEnumType(
+			const std::string					&name,
+			const std::vector<IEnumerator *>	&enumerators);
+
 
 	virtual IMethodCallExpr *mkMethodCallExpr(
 			IImportFunc					*func,
@@ -152,6 +163,10 @@ public:
 	virtual IConstraintImplies *mkConstraintImplies(
 			IExpr			*cond,
 			IConstraint		*imp);
+
+	virtual IImport *mkImport(
+			IBaseItem						*target,
+			bool							is_wildcard);
 
 	virtual IImportFunc *mkImportFunc(
 			const std::string				&name,

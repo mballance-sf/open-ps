@@ -19,6 +19,9 @@ component top {
 	action axi_write_action_x2 : axi_write_action_x { /*...*/ };
 	action axi_write_action_x3 : axi_write_action_x { /*...*/ };
 
+	// Added
+	action xlator_action { }
+
 	action reg2axi_top {
 		override {
 			type axi_write_action with axi_write_action_x;

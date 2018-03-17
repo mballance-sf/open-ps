@@ -35,6 +35,9 @@
 #include "IConstraintBlock.h"
 #include "IConstraintExpr.h"
 #include "IConstraintIf.h"
+#include "ICoverspec.h"
+#include "IEnumerator.h"
+#include "IEnumType.h"
 #include "IExec.h"
 #include "IExecStmt.h"
 #include "IExecExprStmt.h"
@@ -46,6 +49,7 @@
 #include "IScalarType.h"
 #include "IStruct.h"
 #include "IConstraintImplies.h"
+#include "IImport.h"
 #include "IImportFunc.h"
 #include "IMethodCallExpr.h"
 #include "IRefExpr.h"
@@ -89,6 +93,8 @@ public:
 	 */
 	virtual IComponent *mkComponent(const std::string &name, IBaseItem	*super_type) = 0;
 
+	virtual ICoverspec *mkCoverspec(const std::string &name) = 0;
+
 	virtual IExec *mkTargetTemplateExec(
 			IExec::ExecKind 		kind,
 			const std::string		&language,
@@ -106,6 +112,14 @@ public:
 			IExpr					*lhs,
 			IExecExprStmt::AssignOp	op,
 			IExpr					*rhs) = 0;
+
+	virtual IEnumerator *mkEnumerator(
+			const std::string		&name,
+			IExpr					*value) = 0;
+
+	virtual IEnumType *mkEnumType(
+			const std::string					&name,
+			const std::vector<IEnumerator *>	&enumerators) = 0;
 
 	virtual IMethodCallExpr *mkMethodCallExpr(
 			IImportFunc					*func,
@@ -200,10 +214,15 @@ public:
 			IExpr			*cond,
 			IConstraint		*imp) = 0;
 
+	virtual IImport *mkImport(
+			IBaseItem						*target,
+			bool							is_wildcard) = 0;
+
 	virtual IImportFunc *mkImportFunc(
 			const std::string				&name,
 			IBaseItem						*ret_type,
 			const std::vector<IField *>		&parameters) = 0;
+
 
 	/**
 	 * Clones the specified item using this factory.
