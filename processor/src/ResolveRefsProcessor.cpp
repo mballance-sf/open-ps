@@ -7,6 +7,7 @@
 
 #include "ResolveRefsProcessor.h"
 #include "UndefinedTypeException.h"
+#include "UnresolvedVariableException.h"
 #include "IScopeItem.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -34,9 +35,10 @@ bool ResolveRefsProcessor::process(IModel *model) {
 	m_phase = 2; // variable-resolution phase
 	try {
 		visit_model(model);
-	} catch (UndefinedTypeException &e) {
-		fprintf(stdout, "Error: Failed to find type %s\n",
-				e.type_ref()->toString().c_str());
+	} catch (UnresolvedVariableException &e) {
+		fprintf(stdout, "Error: Failed to find variable %s in path %s\n",
+				e.unresolved_ref()->getId().c_str(),
+				e.full_ref()->toString().c_str());
 		return false;
 	}
 
@@ -59,6 +61,44 @@ void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
 	if (m_phase == 2) {
 		if (m_debug) {
 			debug("Resolve variable-ref %s", ref->toString().c_str());
+		}
+
+		IVariableRef *r = ref;
+		IScopeItem *scope = dynamic_cast<IScopeItem *>(r->getScope());
+		while (r) {
+			INamedItem *sn = dynamic_cast<INamedItem *>(scope);
+
+			if (m_debug) {
+				debug("  Searching scope %s for %s\n",
+						(sn)?sn->getName().c_str():"unnamed",
+						ref->getId().c_str());
+			}
+
+			for (uint32_t i=0; i<scope->getItems().size(); i++) {
+				IBaseItem *it = scope->getItems().at(i);
+				if (dynamic_cast<INamedItem *>(it) &&
+						dynamic_cast<INamedItem *>(it)->getName() == r->getId()) {
+					r->setTarget(it);
+					break;
+				}
+			}
+
+			if (!r->getTarget()) {
+				throw UnresolvedVariableException(scope, ref, r);
+				fprintf(stdout, "Error: Failed to find variable %s\n", r->getId().c_str());
+				return;
+//				throw UndefinedTypeException(scope, type)
+			}
+
+			// TODO: need to determine
+			if (r->getNext()) {
+				if (m_debug) {
+					debug("Must find next scope from variable %s\n", r->getId().c_str());
+				}
+				break;
+			}
+
+			r = r->getNext();
 		}
 	}
 }

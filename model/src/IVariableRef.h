@@ -26,6 +26,10 @@ public:
 
 	virtual IExpr *getIndexRhs() const = 0;
 
+	virtual IBaseItem *getTarget() const = 0;
+
+	virtual void setTarget(IBaseItem *t) = 0;
+
 	virtual void setNext(IVariableRef *next) = 0;
 
 	// Returns the next link in the variable-ref chain

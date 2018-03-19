@@ -29,6 +29,10 @@ public:
 
 	virtual IExpr *getIndexRhs() const { return m_index_rhs; }
 
+	virtual IBaseItem *getTarget() const { return m_target; }
+
+	virtual void setTarget(IBaseItem *t) { m_target = t; }
+
 	virtual void setNext(IVariableRef *next) { m_next = next; }
 
 	// Returns the next link in the variable-ref chain
@@ -40,6 +44,7 @@ public:
 
 private:
 	IBaseItem				*m_scope;
+	IBaseItem				*m_target;
 	std::string				m_id;
 	IExpr					*m_index_lhs;
 	IExpr					*m_index_rhs;

@@ -13,7 +13,7 @@ VariableRefImpl::VariableRefImpl(
 		IExpr					*index_lhs,
 		IExpr					*index_rhs) :
 		ExprImpl(IExpr::ExprType_VariableRef),
-		m_scope(scope), m_id(id),
+		m_scope(scope), m_target(0), m_id(id),
 		m_index_lhs(index_lhs), m_index_rhs(index_rhs),
 		m_next(0) {
 
