@@ -1,7 +1,19 @@
 
+---------------------------------------------------------------------
+-- 0.0.2 Release --
+
+- Correct syntax for 'target' <language> 'function'
+
+- Add type resolution for extensions and fields of user-defined type.
+  Errors are now emitted if a type isn't defined
+
+* Add variable resolution for variable-reference paths. Errors are
+  now emitted if a field or subfield of an instance path doesn't exist
+
+* Add support for 'constraint parallel' and 'constraint sequence' constraints
 
 ---------------------------------------------------------------------
-- 0.0.1
+- 0.0.1 Release --
 
 - Update ANTLR parse and complete expression parsing
 - All spec examples now parse

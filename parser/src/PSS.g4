@@ -227,7 +227,7 @@ import_method_phase_qualifiers:
 ;
 
 import_method_target_template:
-	'target' 'function' language_identifier method_prototype '=' string ';'
+	'target' language_identifier 'function' method_prototype '=' string ';'
 ;
 
 import_function_qualifiers:
