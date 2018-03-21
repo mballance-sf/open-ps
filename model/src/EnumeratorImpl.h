@@ -12,7 +12,7 @@
 
 using namespace psi;
 
-class EnumeratorImpl: public virtual IEnumerator {
+class EnumeratorImpl: public BaseItemImpl, public virtual IEnumerator {
 public:
 
 	EnumeratorImpl(
@@ -24,6 +24,8 @@ public:
 	virtual const std::string &getName() const { return m_name; }
 
 	virtual IExpr *getValue() const { return m_value; }
+
+	virtual IBaseItem *clone() const;
 
 private:
 	std::string						m_name;

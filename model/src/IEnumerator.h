@@ -14,7 +14,7 @@
 using namespace psi_api;
 
 
-class IEnumerator : public virtual INamedItem {
+class IEnumerator : public virtual IBaseItem, public virtual INamedItem {
 public:
 
 	virtual const std::string &getName() const = 0;

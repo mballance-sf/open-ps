@@ -64,9 +64,10 @@ void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
 		}
 
 		IVariableRef *r = ref;
-		IScopeItem *scope = dynamic_cast<IScopeItem *>(r->getScope());
 		while (r) {
-			INamedItem *sn = dynamic_cast<INamedItem *>(scope);
+			for (int32_t x=scopes().size()-1; x>=0; x--) {
+				IScopeItem *scope = scopes().at(x);
+				INamedItem *sn = dynamic_cast<INamedItem *>(scope);
 
 			if (m_debug) {
 				debug("  Searching scope %s for %s\n",
@@ -80,11 +81,45 @@ void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
 						dynamic_cast<INamedItem *>(it)->getName() == r->getId()) {
 					r->setTarget(it);
 					break;
+				} else if (dynamic_cast<IEnumType *>(it)) {
+					IEnumType *t = dynamic_cast<IEnumType *>(scope->getItems().at(i));
+					fprintf(stdout, "EnumType: %s\n", t->getName().c_str());
+					for (uint32_t j=0; j<t->getEnumerators().size(); j++) {
+						IEnumerator *e = t->getEnumerators().at(j);
+						fprintf(stdout, "Enum: %s Id: %s\n",
+								e->getName().c_str(), r->getId().c_str());
+						if (e->getName() == r->getId()) {
+							fprintf(stdout, "Match enum: %s\n", e->getName().c_str());
+							r->setTarget(e);
+							break;
+						}
+					}
 				}
 			}
 
 			if (!r->getTarget()) {
-				throw UnresolvedVariableException(scope, ref, r);
+				if (dynamic_cast<IAction *>(scope) &&
+					dynamic_cast<IAction *>(scope)->getSuperType()) {
+					// Try the super scope
+					fprintf(stdout, "TODO: search action super-type\n");
+//					scope = dynamic_cast<IScopeItem *>(
+//							dynamic_cast<IAction *>(scope)->getSuperType());
+				} else if (dynamic_cast<IStruct *>(scope) &&
+						dynamic_cast<IStruct *>(scope)->getSuperType()) {
+					fprintf(stdout, "TODO: search struct super-type\n");
+//					scope = dynamic_cast<IScopeItem *>(
+//							dynamic_cast<IStruct *>(scope)->getSuperType());
+				}
+//				else /*if (dynamic_cast<IComponent *>(scope) &&
+//						dynamic_cast<IComponent *>(scope)->get) */ {
+//					// Nothing else to check
+//					scope = 0;
+//				}
+			}
+			}
+
+			if (!r->getTarget()) {
+//				throw UnresolvedVariableException(scope, ref, r);
 				fprintf(stdout, "Error: Failed to find variable %s\n", r->getId().c_str());
 				return;
 //				throw UndefinedTypeException(scope, type)

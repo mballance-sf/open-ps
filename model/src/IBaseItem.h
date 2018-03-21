@@ -49,14 +49,15 @@ namespace psi_api {
 			TypeField,		// 5
 			TypeImport,
 			TypeEnum,
+			TypeEnumerator,
 			TypeExec,
-			TypeExtend,
-			TypeGraphStmt,	// 10
+			TypeExtend,		// 10
+			TypeGraphStmt,
 			TypeImportFunc,
 			TypeModel,
 			TypeObject,
-			TypePackage,
-			TypeScalar,		// 15
+			TypePackage,	// 15
+			TypeScalar,
 			TypeStruct,
 			TypeSymbol,
 			TypeRefType,

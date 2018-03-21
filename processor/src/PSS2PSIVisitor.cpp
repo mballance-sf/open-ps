@@ -17,7 +17,7 @@ using namespace antlrcpp;
 
 PSS2PSIVisitor::PSS2PSIVisitor(IModel *model, const std::string &path) :
 		m_model(model), m_factory(model->getItemFactory()), m_file(path) {
-	m_debug = false;
+	m_debug = true;
 }
 
 PSS2PSIVisitor::~PSS2PSIVisitor() {
@@ -560,8 +560,6 @@ antlrcpp::Any PSS2PSIVisitor::visitEnum_declaration(PSSParser::Enum_declarationC
 	IEnumType *e = m_factory->mkEnumType(
 			ctx->enum_identifier()->getText(),
 			enumerators);
-
-	todo("enum_declaration");
 
 	leave("visitEnum_declaration");
 	ret = e;
