@@ -703,7 +703,7 @@ void PSI2XML::process_graph_stmt(IGraphStmt *stmt, const char *tag) {
 	} break;
 
 	case IGraphStmt::GraphStmt_Traverse: {
-		IGraphTraverseStmt *t = dynamic_cast<IGraphTraverseStmt *>(stmt);
+		IActivityTraverseStmt *t = dynamic_cast<IActivityTraverseStmt *>(stmt);
 
 		std::string tag = "traverse name=\"";
 		tag += path2string(t->getAction());

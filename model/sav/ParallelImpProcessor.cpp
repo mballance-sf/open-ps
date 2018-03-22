@@ -7,10 +7,10 @@
 
 #include "ParallelImpProcessor.h"
 
+#include "../src/ActivityTraverseStmtImpl.h"
 #include "MethodCallExprImpl.h"
 #include "ExecExprStmtImpl.h"
 #include "ActionImpl.h"
-#include "GraphTraverseStmtImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "FieldRefImpl.h"
 
@@ -80,7 +80,7 @@ void ParallelImpProcessor::visit_action(IAction *a) {
 		path.clear();
 		path.push_back(m_thread_context_create_a);
 		block->getStmtsM().insert(pos,
-			new GraphTraverseStmtImpl(new FieldRefImpl(path), 0));
+			new ActivityTraverseStmtImpl(new FieldRefImpl(path), 0));
 
 //		pos++;
 //		if (pos != block->getStmtsM().end()) {
@@ -99,10 +99,10 @@ void ParallelImpProcessor::visit_action(IAction *a) {
 		path.push_back(m_thread_context_join_a);
 		if (pos == block->getStmtsM().end()) {
 			block->getStmtsM().push_back(
-					new GraphTraverseStmtImpl(new FieldRefImpl(path), 0));
+					new ActivityTraverseStmtImpl(new FieldRefImpl(path), 0));
 		} else {
 			block->getStmtsM().insert(pos,
-					new GraphTraverseStmtImpl(new FieldRefImpl(path), 0));
+					new ActivityTraverseStmtImpl(new FieldRefImpl(path), 0));
 		}
 	}
 
@@ -179,12 +179,12 @@ void ParallelImpProcessor::visit_graph_parallel_block_stmt(IGraphBlockStmt *s) {
 		path.push_back(m_thread_begin_a);
 		block->getStmtsM().insert(
 				block->getStmtsM().begin(),
-				new GraphTraverseStmtImpl(new FieldRefImpl(path), 0));
+				new ActivityTraverseStmtImpl(new FieldRefImpl(path), 0));
 
 		path.clear();
 		path.push_back(m_thread_end_a);
 		block->getStmtsM().push_back(
-				new GraphTraverseStmtImpl(new FieldRefImpl(path), 0));
+				new ActivityTraverseStmtImpl(new FieldRefImpl(path), 0));
 	}
 
 

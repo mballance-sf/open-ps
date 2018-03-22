@@ -1,6 +1,11 @@
 
+
 // Example: 11.3.4.3
 component top {
+	action A { }
+	action B { }
+	action C { }
+
 	action my_test {
 		activity {
 			do A;

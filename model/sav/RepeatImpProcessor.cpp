@@ -9,7 +9,6 @@
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
 #include "RulesExecActionItem.h"
-#include "GraphTraverseStmtImpl.h"
 #include "ExecExprStmtImpl.h"
 #include "RulesTempVar.h"
 #include "FieldRefImpl.h"
@@ -18,6 +17,7 @@
 #include "LiteralImpl.h"
 #include <stdio.h>
 #include "../../psi/src/MethodCallExprImpl.h"
+#include "../src/ActivityTraverseStmtImpl.h"
 
 namespace qpssc {
 
@@ -175,11 +175,11 @@ void RepeatImpProcessor::visit_graph_repeat_stmt(IGraphRepeatStmt *r) {
 	path.push_back(init);
 	rb->getStmtsM().insert(
 		rb->getStmtsM().begin(), 
-		new GraphTraverseStmtImpl(new FieldRefImpl(path), 0));
+		new ActivityTraverseStmtImpl(new FieldRefImpl(path), 0));
 
 	path.clear();
 	path.push_back(check);
-	rb->add(new GraphTraverseStmtImpl(new FieldRefImpl(path), 0));
+	rb->add(new ActivityTraverseStmtImpl(new FieldRefImpl(path), 0));
 
 	m_repeat_id++;
 

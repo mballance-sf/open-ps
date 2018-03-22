@@ -119,8 +119,11 @@ public:
 	virtual IGraphBlockStmt *mkGraphBlockStmt(
 			IGraphStmt::GraphStmtType type=IGraphStmt::GraphStmt_Block);
 
-	virtual IGraphTraverseStmt *mkGraphTraverseStmt(
-			IFieldRef *action, IConstraint *with_c=0);
+	virtual IActivityTraverseStmt *mkActivityTraverseStmt(
+			IVariableRef *action, IConstraint *with_c=0);
+
+	virtual IActivityDoActionStmt *mkActivityDoActionStmt(
+			IBaseItem *target, IConstraintBlock *with_c);
 
 	virtual IGraphRepeatStmt *mkGraphRepeatStmt(
 			IGraphRepeatStmt::RepeatType type,

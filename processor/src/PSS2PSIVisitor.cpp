@@ -69,7 +69,8 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_declaration(PSSParser::Action_declarat
 		if (it) {
 			action->add(it);
 		} else {
-			error("null action item");
+			// This happens for data fields
+//			error("null action item");
 		}
 	}
 	pop_scope();
@@ -149,13 +150,25 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 
 	if (ctx->is_do) {
 		// Do <type>
-		todo("do <action::type> unimplemented");
+		IConstraintBlock *with_c = 0;
+
+		if (ctx->inline_with_constraint()) {
+			todo("do <action::type> with inline constraint");
+		}
+		IActivityDoActionStmt *stmt = m_factory->mkActivityDoActionStmt(
+				m_factory->mkRefType(scope(),
+						type2vector(ctx->type_identifier())),
+				with_c);
+		ret = stmt;
 	} else {
 		// <type>
 		std::vector<PSSParser::Variable_refContext *> path;
 		path.push_back(ctx->variable_ref());
-//		ret = m_factory->mkGraphTraverseStmt(elaborate_field_ref(path), with_c);
-		todo("mkGraphTraverseStmt");
+		ret = m_factory->mkActivityTraverseStmt(
+				m_factory->mkVariableRef(
+						dynamic_cast<IBaseItem *>(scope()),
+						ctx->variable_ref()->getText(), 0, 0),
+				with_c);
 	}
 
 	leave("visitActivity_action_traveral_stmt");
@@ -436,8 +449,9 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 			attr = IField::FieldAttr_Share;
 		} else if (modifier == "action") {
 			// TODO:
+			todo("action-qualified action data field");
 		} else {
-
+			todo("unknown action-field modifier %s", modifier.c_str());
 		}
 	}
 
@@ -452,6 +466,8 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 			todo("array_dim");
 		}
 
+		// TODO: use an 'array-type' to represent an array
+		// - Has built-in field
 		IField *field = m_factory->mkField(
 				di->identifier()->getText(),
 				data_type,
@@ -849,12 +865,11 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 	enter("visitExpression");
 
 	if (ctx->unary_op()) {
-		// TODO: unary op
+		todo("unary op");
 		ret = ctx->lhs->accept(this);
-
-		// TODO: m_expr = unary_op(op, m_expr)
 	} else if (ctx->exp_op()) {
 		// TODO:
+		todo("exp op");
 	} else if (ctx->mul_div_mod_op()) {
 		IBinaryExpr::BinOpType op = IBinaryExpr::BinOp_Eq;
 			if (ctx->mul_div_mod_op()->getText() == "*") {
@@ -880,6 +895,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 				ctx->lhs->accept(this), op,
 				ctx->rhs->accept(this));
 	} else if (ctx->shift_op()) {
+		todo("shift_op");
 		IBinaryExpr::BinOpType op = IBinaryExpr::BinOp_Eq;
 			if (ctx->shift_op()->getText() == "<<") {
 //				op = IBinaryExpr::BinOp_ TODO
@@ -918,6 +934,7 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 				ctx->lhs->accept(this), IBinaryExpr::BinOp_And,
 				ctx->rhs->accept(this));
 	} else if (ctx->binary_xor_op()) {
+		todo("binary_xor_op");
 		// TODO:
 //		ret = m_factory->mkBinExpr(
 //				ctx->lhs->accept(this), IBinaryExpr::BinOp_Xor,

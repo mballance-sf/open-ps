@@ -29,6 +29,7 @@
 #include <string>
 
 #include "IAction.h"
+#include "IActivityTraverseStmt.h"
 #include "IBaseItem.h"
 #include "IBinaryExpr.h"
 #include "IBind.h"
@@ -44,7 +45,6 @@
 #include "IGraphBlockStmt.h"
 #include "IGraphIfElseStmt.h"
 #include "IGraphRepeatStmt.h"
-#include "IGraphTraverseStmt.h"
 #include "ILiteral.h"
 #include "IPackage.h"
 #include "IScalarType.h"

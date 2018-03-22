@@ -48,7 +48,7 @@
 #include "FieldRefImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
-#include "GraphTraverseStmtImpl.h"
+#include "ActivityTraverseStmtImpl.h"
 #include "ImportFuncImpl.h"
 #include "LiteralImpl.h"
 #include "ScalarTypeImpl.h"

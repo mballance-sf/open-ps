@@ -1,5 +1,5 @@
 /*
- * IGraphTraverseStmt.h
+ * IActivityTraverseStmt.h
  *
  * Copyright 2016 Mentor Graphics Corporation
  * All Rights Reserved Worldwide
@@ -25,17 +25,17 @@
 #ifndef SRC_PSI_API_IGRAPHTRAVERSESTMT_H_
 #define SRC_PSI_API_IGRAPHTRAVERSESTMT_H_
 #include "IGraphStmt.h"
-#include "IFieldRef.h"
+#include "IVariableRef.h"
 #include "IConstraint.h"
 
 namespace psi_api {
 
-class IGraphTraverseStmt : public IGraphStmt {
+class IActivityTraverseStmt : public IGraphStmt {
 public:
 
-	virtual ~IGraphTraverseStmt() { }
+	virtual ~IActivityTraverseStmt() { }
 
-	virtual IFieldRef *getAction() const = 0;
+	virtual IVariableRef *getAction() const = 0;
 
 	virtual IConstraint *getWith() const = 0;
 

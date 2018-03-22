@@ -62,7 +62,7 @@ protected:
 
 	virtual void visit_graph_repeat_stmt(IGraphRepeatStmt *r);
 
-	virtual void visit_graph_traverse_stmt(IGraphTraverseStmt *t);
+	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t);
 
 	virtual void visit_rules_action_exec_item(RulesExecActionItem *it);
 

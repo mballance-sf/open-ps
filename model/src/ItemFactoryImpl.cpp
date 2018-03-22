@@ -39,7 +39,8 @@
 #include "FieldImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
-#include "GraphTraverseStmtImpl.h"
+#include "ActivityDoActionStmtImpl.h"
+#include "ActivityTraverseStmtImpl.h"
 #include "BinaryExprImpl.h"
 #include "FieldRefImpl.h"
 #include "LiteralImpl.h"
@@ -190,9 +191,15 @@ IGraphRepeatStmt *ItemFactoryImpl::mkGraphRepeatStmt(
 	return new ActivityRepeatStmtImpl(type, expr, body);
 }
 
-IGraphTraverseStmt *ItemFactoryImpl::mkGraphTraverseStmt(
-		IFieldRef *action, IConstraint *with_c) {
-	return new GraphTraverseStmtImpl(action, with_c);
+IActivityDoActionStmt *ItemFactoryImpl::mkActivityDoActionStmt(
+		IBaseItem *target,
+		IConstraintBlock *with_c) {
+	return new ActivityDoActionStmtImpl(target, with_c);
+}
+
+IActivityTraverseStmt *ItemFactoryImpl::mkActivityTraverseStmt(
+		IVariableRef *action, IConstraint *with_c) {
+	return new ActivityTraverseStmtImpl(action, with_c);
 }
 
 IBinaryExpr *ItemFactoryImpl::mkBinExpr(

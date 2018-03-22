@@ -1,5 +1,5 @@
 /*
- * GraphTraverseStmtImpl.h
+ * ActivityTraverseStmtImpl.h
  *
  * Copyright 2016 Mentor Graphics Corporation
  * All Rights Reserved Worldwide
@@ -22,25 +22,27 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_GRAPHTRAVERSESTMTIMPL_H_
-#define IMPL_GRAPHTRAVERSESTMTIMPL_H_
-#include "IGraphTraverseStmt.h"
+#ifndef INCLUDED_ACTIVITY_TRAVSERSE_STMT_H
+#define INCLUDED_ACTIVITY_TRAVSERSE_STMT_H
+#include "IActivityTraverseStmt.h"
 
 using namespace psi_api;
 
 namespace psi {
 
-class GraphTraverseStmtImpl: public IGraphTraverseStmt {
+class ActivityTraverseStmtImpl: public IActivityTraverseStmt {
 public:
-	GraphTraverseStmtImpl(IFieldRef *action, IConstraint *c);
+	ActivityTraverseStmtImpl(
+			IVariableRef	*action,
+			IConstraint 	*c);
 
-	virtual ~GraphTraverseStmtImpl();
+	virtual ~ActivityTraverseStmtImpl();
 
 	virtual GraphStmtType getStmtType() const {
 		return GraphStmt_Traverse;
 	}
 
-	virtual IFieldRef *getAction() const {
+	virtual IVariableRef *getAction() const {
 		return m_action;
 	}
 
@@ -52,11 +54,11 @@ public:
 
 private:
 
-	IFieldRef					*m_action;
+	IVariableRef				*m_action;
 	IConstraint					*m_constraint;
 
 };
 
 } /* namespace psi */
 
-#endif /* IMPL_GRAPHTRAVERSESTMTIMPL_H_ */
+#endif /* INCLUDED_ACTIVITY_TRAVSERSE_STMT_H */

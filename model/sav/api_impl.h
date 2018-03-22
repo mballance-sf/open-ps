@@ -21,6 +21,8 @@
 #define INCLUDED_API_IMPL_H
 #include "ActionImpl.h"
 #include "api_impl.h"
+
+#include "../src/ActivityTraverseStmtImpl.h"
 #include "BaseItemImpl.h"
 #include "BinaryExprImpl.h"
 #include "BindImpl.h"
@@ -36,7 +38,6 @@
 #include "FieldRefImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
-#include "GraphTraverseStmtImpl.h"
 #include "ImportFuncImpl.h"
 #include "ItemFactoryImpl.h"
 #include "LiteralImpl.h"

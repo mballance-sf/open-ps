@@ -438,7 +438,7 @@ void PSI2Rules::visit_graph_repeat_stmt(IGraphRepeatStmt *r) {
 	m_out->println("}");
 }
 
-void PSI2Rules::visit_graph_traverse_stmt(IGraphTraverseStmt *t) {
+void PSI2Rules::visit_activity_traverse_stmt(IActivityTraverseStmt *t) {
 	if (t->getWith()) {
 		m_out->println("%s // TODO: with",
 				fieldref2string(t->getAction()).c_str());

@@ -219,6 +219,9 @@ void PSIVisitor::visit_expr(IExpr *e) {
 		case IExpr::ExprType_VariableRef:
 			visit_variable_ref(dynamic_cast<IVariableRef *>(e));
 			break;
+		case IExpr::ExprType_MethodCall:
+			visit_method_call(dynamic_cast<IMethodCallExpr *>(e));
+			break;
 		default:
 			fprintf(stdout, "Error: unhandled expr type %d\n", e->getType());
 			break;
@@ -249,6 +252,9 @@ void PSIVisitor::visit_literal_expr(ILiteral *l) {
 
 }
 
+void PSIVisitor::visit_method_call(IMethodCallExpr *c) {
+
+}
 
 void PSIVisitor::visit_field(IField *f) {
 	visit_item(f->getDataType());
@@ -297,7 +303,11 @@ void PSIVisitor::visit_graph_stmt(IGraphStmt *stmt) {
 	} break;
 
 	case IGraphStmt::GraphStmt_Traverse: {
-		visit_graph_traverse_stmt(dynamic_cast<IGraphTraverseStmt *>(stmt));
+		visit_activity_traverse_stmt(dynamic_cast<IActivityTraverseStmt *>(stmt));
+	} break;
+
+	case IGraphStmt::GraphStmt_DoAction: {
+		visit_activity_do_action_stmt(dynamic_cast<IActivityDoActionStmt *>(stmt));
 	} break;
 
 	default: fprintf(stdout, "TODO: handle activity stmt %d\n", stmt->getStmtType());
@@ -331,9 +341,17 @@ void PSIVisitor::visit_graph_select_stmt(IGraphBlockStmt *s) {
 	visit_graph_block_stmt(s);
 }
 
-void PSIVisitor::visit_graph_traverse_stmt(IGraphTraverseStmt *t) {
+void PSIVisitor::visit_activity_traverse_stmt(IActivityTraverseStmt *t) {
+	visit_variable_ref(t->getAction());
 	if (t->getWith()) {
 		visit_constraint_stmt(t->getWith());
+	}
+}
+
+void PSIVisitor::visit_activity_do_action_stmt(IActivityDoActionStmt *stmt) {
+	visit_ref_type(dynamic_cast<IRefType *>(stmt->getTargetType()));
+	if (stmt->getConstraint()) {
+		visit_constraint_block(stmt->getConstraint());
 	}
 }
 

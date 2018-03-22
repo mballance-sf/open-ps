@@ -85,6 +85,8 @@ protected:
 
 	virtual void visit_literal_expr(ILiteral *l);
 
+	virtual void visit_method_call(IMethodCallExpr *c);
+
 	virtual void visit_enum_type(IEnumType *e);
 
 	virtual void visit_field(IField *f);
@@ -103,7 +105,9 @@ protected:
 
 	virtual void visit_graph_select_stmt(IGraphBlockStmt *s);
 
-	virtual void visit_graph_traverse_stmt(IGraphTraverseStmt *t);
+	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t);
+
+	virtual void visit_activity_do_action_stmt(IActivityDoActionStmt *stmt);
 
 	virtual void visit_import(IImport *imp);
 

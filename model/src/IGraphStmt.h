@@ -47,7 +47,8 @@ public:
 		GraphStmt_Repeat,
 
 		/*! activity action-traversal statement */
-		GraphStmt_Traverse
+		GraphStmt_Traverse,
+		GraphStmt_DoAction
 	};
 
 public:

@@ -24,8 +24,8 @@ component top {
 
 		activity {
 			parallel {
-				do do_something_a1 with { my_rsrc_inst.kind != B; };
- 				do do_something_a1 with { my_rsrc_inst.kind != C; };
+				do do_something with { my_rsrc_inst.kind != B; };
+ 				do do_something with { my_rsrc_inst.kind != C; };
  				do do_something_else;
 			}
 		}

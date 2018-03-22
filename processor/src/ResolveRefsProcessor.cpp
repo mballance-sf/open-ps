@@ -13,7 +13,7 @@
 #include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	m_debug = true;
+	m_debug = false;
 	m_phase = 0;
 }
 
@@ -83,13 +83,9 @@ void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
 					break;
 				} else if (dynamic_cast<IEnumType *>(it)) {
 					IEnumType *t = dynamic_cast<IEnumType *>(scope->getItems().at(i));
-					fprintf(stdout, "EnumType: %s\n", t->getName().c_str());
 					for (uint32_t j=0; j<t->getEnumerators().size(); j++) {
 						IEnumerator *e = t->getEnumerators().at(j);
-						fprintf(stdout, "Enum: %s Id: %s\n",
-								e->getName().c_str(), r->getId().c_str());
 						if (e->getName() == r->getId()) {
-							fprintf(stdout, "Match enum: %s\n", e->getName().c_str());
 							r->setTarget(e);
 							break;
 						}
@@ -119,7 +115,7 @@ void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
 			}
 
 			if (!r->getTarget()) {
-//				throw UnresolvedVariableException(scope, ref, r);
+				throw UnresolvedVariableException(scope(), ref, r);
 				fprintf(stdout, "Error: Failed to find variable %s\n", r->getId().c_str());
 				return;
 //				throw UndefinedTypeException(scope, type)

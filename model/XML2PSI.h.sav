@@ -70,7 +70,7 @@ protected:
 
 	IGraphBlockStmt *elaborate_schedule(xmlNode *p, const strmap &attr);
 
-	IGraphTraverseStmt *elaborate_traverse(xmlNode *p, const strmap &attr);
+	IActivityTraverseStmt *elaborate_traverse(xmlNode *p, const strmap &attr);
 
 	IComponent *elaborate_component(xmlNode *p, const strmap &attr);
 

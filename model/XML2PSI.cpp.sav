@@ -309,7 +309,7 @@ IGraphBlockStmt *XML2PSI::elaborate_schedule(xmlNode *p, const strmap &attr) {
 			p, attr);
 }
 
-IGraphTraverseStmt *XML2PSI::elaborate_traverse(xmlNode *p, const strmap &attr) {
+IActivityTraverseStmt *XML2PSI::elaborate_traverse(xmlNode *p, const strmap &attr) {
 	IFieldRef *action = 0;
 	IConstraint *with = 0;
 
@@ -328,7 +328,7 @@ IGraphTraverseStmt *XML2PSI::elaborate_traverse(xmlNode *p, const strmap &attr) 
 
 	IBaseItem *scope = m_scope_stack.top().scope();
 
-	return m_model->mkGraphTraverseStmt(action, with);
+	return m_model->mkActivityTraverseStmt(action, with);
 }
 
 IComponent *XML2PSI::elaborate_component(xmlNode *p, const strmap &attr) {

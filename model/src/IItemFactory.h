@@ -43,8 +43,9 @@
 #include "IExecExprStmt.h"
 #include "IExtend.h"
 #include "IGraphBlockStmt.h"
+#include "IActivityDoActionStmt.h"
+#include "IActivityTraverseStmt.h"
 #include "IGraphRepeatStmt.h"
-#include "IGraphTraverseStmt.h"
 #include "ILiteral.h"
 #include "IScalarType.h"
 #include "IStruct.h"
@@ -170,8 +171,12 @@ public:
 	virtual IGraphBlockStmt *mkGraphBlockStmt(
 			IGraphStmt::GraphStmtType type=IGraphStmt::GraphStmt_Block) = 0;
 
-	virtual IGraphTraverseStmt *mkGraphTraverseStmt(
-			IFieldRef *action, IConstraint *with_c=0) = 0;
+	virtual IActivityTraverseStmt *mkActivityTraverseStmt(
+			IVariableRef 	*action,
+			IConstraint 	*with_c=0) = 0;
+
+	virtual IActivityDoActionStmt *mkActivityDoActionStmt(
+			IBaseItem *type, IConstraintBlock *with_c) = 0;
 
 	virtual IGraphRepeatStmt *mkGraphRepeatStmt(
 			IGraphRepeatStmt::RepeatType type,

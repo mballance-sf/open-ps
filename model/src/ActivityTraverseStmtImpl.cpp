@@ -1,5 +1,5 @@
 /*
- * GraphTraverseStmtImpl.cpp
+ * ActivityTraverseStmtImpl.cpp
  *
  * Copyright 2016 Mentor Graphics Corporation
  * All Rights Reserved Worldwide
@@ -22,22 +22,24 @@
  *      Author: ballance
  */
 
-#include "GraphTraverseStmtImpl.h"
+#include "ActivityTraverseStmtImpl.h"
 
 namespace psi {
 
-GraphTraverseStmtImpl::GraphTraverseStmtImpl(IFieldRef *action, IConstraint *c) {
+ActivityTraverseStmtImpl::ActivityTraverseStmtImpl(
+		IVariableRef		*action,
+		IConstraint			*c) {
 	m_action = action;
 	m_constraint = c;
 }
 
-GraphTraverseStmtImpl::~GraphTraverseStmtImpl() {
+ActivityTraverseStmtImpl::~ActivityTraverseStmtImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-IGraphStmt *GraphTraverseStmtImpl::clone() const {
-	return new GraphTraverseStmtImpl(
-			dynamic_cast<IFieldRef *>(getAction()->clone()),
+IGraphStmt *ActivityTraverseStmtImpl::clone() const {
+	return new ActivityTraverseStmtImpl(
+			dynamic_cast<IVariableRef *>(m_action->clone()),
 			(getWith())?dynamic_cast<IConstraint *>(getWith()->clone()):0);
 }
 
