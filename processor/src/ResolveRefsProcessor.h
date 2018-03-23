@@ -33,6 +33,17 @@ protected:
 	virtual void visit_variable_ref(IVariableRef *ref) override;
 
 private:
+
+	void resolve_variable_ref(
+			IScopeItem		*scope,
+			IVariableRef	*full_ref,
+			IVariableRef	*ref
+			);
+
+	IBaseItem *resolve_variable_ref(
+			IScopeItem			*scope,
+			const std::string	&id);
+
 	IBaseItem *find_type(const std::vector<std::string> &type);
 
 	IBaseItem *find_type(const std::string &name);

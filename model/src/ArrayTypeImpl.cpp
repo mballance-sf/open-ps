@@ -16,24 +16,26 @@ ArrayTypeImpl::ArrayTypeImpl(
 		IBaseItem				*target,
 		bool					has_sum,
 		IExpr					*lhs,
-		IExpr					*rhs) {
+		IExpr					*rhs) : BaseItemImpl(IBaseItem::TypeArray) {
 	m_target = target;
 	if (has_sum) {
 		m_sum = new FieldImpl("sum",
 			new ScalarTypeImpl(IScalarType::ScalarType_Int,
-					new LiteralImpl(63),
-					new LiteralImpl(0)),
-			0,
+					new LiteralImpl((uint64_t)63),
+					new LiteralImpl((uint64_t)0)),
+			IField::FieldAttr_None,
 			0
 		);
+		add(m_sum);
 	}
 	m_size = new FieldImpl("size",
 			new ScalarTypeImpl(IScalarType::ScalarType_Bit,
-					new LiteralImpl(31),
-					new LiteralImpl(0)),
-			0,
+					new LiteralImpl((uint64_t)31),
+					new LiteralImpl((uint64_t)0)),
+			IField::FieldAttr_None,
 			0
 			);
+	add(m_size);
 	m_lhs = lhs;
 	m_rhs = rhs;
 }

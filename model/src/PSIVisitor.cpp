@@ -33,8 +33,7 @@ namespace psi {
 namespace apps {
 
 PSIVisitor::PSIVisitor() : m_removed(false) {
-	// TODO Auto-generated constructor stub
-
+	m_debug = true;
 }
 
 PSIVisitor::~PSIVisitor() {

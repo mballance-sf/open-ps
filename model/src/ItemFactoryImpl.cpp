@@ -23,6 +23,7 @@
  */
 
 #include "ItemFactoryImpl.h"
+#include "ArrayTypeImpl.h"
 #include "ScalarTypeImpl.h"
 #include "BindImpl.h"
 #include "BindPathImpl.h"
@@ -65,6 +66,14 @@ ItemFactoryImpl::~ItemFactoryImpl() {
 	// TODO Auto-generated destructor stub
 }
 
+IArrayType *ItemFactoryImpl::mkArrayType(
+		IBaseItem				*target,
+		bool					has_sum,
+		IExpr					*lhs,
+		IExpr					*rhs) {
+	return new ArrayTypeImpl(
+			target, has_sum, lhs, rhs);
+}
 /**
  * Creates a scalar type. The msb and lsb parameters are ignored for types
  * other than pss_int and pss_bit

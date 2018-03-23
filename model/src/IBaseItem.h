@@ -26,7 +26,7 @@
 #ifndef SRC_API_IBASEITEM_H_
 #define SRC_API_IBASEITEM_H_
 #include "IAttributes.h"
-#include "ILocation.h"
+#include "IStartLocation.h"
 
 namespace psi_api {
 	class IItemFactory;
@@ -36,27 +36,28 @@ namespace psi_api {
 	 *
 	 * Common base API to PSI objects
 	 */
-	class IBaseItem : public virtual IAttributes {
+	class IBaseItem : public virtual IAttributes, public virtual IStartLocation {
 
 	public:
 
 		enum ItemType {
-			TypeAction,
+			TypeAction, // 0
+			TypeArray,
 			TypeBind,
 			TypeComponent,
 			TypeConstraint,
-			TypeCoverspec,
-			TypeField,		// 5
+			TypeCoverspec,	// 5
+			TypeField,
 			TypeImport,
 			TypeEnum,
 			TypeEnumerator,
-			TypeExec,
-			TypeExtend,		// 10
+			TypeExec,		// 10
+			TypeExtend,
 			TypeGraphStmt,
 			TypeImportFunc,
 			TypeModel,
-			TypeObject,
-			TypePackage,	// 15
+			TypeObject,		// 15
+			TypePackage,
 			TypeScalar,
 			TypeStruct,
 			TypeSymbol,
@@ -82,9 +83,6 @@ namespace psi_api {
 
 			virtual IBaseItem *clone() const = 0;
 
-			virtual const ILocation *getStart() const = 0;
-
-			virtual void setStart(ILocation *start) = 0;
 	};
 
 

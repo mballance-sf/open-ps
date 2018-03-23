@@ -8,12 +8,13 @@
 #ifndef MODEL_SRC_IARRAYTYPE_H_
 #define MODEL_SRC_IARRAYTYPE_H_
 #include "IBaseItem.h"
+#include "IScopeItem.h"
 #include "IField.h"
 #include "IExpr.h"
 
 using namespace psi_api;
 
-class IArrayType : public IBaseItem {
+class IArrayType : public virtual IBaseItem, public virtual IScopeItem {
 public:
 
 	virtual ~IArrayType() { }

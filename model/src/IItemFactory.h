@@ -47,6 +47,7 @@
 #include "IActivityTraverseStmt.h"
 #include "IGraphRepeatStmt.h"
 #include "ILiteral.h"
+#include "IArrayType.h"
 #include "IScalarType.h"
 #include "IStruct.h"
 #include "IConstraintImplies.h"
@@ -67,6 +68,12 @@ public:
 	 * Data pss_types
 	 */
 
+	virtual IArrayType *mkArrayType(
+			IBaseItem			*target,
+			bool				has_sum,
+			IExpr				*lhs,
+			IExpr				*rhs
+			) = 0;
 	/**
 	 * Creates a scalar type. The msb and lsb parameters are ignored for types
 	 * other than pss_int and pss_bit

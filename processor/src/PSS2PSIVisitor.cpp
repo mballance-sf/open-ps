@@ -410,14 +410,28 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_field_declaration(PSSParser::Struct_fi
 		PSSParser::Data_instantiationContext *di =
 				ctx->data_declaration()->data_instantiation(i);
 		IExpr *array_dim = 0;
+		IBaseItem *field_data_type = data_type;
 
 		if (di->array_dim()) {
-			todo("TODO: array_dim");
+			bool has_sum = (dynamic_cast<IScalarType *>(data_type));
+			IExpr *lhs = 0;
+			IExpr *rhs = 0;
+
+			if (di->array_dim()->constant_expression()) {
+				lhs = di->array_dim()->constant_expression()->accept(this);
+			}
+
+			// Wrap data_type in an array_type
+			field_data_type = m_factory->mkArrayType(
+					data_type,
+					has_sum,
+					lhs,
+					rhs);
 		}
 
 		IField *field = m_factory->mkField(
 				di->identifier()->getText(),
-				data_type,
+				field_data_type,
 				attr,
 				array_dim);
 
@@ -460,14 +474,30 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 	for (uint32_t i=0; i<ctx->action_data_declaration()->data_instantiation().size(); i++) {
 		PSSParser::Data_instantiationContext *di =
 				ctx->action_data_declaration()->data_instantiation(i);
+		// Array-dim as a field property is deprecated
 		IExpr *array_dim = 0;
 
 		if (di->array_dim()) {
-			todo("array_dim");
+			bool has_sum = (dynamic_cast<IScalarType *>(data_type));
+			IExpr *lhs = 0;
+			IExpr *rhs = 0;
+
+			if (di->array_dim()->constant_expression()) {
+				lhs = di->array_dim()->constant_expression()->accept(this);
+			}
+
+			// Wrap data_type in an array_type
+			data_type = m_factory->mkArrayType(
+					data_type,
+					has_sum,
+					lhs,
+					rhs);
 		}
 
 		// TODO: use an 'array-type' to represent an array
-		// - Has built-in field
+		// - Scalar array type
+		// - Has reference to data-type field
+		// - Has handles to 'size' and 'sum'
 		IField *field = m_factory->mkField(
 				di->identifier()->getText(),
 				data_type,
@@ -618,14 +648,33 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 		PSSParser::Data_instantiationContext *di =
 				ctx->data_declaration()->data_instantiation(i);
 		IExpr *array_dim = 0;
+		IBaseItem *field_data_type = data_type;
 
 		if (di->array_dim()) {
-			todo("array_dim");
+			bool has_sum = (dynamic_cast<IScalarType *>(data_type));
+			IExpr *lhs = 0;
+			IExpr *rhs = 0;
+
+			if (di->array_dim()->constant_expression()) {
+				lhs = di->array_dim()->constant_expression()->accept(this);
+			}
+
+			// Wrap data_type in an array_type
+			field_data_type = m_factory->mkArrayType(
+					data_type,
+					has_sum,
+					lhs,
+					rhs);
 		}
 
+		if (m_debug) {
+			debug("Note: field %s has data type of %d\n",
+					di->identifier()->getText().c_str(),
+					field_data_type->getType());
+		}
 		IField *field = m_factory->mkField(
 				di->identifier()->getText(),
-				data_type,
+				field_data_type,
 				attr,
 				array_dim);
 
@@ -704,6 +753,10 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 	} else {
 		is_dynamic = (ctx->is_dynamic != 0);
 
+		if (ctx->identifier()) {
+			name = ctx->identifier()->getText();
+		}
+
 		for (uint32_t i=0; i<ctx->constraint_body_item().size(); i++) {
 			IConstraint *c = ctx->constraint_body_item(i)->accept(this);
 
@@ -716,7 +769,6 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 	}
 
 	ret = m_factory->mkConstraintBlock(name, constraints);
-    scope()->add(ret);
 
 	leave("visitConstraint_declaration");
 

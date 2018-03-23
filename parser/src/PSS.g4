@@ -32,7 +32,12 @@ package_body_item:
 	import_stmt 					|
 	extend_stmt						|
 	package_declaration				|
-	component_declaration
+	component_declaration			|
+	const_data_declaration
+;
+
+const_data_declaration:
+	('static')? 'const' data_declaration
 ;
 
 extend_stmt:
@@ -87,14 +92,15 @@ action_super_spec:
 ;
 
 action_body_item:
-	activity_declaration			|
+	activity_declaration		|
 	overrides_declaration  		|	
 	constraint_declaration 		|
 	action_field_declaration	|
 	bins_declaration   			|
 	symbol_declaration			|
 	coverspec_declaration		|
-	exec_block_stmt
+	exec_block_stmt				|
+	const_data_declaration
 ;
 
 activity_declaration: 'activity' '{' activity_stmt* '}' (';')? ;
@@ -176,7 +182,8 @@ struct_body_item:
 	typedef_declaration			|
 	bins_declaration			|
 	coverspec_declaration		|
-	exec_block_stmt
+	exec_block_stmt				|
+	const_data_declaration
 ;
 
 struct_field_declaration:
@@ -295,7 +302,6 @@ component_body_item:
 	component_field_declaration		|
 	action_declaration 				|
 	object_bind_stmt				|
-//	inline_type_object_declaration	|
 	exec_block						|
 	package_body_item
 ;
@@ -316,12 +322,6 @@ component_pool_declaration:
 component_field_modifier:
 	('pool')
 ;
-
-//inline_type_object_declaration:
-//	'pool' struct_qualifier 'struct' identifier (':' [struct_declaration|struct_identifier])? '{'
-//		struct_body_item*
-//	'}' (';')?
-//;
 
 object_bind_stmt:
 	'bind' hierarchical_id object_bind_item_or_list ';'
@@ -572,11 +572,20 @@ string_type: 'string';
 
 integer_type:
 	integer_atom_type ('[' lhs=expression (':' rhs=expression)? ']')?
-		(is_in='in' '[' domain=open_range_list ']')?
+		(is_in='in' '[' domain=domain_open_range_list ']')?
 ;
 
 integer_atom_type:
 	'int'|'bit'
+;
+
+domain_open_range_list:
+	domain_open_range_value (',' domain_open_range_value)*
+;
+
+domain_open_range_value:
+	('..' rhs=expression) |
+	lhs=expression ('..' (rhs=expression)?)?
 ;
 
 open_range_list:
@@ -584,8 +593,7 @@ open_range_list:
 ;
 
 open_range_value:
-	('..' rhs=expression) |
-	lhs=expression ('..' (rhs=expression)?)?
+	lhs=expression ('..' rhs=expression)?
 ;
 
 /********************************************************************

@@ -25,16 +25,17 @@
 
 #ifndef SRC_API_ISCOPEITEM_H_
 #define SRC_API_ISCOPEITEM_H_
-#include <vector>
+
 #include <string>
+#include <vector>
 
 #include "IBaseItem.h"
-#include "ILocation.h"
+#include "IStartEndLocation.h"
 
 namespace psi_api {
 	class IField;
 
-	class IScopeItem {
+	class IScopeItem : public virtual IStartEndLocation {
 	public:
 
 		virtual ~IScopeItem() { }
@@ -48,14 +49,6 @@ namespace psi_api {
 		 * the named field does not exist
 		 */
 		virtual IField *getField(const std::string &name) = 0;
-
-		virtual const ILocation *getStart() const = 0;
-
-		virtual void setStart(ILocation *start) = 0;
-
-		virtual const ILocation *getEnd() const = 0;
-
-		virtual void setEnd(ILocation *end) = 0;
 
 	};
 }

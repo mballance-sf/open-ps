@@ -45,9 +45,13 @@ libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o)
 	$(Q)rm -f $@
 	$(Q)$(AR) vcq $@ $(filter-out build-%,$^)
 
-libantlr_runtime.a : $(ANTLR_RT_SRC:.cpp=.o)
+antlr/libantlr_runtime.a : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),antlr/$(o))
 	rm -f $@
 	$(AR) vcq $@ $(filter-out build-%,$^)
+	
+antlr/%.o : %.cpp
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(Q)$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 runtime.unpack : $(PACKAGES_DIR)/$(ANTLR_RUNTIME_SRC_ZIP)
 	$(Q)rm -rf antlr4-cpp-runtime

@@ -146,6 +146,12 @@ protected:
 	IGraphStmt *graph_parent(IGraphStmt *it=0);
 
 private:
+	void enter(const char *fmt, ...);
+
+	void leave(const char *fmt, ...);
+
+private:
+	bool						m_debug;
 	bool						m_removed;
 	std::vector<IScopeItem *>	m_scope_stack;
 	std::vector<IGraphStmt *>	m_graph_stack;

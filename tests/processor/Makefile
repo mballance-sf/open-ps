@@ -50,15 +50,18 @@ __run: unittest$(EXEEXT)
 	./unittest$(EXEEXT)
 
 unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
-		libpss_parser.a libantlr_runtime.a \
+		libpss_parser.a antlr/libantlr_runtime.a \
 		libpss_processor.a		\
 		libops_model.a			\
 		gtest-all.o gtest_main.o
 	$(Q)$(CXX) -o $@ $^ -lpthread -static-libstdc++
 
 clean :
+	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*.a
+	
+clean-all :
 	rm -rf $(BUILD_DIR)
-
+	
 include $(MK_INCLUDES)
 
 

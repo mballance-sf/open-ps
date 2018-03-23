@@ -38,6 +38,11 @@ public:
 	 * Data pss_types
 	 */
 
+	virtual IArrayType *mkArrayType(
+			IBaseItem				*target,
+			bool					has_sum,
+			IExpr					*lhs,
+			IExpr					*rhs);
 	/**
 	 * Creates a scalar type. The msb and lsb parameters are ignored for types
 	 * other than pss_int and pss_bit

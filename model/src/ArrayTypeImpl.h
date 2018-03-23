@@ -9,11 +9,13 @@
 #define MODEL_SRC_ARRAYTYPEIMPL_H_
 
 #include "BaseItemImpl.h"
+#include "ScopeItemImpl.h"
 #include "IArrayType.h"
 
 using namespace psi;
 
-class ArrayTypeImpl: public BaseItemImpl, public virtual IArrayType {
+class ArrayTypeImpl: public BaseItemImpl,
+	public virtual ScopeItemImpl, public virtual IArrayType {
 public:
 	ArrayTypeImpl(
 			IBaseItem		*target,

@@ -13,7 +13,7 @@
 #include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	m_debug = false;
+	m_debug = true;
 	m_phase = 0;
 }
 
@@ -58,80 +58,173 @@ void ResolveRefsProcessor::visit_ref_type(IRefType *ref) {
 }
 
 void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
+	// Only active during phase 2
 	if (m_phase == 2) {
-		if (m_debug) {
-			debug("Resolve variable-ref %s", ref->toString().c_str());
+		resolve_variable_ref(0, ref, ref);
+	}
+}
+
+void ResolveRefsProcessor::resolve_variable_ref(
+		IScopeItem				*scope,
+		IVariableRef			*full_ref,
+		IVariableRef			*ref
+		) {
+	IBaseItem *resolved_ref = 0;
+
+	if (m_debug) {
+		debug("--> resolve_variable_ref %s in scope %s",
+				ref->getId().c_str(),
+				(dynamic_cast<INamedItem *>(scope))?
+						dynamic_cast<INamedItem *>(scope)->getName().c_str():
+						"unnamed");
+	}
+
+
+	// If this is the first path element, then
+	// we can search up the containing scopes
+	if (!scope) {
+		for (int32_t i=scopes().size()-1; i>=0; i--) {
+			resolved_ref = resolve_variable_ref(
+					scopes().at(i), ref->getId());
+
+			if (resolved_ref) {
+				break;
+			}
 		}
+	} else {
+		resolved_ref = resolve_variable_ref(scope, ref->getId());
+	}
 
-		IVariableRef *r = ref;
-		while (r) {
-			for (int32_t x=scopes().size()-1; x>=0; x--) {
-				IScopeItem *scope = scopes().at(x);
-				INamedItem *sn = dynamic_cast<INamedItem *>(scope);
+	// resolved_ref is a field
+	ref->setTarget(resolved_ref);
+	if (!resolved_ref) {
+		fprintf(stdout, "throw UnresolvedVariable\n");
+		throw UnresolvedVariableException(scope, full_ref, ref);
+	}
 
-			if (m_debug) {
-				debug("  Searching scope %s for %s\n",
-						(sn)?sn->getName().c_str():"unnamed",
-						ref->getId().c_str());
-			}
+	if (ref->getNext()) {
+		// Transform resolved_ref to its type
+		IField *ref_field = dynamic_cast<IField *>(resolved_ref);
+		IScopeItem *subscope = 0;
+		if (dynamic_cast<IRefType *>(ref_field->getDataType())) {
+			fprintf(stdout, "is reftype %d\n",
+					dynamic_cast<IRefType *>(ref_field->getDataType())->getTargetType()->getType());
+			fflush(stdout);
+			subscope = dynamic_cast<IScopeItem *>(
+					dynamic_cast<IRefType *>(ref_field->getDataType())->getTargetType());
+		} else if (dynamic_cast<IArrayType *>(ref_field->getDataType())) {
+			fprintf(stdout, "is arraytype\n");
+			fflush(stdout);
+			subscope = dynamic_cast<IArrayType *>(
+					dynamic_cast<IArrayType *>(ref_field->getDataType()));
+		} else {
+			fprintf(stdout, "Unknown type %d\n",
+					ref_field->getDataType()->getType());
+			fflush(stdout);
+		}
+		if (subscope) {
+			resolve_variable_ref(subscope, full_ref, ref->getNext());
+		} else {
+			fprintf(stdout, "Current ref isn't a scope\n");
+			throw UnresolvedVariableException(
+					scope, full_ref, ref->getNext());
+		}
+	}
 
-			for (uint32_t i=0; i<scope->getItems().size(); i++) {
-				IBaseItem *it = scope->getItems().at(i);
-				if (dynamic_cast<INamedItem *>(it) &&
-						dynamic_cast<INamedItem *>(it)->getName() == r->getId()) {
-					r->setTarget(it);
+	if (m_debug) {
+		debug("<-- resolve_variable_ref %s in scope %s => %p",
+				ref->getId().c_str(),
+				(dynamic_cast<INamedItem *>(scope))?
+						dynamic_cast<INamedItem *>(scope)->getName().c_str():
+						"unnamed",
+				resolved_ref);
+	}
+
+}
+
+IBaseItem *ResolveRefsProcessor::resolve_variable_ref(
+		IScopeItem			*scope,
+		const std::string	&id) {
+	IBaseItem *ret = 0;
+
+	INamedItem *sn = dynamic_cast<INamedItem *>(scope);
+
+	if (m_debug) {
+		debug("  --> Searching scope %s for %s\n",
+				(sn)?sn->getName().c_str():"unnamed", id.c_str());
+	}
+
+	for (uint32_t i=0; i<scope->getItems().size(); i++) {
+		IBaseItem *it = scope->getItems().at(i);
+		if (m_debug && dynamic_cast<INamedItem *>(it)) {
+			debug("  check %s",
+					dynamic_cast<INamedItem *>(it)->getName().c_str());
+		}
+		if (dynamic_cast<INamedItem *>(it) &&
+				dynamic_cast<INamedItem *>(it)->getName() == id) {
+			ret = it;
+			break;
+		} else if (dynamic_cast<IEnumType *>(it)) {
+			IEnumType *t = dynamic_cast<IEnumType *>(scope->getItems().at(i));
+			for (uint32_t j=0; j<t->getEnumerators().size(); j++) {
+				IEnumerator *e = t->getEnumerators().at(j);
+				if (e->getName() == id) {
+					ret = e;
 					break;
-				} else if (dynamic_cast<IEnumType *>(it)) {
-					IEnumType *t = dynamic_cast<IEnumType *>(scope->getItems().at(i));
-					for (uint32_t j=0; j<t->getEnumerators().size(); j++) {
-						IEnumerator *e = t->getEnumerators().at(j);
-						if (e->getName() == r->getId()) {
-							r->setTarget(e);
-							break;
-						}
-					}
 				}
 			}
+		} else if (dynamic_cast<IExtend *>(it) &&
+				dynamic_cast<IExtend *>(it)->getExtendType() == IExtend::ExtendType_Enum) {
+			// Search here too
+			IExtend *ext = dynamic_cast<IExtend *>(it);
 
-			if (!r->getTarget()) {
-				if (dynamic_cast<IAction *>(scope) &&
-					dynamic_cast<IAction *>(scope)->getSuperType()) {
-					// Try the super scope
-					fprintf(stdout, "TODO: search action super-type\n");
-//					scope = dynamic_cast<IScopeItem *>(
-//							dynamic_cast<IAction *>(scope)->getSuperType());
-				} else if (dynamic_cast<IStruct *>(scope) &&
-						dynamic_cast<IStruct *>(scope)->getSuperType()) {
-					fprintf(stdout, "TODO: search struct super-type\n");
-//					scope = dynamic_cast<IScopeItem *>(
-//							dynamic_cast<IStruct *>(scope)->getSuperType());
-				}
+		}
+	}
+
+	if (!ret) {
+		if (dynamic_cast<IAction *>(scope) &&
+			dynamic_cast<IAction *>(scope)->getSuperType()) {
+			IAction *action = dynamic_cast<IAction *>(scope);
+			IRefType *super_r = dynamic_cast<IRefType *>(action->getSuperType());
+			IAction *super = dynamic_cast<IAction *>(super_r->getTargetType());
+
+			// Try the super scope
+			ret = resolve_variable_ref(super, id);
+		} else if (dynamic_cast<IStruct *>(scope) &&
+				dynamic_cast<IStruct *>(scope)->getSuperType()) {
+			IStruct *s = dynamic_cast<IStruct *>(scope);
+			IRefType *super_r = dynamic_cast<IRefType *>(s->getSuperType());
+			IStruct *super_s = dynamic_cast<IStruct *>(super_r->getTargetType());
+
+			if (!super_s) {
+				fprintf(stdout, "super of type %s is not a struct\n",
+						dynamic_cast<INamedItem *>(scope)->getName().c_str());
+			}
+			ret = resolve_variable_ref(super_s, id);
+		} else if (dynamic_cast<IExtend *>(scope)) {
+			IExtend *ext = dynamic_cast<IExtend *>(scope);
+			IBaseItem *target = dynamic_cast<IRefType *>(ext->getTarget())->getTargetType();
+			IScopeItem *target_s = dynamic_cast<IScopeItem *>(target);
+			if (m_debug) {
+				INamedItem *ni = dynamic_cast<INamedItem *>(target_s);
+				debug("Searching extend scope %s", (ni)?ni->getName().c_str():"unnamed");
+			}
+			ret = resolve_variable_ref(target_s, id);
+		}
 //				else /*if (dynamic_cast<IComponent *>(scope) &&
 //						dynamic_cast<IComponent *>(scope)->get) */ {
 //					// Nothing else to check
 //					scope = 0;
 //				}
-			}
-			}
-
-			if (!r->getTarget()) {
-				throw UnresolvedVariableException(scope(), ref, r);
-				fprintf(stdout, "Error: Failed to find variable %s\n", r->getId().c_str());
-				return;
-//				throw UndefinedTypeException(scope, type)
-			}
-
-			// TODO: need to determine
-			if (r->getNext()) {
-				if (m_debug) {
-					debug("Must find next scope from variable %s\n", r->getId().c_str());
-				}
-				break;
-			}
-
-			r = r->getNext();
-		}
 	}
+
+	if (m_debug) {
+		debug("  <-- Searching scope %s for %s => %p\n",
+				(sn)?sn->getName().c_str():"unnamed",
+				id.c_str(), ret);
+	}
+
+	return ret;
 }
 
 IBaseItem *ResolveRefsProcessor::find_type(
