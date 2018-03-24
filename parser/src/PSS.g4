@@ -798,13 +798,19 @@ shift_op: '<<' | '>>';
 add_sub_op: '+' | '-';
 mul_div_mod_op: '*' | '/' | '%';
 
-primary: //; :
+primary: 
 	number 					
 	| bool_literal			
 	| paren_expr
 	| string_literal
 	| variable_ref_path
 	| method_function_call
+	| static_ref_path
+	;
+
+// #6362	
+static_ref_path:
+	identifier '::' identifier ('::' identifier)*
 	;
 
 method_function_call:

@@ -25,8 +25,8 @@ ifneq (1, $(RULES))
 -include antlr4-cpp-runtime/src.mk
 
 ANTLR4_CPP_RUNTIME_DIR=antlr4-cpp-runtime/runtime/src
-ANTLR4_RUNTIME_LINK=libantlr_runtime.a
-ANTLR4_RUNTIME_DEPS=libantlr_runtime.a
+ANTLR4_RUNTIME_LINK=antlr/libantlr_runtime.a
+ANTLR4_RUNTIME_DEPS=antlr/libantlr_runtime.a
 
 CXXFLAGS += -DANTLR4CPP_EXPORTS
 SRC_DIRS += $(PSS_PARSER_SRC_DIR)
@@ -48,10 +48,16 @@ libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o)
 antlr/libantlr_runtime.a : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),antlr/$(o))
 	rm -f $@
 	$(AR) vcq $@ $(filter-out build-%,$^)
-	
+
+ifeq (cl,$(COMPILER))
+antlr/%.o : %.cpp
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(Q)$(CXX) -Fo$(@) $(CXXFLAGS) $^
+else
 antlr/%.o : %.cpp
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(CXX) -c -o $@ $(CXXFLAGS) $^
+endif
 
 runtime.unpack : $(PACKAGES_DIR)/$(ANTLR_RUNTIME_SRC_ZIP)
 	$(Q)rm -rf antlr4-cpp-runtime

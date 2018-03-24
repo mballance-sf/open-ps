@@ -1,30 +1,10 @@
 
 PWD:=$(shell pwd)
-SCRIPTS_DIR:=$(dir $(lastword $(MAKEFILE_LIST)))
-SCRIPTS_DIR:=$(shell cd $(SCRIPTS_DIR); pwd)
-OPEN_PS_DIR:=$(shell cd $(SCRIPTS_DIR)/.. ; pwd)
-PACKAGES_DIR := $(OPEN_PS_DIR)/packages
+SCRIPTS_DIR:=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+# SCRIPTS_DIR:=$(shell cd $(SCRIPTS_DIR); pwd)
 
+include $(SCRIPTS_DIR)/common.mk
 
-uname_o := $(shell uname -o)
-
-ifeq (Msys,$(uname_o))
-IS_WIN := true
-IS_MSYS := true
-else
-IS_WIN := false
-IS_MSYS := false
-endif
-
-ifeq (true,$(IS_WIN))
-DLIBEXT := .dll
-EXEEXT := .exe
-PLATFORM := win64
-else
-DLIBEXT := .so
-EXEEXT :=
-PLATFORM := linux_x86_64
-endif
 
 ifeq ($(PWD),$(SCRIPTS_DIR))
 	OPEN_PS_BUILD_DIR:=$(OPEN_PS_DIR)/build
@@ -44,15 +24,6 @@ MK_INCLUDES += $(OPEN_PS_DIR)/processor/processor.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/pss2psi/pss2psi.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/qpsskw/qpsskw.mk
 
-ifeq (true,$(VERBOSE))
-UNZIP:=unzip -o
-WGET:=wget
-else 
-UNZIP:=unzip -oq
-WGET:=wget
-Q:=@
-endif
-
 ifeq (true,$(BUILD))	
 include $(MK_INCLUDES)
 else # not build
@@ -70,7 +41,6 @@ endif # end not build
 RULES := 1
 
 vpath %.cpp $(SRC_DIRS)
-CXXFLAGS += $(foreach d,$(SRC_DIRS),-I$(d)) -std=c++11 -fPIC -g
 
 ifeq (true,$(BUILD))	
 include $(MK_INCLUDES)
@@ -97,12 +67,15 @@ clean :
 		rm -rf *.o *.a $(LIB_TARGETS) $(EXE_TARGETS) *.gen *.unpack; \
 	fi \
 
+include $(SCRIPTS_DIR)/common.mk
+
 ifeq (true,$(BUILD))	
 __build : $(LIB_TARGETS) $(EXE_TARGETS)
 	echo "__build: $(LIB_TARGETS) $(EXE_TARGETS) $(MK_INCLUDES)"
 
 __release :	$(RELEASE_TARGETS)
 	
+
 endif
 
 
