@@ -229,9 +229,30 @@ void PSIVisitor::visit_expr(IExpr *e) {
 
 void PSIVisitor::visit_extend(IExtend *e) {
 	visit_item(e->getTarget());
+
+	switch (e->getExtendType()) {
+	case IExtend::ExtendType_Enum:
+		visit_extend_enum(dynamic_cast<IExtendEnum *>(e));
+		break;
+	case IExtend::ExtendType_Component:
+	case IExtend::ExtendType_Action:
+	case IExtend::ExtendType_Struct:
+		visit_extend_composite(dynamic_cast<IExtendComposite *>(e));
+		break;
+	default:
+		fprintf(stdout, "Error: unhandled extension type %d\n",
+				e->getExtendType());
+	}
+}
+
+void PSIVisitor::visit_extend_composite(IExtendComposite *e) {
 	push_scope(e);
 	visit_scope(e);
 	pop_scope();
+}
+
+void PSIVisitor::visit_extend_enum(IExtendEnum *e) {
+	// Nothing do to
 }
 
 void PSIVisitor::visit_binary_expr(IBinaryExpr *be) {

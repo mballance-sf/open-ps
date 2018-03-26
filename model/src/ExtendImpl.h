@@ -36,19 +36,17 @@ namespace psi {
 
 class ExtendImpl:
 		public virtual IExtend,
-		public virtual BaseItemImpl,
-		public virtual ScopeItemImpl {
+		public virtual BaseItemImpl {
 public:
 	ExtendImpl(
 			IExtend::ExtendType		type,
 			IBaseItem 				*target);
+
 	virtual ~ExtendImpl();
 
 	virtual ExtendType getExtendType() const { return m_extendType; }
 
 	virtual IBaseItem *getTarget() const { return m_target; }
-
-	virtual IBaseItem *clone() const;
 
 private:
 	IExtend::ExtendType				m_extendType;

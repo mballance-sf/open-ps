@@ -328,10 +328,38 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_sequence_block_stmt(PSSParser::Activ
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitSymbol_declaration(PSSParser::Symbol_declarationContext *ctx) {
+	IBaseItem *ret = 0;
 	enter("visitSymbol_declaration");
-	todo("support symbol declaration");
+	std::vector<IField *> params;
+
+	if (ctx->symbol_paramlist()) {
+		for (uint32_t i=0; i<ctx->symbol_paramlist()->symbol_param().size(); i++) {
+			IBaseItem *t = ctx->symbol_paramlist()->symbol_param(i)->data_type()->accept(this);
+			IField *p = m_factory->mkField(
+					ctx->symbol_paramlist()->symbol_param(i)->identifier()->getText(),
+					t,
+					IField::FieldAttr_None,
+					0);
+			params.push_back(p);
+		}
+	}
+	IGraphStmt *body_s = ctx->activity_stmt()->accept(this);
+	IGraphBlockStmt *body = 0;
+
+	if (dynamic_cast<IGraphBlockStmt *>(body_s)) {
+		body = dynamic_cast<IGraphBlockStmt *>(body_s);
+	} else {
+		body = m_factory->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
+		body->add(body_s);
+	}
+	ISymbol *sym = m_factory->mkSymbol(
+			ctx->identifier()->getText(),
+			params, body);
+	ret = sym;
+
 	leave("visitSymbol_declaration");
-	return (IBaseItem *)0;
+
+	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitOverrides_declaration(PSSParser::Overrides_declarationContext *ctx) {
@@ -1402,33 +1430,52 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 	IRefType *target = m_factory->mkRefType(scope(),
 			type2vector(ctx->type_identifier()));
 
-	IExtend *ext = 0;
-
 	if (type == "action") {
-		ext = m_factory->mkExtend(IExtend::ExtendType_Action, target);
+		IExtendComposite *ext = m_factory->mkExtendComposite(IExtend::ExtendType_Action, target);
+		push_scope(ext);
 		for (uint32_t i=0; i<ctx->action_body_item().size(); i++) {
-			ext->add(ctx->action_body_item(i)->accept(this));
+			IBaseItem *item = ctx->action_body_item(i)->accept(this);
+			if (item) {
+				ext->add(item);
+			}
 		}
+		pop_scope();
+		ret = ext;
 	} else if (type == "struct") {
-		ext = m_factory->mkExtend(IExtend::ExtendType_Struct, target);
+		IExtendComposite *ext = m_factory->mkExtendComposite(IExtend::ExtendType_Struct, target);
+		push_scope(ext);
 		for (uint32_t i=0; i<ctx->struct_body_item().size(); i++) {
-			ext->add(ctx->struct_body_item(i)->accept(this));
+			IBaseItem *item = ctx->struct_body_item(i)->accept(this);
+			if (item) {
+				ext->add(item);
+			}
 		}
+		pop_scope();
+		ret = ext;
 	} else if (type == "enum") {
-		todo("enum type extension");
-		ext = m_factory->mkExtend(IExtend::ExtendType_Enum, target);
-	} else if (type == "component") {
-		ext = m_factory->mkExtend(IExtend::ExtendType_Component, target);
-		for (uint32_t i=0; i<ctx->component_body_item().size(); i++) {
-			ext->add(ctx->component_body_item(i)->accept(this));
+		std::vector<IEnumerator *> enumerators;
+		for (uint32_t i=0; i<ctx->enum_item().size(); i++) {
+			enumerators.push_back(ctx->enum_item(i)->accept(this));
 		}
+		IExtendEnum *ext = m_factory->mkExtendEnum(target, enumerators);
+		ret = ext;
+	} else if (type == "component") {
+		IExtendComposite *ext = m_factory->mkExtendComposite(IExtend::ExtendType_Component, target);
+		push_scope(ext);
+		for (uint32_t i=0; i<ctx->component_body_item().size(); i++) {
+			IBaseItem *item = ctx->component_body_item(i)->accept(this);
+			if (item) {
+				ext->add(item);
+			}
+		}
+		pop_scope();
+		ret = ext;
 	} else {
 		error("unknown extension type %s", type.c_str());
 	}
 
 	leave("visitExtend_stmt");
 
-	ret = ext;
 	return ret;
 }
 

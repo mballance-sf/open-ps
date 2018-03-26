@@ -27,7 +27,9 @@ public:
 
 	virtual void visit_package(IPackage *pkg);
 
-	virtual void visit_extend(IExtend *e);
+	virtual void visit_extend_composite(IExtendComposite *e);
+
+	virtual void visit_extend_enum(IExtendEnum *e);
 
 };
 

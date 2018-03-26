@@ -65,18 +65,16 @@ void ResolveRefsProcessor::visit_variable_ref(IVariableRef *ref) {
 }
 
 void ResolveRefsProcessor::resolve_variable_ref(
-		IScopeItem				*scope,
-		IVariableRef			*full_ref,
-		IVariableRef			*ref
+		IScopeItem					*scope,
+		IVariableRef				*full_ref,
+		IVariableRef				*ref
 		) {
 	IBaseItem *resolved_ref = 0;
 
 	if (m_debug) {
+		INamedItem *ni = dynamic_cast<INamedItem *>(scope);
 		debug("--> resolve_variable_ref %s in scope %s",
-				ref->getId().c_str(),
-				(dynamic_cast<INamedItem *>(scope))?
-						dynamic_cast<INamedItem *>(scope)->getName().c_str():
-						"unnamed");
+				ref->getId().c_str(), (ni)?ni->getName().c_str():"unnamed");
 	}
 
 
@@ -93,6 +91,29 @@ void ResolveRefsProcessor::resolve_variable_ref(
 		}
 	} else {
 		resolved_ref = resolve_variable_ref(scope, ref->getId());
+	}
+
+	if (!resolved_ref) {
+		// TODO: search imports for extensions
+		fprintf(stdout, "TODO: search imports for extensions\n");
+		for (int32_t i=scopes().size()-1; i>=0; i--) {
+			INamedItem *sni = dynamic_cast<INamedItem *>(scopes().at(i));
+			fprintf(stdout, "  Scope(1): %s\n",
+					(sni)?sni->getName().c_str():"unnamed");
+			resolved_ref = resolve_variable_ref_in_ext(
+					scopes().at(i), ref->getId());
+			if (resolved_ref) {
+				break;
+			}
+		}
+//		IScopeItem *s = scope;
+//		while (s) {
+//			INamedItem *ni = dynamic_cast<INamedItem *>(s);
+//			fprintf(stdout, "  Scope: %p %s\n",
+//					s, (ni)?ni->getName().c_str():"unnamed");
+//
+//			s = dynamic_cast<IScopeItem *>(s->getParent());
+//		}
 	}
 
 	// resolved_ref is a field
@@ -132,14 +153,11 @@ void ResolveRefsProcessor::resolve_variable_ref(
 	}
 
 	if (m_debug) {
+		INamedItem *ni = dynamic_cast<INamedItem *>(scope);
 		debug("<-- resolve_variable_ref %s in scope %s => %p",
-				ref->getId().c_str(),
-				(dynamic_cast<INamedItem *>(scope))?
-						dynamic_cast<INamedItem *>(scope)->getName().c_str():
-						"unnamed",
+				ref->getId().c_str(), (ni)?ni->getName().c_str():"unnamed",
 				resolved_ref);
 	}
-
 }
 
 IBaseItem *ResolveRefsProcessor::resolve_variable_ref(
@@ -222,6 +240,73 @@ IBaseItem *ResolveRefsProcessor::resolve_variable_ref(
 		debug("  <-- Searching scope %s for %s => %p\n",
 				(sn)?sn->getName().c_str():"unnamed",
 				id.c_str(), ret);
+	}
+
+	return ret;
+}
+
+IBaseItem *ResolveRefsProcessor::resolve_variable_ref_in_ext(
+		IScopeItem			*scope,
+		const std::string	&id) {
+	IBaseItem *ret = 0;
+	if (m_debug) {
+		INamedItem *ni = dynamic_cast<INamedItem *>(scope);
+		debug("--> resolve_variable_ref_in_ext %s\n",
+				(ni)?ni->getName().c_str():"unnamed");
+	}
+	for (std::vector<IBaseItem *>::const_iterator it=scope->getItems().begin();
+			it!=scope->getItems().end(); it++) {
+		if ((*it)->getType() == IBaseItem::TypeExtend) {
+			IExtend *ext = dynamic_cast<IExtend *>(*it);
+			if (m_debug) {
+				debug("  -- Extension %d", ext->getExtendType());
+			}
+			if (ext->getExtendType() == IExtend::ExtendType_Enum) {
+				IExtendEnum *ext_e = dynamic_cast<IExtendEnum *>(ext);
+				for (std::vector<IEnumerator *>::const_iterator it_e=ext_e->getEnumerators().begin();
+						it_e!=ext_e->getEnumerators().end(); it_e++) {
+					if ((*it_e)->getName() == id) {
+						ret = *it_e;
+						break;
+					}
+				}
+			} else {
+				IExtendComposite *ext_c = dynamic_cast<IExtendComposite *>(ext);
+				// First, search the scope
+				for (std::vector<IBaseItem *>::const_iterator it_c=ext_c->getItems().begin();
+						it_c!=ext_c->getItems().end(); it_c++) {
+					INamedItem *ni = dynamic_cast<INamedItem *>(*it_c);
+					if (m_debug) {
+						debug("  -- Field %s", (ni)?ni->getName().c_str():"unnamed");
+					}
+					if (ni && ni->getName() == id) {
+						ret = *it_c;
+						break;
+					}
+				}
+			}
+		} else if ((*it)->getType() == IBaseItem::TypeImport) {
+			IImport *imp = dynamic_cast<IImport *>(*it);
+			if (imp->getTargetType()) {
+				IRefType *ref_t = dynamic_cast<IRefType *>(imp->getTargetType());
+				if (dynamic_cast<IScopeItem *>(ref_t->getTargetType())) {
+					ret = resolve_variable_ref_in_ext(
+							dynamic_cast<IScopeItem *>(ref_t->getTargetType()), id);
+				} else {
+					fprintf(stdout, "Error: import target is not a scope\n");
+				}
+			} else {
+				fprintf(stdout, "Error: import target type not resolved\n");
+			}
+		}
+
+		if (ret) {
+			break;
+		}
+	}
+
+	if (m_debug) {
+		debug("<-- resolve_variable_ref_in_ext %p\n", ret);
 	}
 
 	return ret;

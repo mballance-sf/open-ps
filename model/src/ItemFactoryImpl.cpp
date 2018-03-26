@@ -37,6 +37,8 @@
 #include "MethodCallExprImpl.h"
 #include "StructImpl.h"
 #include "ExtendImpl.h"
+#include "ExtendCompositeImpl.h"
+#include "ExtendEnumImpl.h"
 #include "FieldImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
@@ -53,6 +55,7 @@
 #include "ImportImpl.h"
 #include "RefTypeImpl.h"
 #include "VariableRefImpl.h"
+#include "SymbolImpl.h"
 
 
 using namespace psi;
@@ -172,10 +175,23 @@ IStruct *ItemFactoryImpl::mkStruct(
 	return new StructImpl(name, t, super_type);
 }
 
-IExtend *ItemFactoryImpl::mkExtend(
+ISymbol *ItemFactoryImpl::mkSymbol(
+		const std::string				&name,
+		const std::vector<IField *>		&params,
+		IGraphBlockStmt					*body) {
+	return new SymbolImpl(name, params, body);
+}
+
+IExtendComposite *ItemFactoryImpl::mkExtendComposite(
 		IExtend::ExtendType			type,
 		IBaseItem 					*target) {
-	return new ExtendImpl(type, target);
+	return new ExtendCompositeImpl(type, target);
+}
+
+IExtendEnum *ItemFactoryImpl::mkExtendEnum(
+		IBaseItem							*target,
+		const std::vector<IEnumerator *>	&enumerators) {
+	return new ExtendEnumImpl(target, enumerators);
 }
 
 /**

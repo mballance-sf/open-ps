@@ -79,6 +79,10 @@ protected:
 
 	virtual void visit_extend(IExtend *e);
 
+	virtual void visit_extend_composite(IExtendComposite *e);
+
+	virtual void visit_extend_enum(IExtendEnum *e);
+
 	virtual void visit_binary_expr(IBinaryExpr *be);
 
 	virtual void visit_fieldref_expr(IFieldRef *ref);

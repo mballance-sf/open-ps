@@ -42,6 +42,8 @@
 #include "IExecStmt.h"
 #include "IExecExprStmt.h"
 #include "IExtend.h"
+#include "IExtendComposite.h"
+#include "IExtendEnum.h"
 #include "IGraphBlockStmt.h"
 #include "IActivityDoActionStmt.h"
 #include "IActivityTraverseStmt.h"
@@ -56,6 +58,7 @@
 #include "IMethodCallExpr.h"
 #include "IRefType.h"
 #include "IVariableRef.h"
+#include "ISymbol.h"
 
 namespace psi_api {
 
@@ -141,9 +144,18 @@ public:
 			IStruct::StructType		t,
 			IBaseItem 				*super_type) = 0;
 
-	virtual IExtend *mkExtend(
+	virtual ISymbol *mkSymbol(
+			const std::string			&name,
+			const std::vector<IField *>	&params,
+			IGraphBlockStmt				*body) = 0;
+
+	virtual IExtendComposite *mkExtendComposite(
 			IExtend::ExtendType		type,
 			IBaseItem				*target) = 0;
+
+	virtual IExtendEnum *mkExtendEnum(
+			IBaseItem							*target,
+			const std::vector<IEnumerator *>	&enumerators) = 0;
 
 	/**
 	 * Create a field for use in declaring the contents of an

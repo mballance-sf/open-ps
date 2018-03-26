@@ -26,16 +26,23 @@
 #define SRC_PSI_API_ISYMBOL_H_
 #include <string>
 #include "IBaseItem.h"
+#include "IField.h"
+#include "INamedItem.h"
+#include "IScopeItem.h"
+#include "IGraphBlockStmt.h"
 
 namespace psi_api {
 
-class ISymbol : public IBaseItem {
+class ISymbol :
+		public virtual IBaseItem,
+		public virtual INamedItem,
+		public virtual IScopeItem {
 public:
 	virtual ~ISymbol() { }
 
-	virtual const std::string &getName() const = 0;
+	virtual const std::vector<IField *> &getParameters() const = 0;
 
-	virtual IGraphStmt *getBody() const = 0;
+	virtual IGraphBlockStmt *getBody() const = 0;
 
 };
 }

@@ -107,9 +107,18 @@ public:
 			IStruct::StructType		t,
 			IBaseItem 				*super_type);
 
-	virtual IExtend *mkExtend(
+	virtual ISymbol *mkSymbol(
+			const std::string			&name,
+			const std::vector<IField *>	&params,
+			IGraphBlockStmt				*body);
+
+	virtual IExtendComposite *mkExtendComposite(
 			IExtend::ExtendType		type,
 			IBaseItem 				*target);
+
+	virtual IExtendEnum *mkExtendEnum(
+			IBaseItem							*target,
+			const std::vector<IEnumerator *>	&enumerators);
 
 	/**
 	 * Create a field for use in declaring the contents of an
