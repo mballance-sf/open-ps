@@ -13,7 +13,7 @@
 #include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	m_debug = true;
+	m_debug = false;
 	m_phase = 0;
 }
 
@@ -128,14 +128,9 @@ void ResolveRefsProcessor::resolve_variable_ref(
 		IField *ref_field = dynamic_cast<IField *>(resolved_ref);
 		IScopeItem *subscope = 0;
 		if (dynamic_cast<IRefType *>(ref_field->getDataType())) {
-			fprintf(stdout, "is reftype %d\n",
-					dynamic_cast<IRefType *>(ref_field->getDataType())->getTargetType()->getType());
-			fflush(stdout);
 			subscope = dynamic_cast<IScopeItem *>(
 					dynamic_cast<IRefType *>(ref_field->getDataType())->getTargetType());
 		} else if (dynamic_cast<IArrayType *>(ref_field->getDataType())) {
-			fprintf(stdout, "is arraytype\n");
-			fflush(stdout);
 			subscope = dynamic_cast<IArrayType *>(
 					dynamic_cast<IArrayType *>(ref_field->getDataType()));
 		} else {

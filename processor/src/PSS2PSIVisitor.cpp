@@ -17,7 +17,7 @@ using namespace antlrcpp;
 
 PSS2PSIVisitor::PSS2PSIVisitor(IModel *model, const std::string &path) :
 		m_model(model), m_factory(model->getItemFactory()), m_file(path) {
-	m_debug = true;
+	m_debug = false;
 }
 
 PSS2PSIVisitor::~PSS2PSIVisitor() {
@@ -644,7 +644,6 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_field_declaration(PSSParser::Compon
 	IBaseItem *ret = 0;
 	enter("visitComponent_field_declaration");
 
-	todo("field_declaration");
 	if (ctx->component_data_declaration()) {
 		ret = ctx->component_data_declaration()->accept(this);
 	} else {
@@ -1306,6 +1305,8 @@ antlrcpp::Any PSS2PSIVisitor::visitExec_block(PSSParser::Exec_blockContext *ctx)
 		kind = IExec::PreSolve;
 	} else if (kind_s == "post_solve") {
 		kind = IExec::PostSolve;
+	} else if (kind_s == "init") {
+		kind = IExec::Init;
 	} else {
 		error("unknown exec kind \"%s\"", kind_s.c_str());
 	}
@@ -1350,6 +1351,8 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 		kind = IExec::PreSolve;
 	} else if (kind_s == "post_solve") {
 		kind = IExec::PostSolve;
+	} else if (kind_s == "init") {
+		kind = IExec::Init;
 	} else {
 		error("unknown exec kind \"%s\"", kind_s.c_str());
 	}

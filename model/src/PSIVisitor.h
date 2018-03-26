@@ -65,6 +65,8 @@ protected:
 
 	virtual void visit_constraint_block(IConstraintBlock *block);
 
+	virtual void visit_coverspec(ICoverspec *coverspec);
+
 	virtual void visit_exec(IExec *e);
 
 	virtual void visit_exec_stmt(IExecStmt *e);
@@ -120,6 +122,8 @@ protected:
 	virtual void visit_item(IBaseItem *it);
 
 	virtual void visit_ref_type(IRefType *ref);
+
+	virtual void visit_symbol(ISymbol *s);
 
 	virtual void visit_variable_ref(IVariableRef *ref);
 
