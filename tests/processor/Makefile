@@ -19,6 +19,7 @@ TESTS_DATA_DIR := $(shell cd $(TESTS_PARSER_DIR)/../data ; pwd)
 
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../tests.mk
 ifeq (true,$(BUILD))
+MK_INCLUDES += $(TESTS_PARSER_DIR)/../../scripts/common.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../model/model.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../parser/src/pss-parser.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../processor/processor.mk
@@ -36,6 +37,12 @@ CFLAGS += -g
 
 include $(MK_INCLUDES)
 
+ifeq (true,$(IS_WIN))
+else
+	LD_LIBRARY_PATH := $(Z3_DIR)/bin:$(LD_LIBRARY_PATH)
+	export LD_LIBRARY_PATH
+endif
+
 RULES := 1
 
 vpath %.cpp $(SRC_DIRS)
@@ -44,17 +51,20 @@ vpath %.c $(SRC_DIRS)
 
 all : $(BUILD_DIR)/googletest.unpack
 	$(MAKE) -C $(BUILD_DIR) -f $(TESTS_PARSER_DIR)/Makefile BUILD=true \
+		VERBOSE=$(VERBOSE) \
 		-j$(NUM_CORES) TESTS_PARSER_DIR=$(TESTS_PARSER_DIR) __run
+		
 
 __run: unittest$(EXEEXT)
-	./unittest$(EXEEXT)
+	echo "LD_LIBRARY_PATH=$(LD_LIBRARY_PATH)"
+	./unittest$(EXEEXT) $(GTEST_ARGS)
 
 unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
 		libpss_parser.a antlr/libantlr_runtime.a \
 		libpss_processor.a		\
 		libops_model.a			\
 		gtest-all.o gtest_main.o
-	$(Q)$(CXX) -o $@ $^ -lpthread -static-libstdc++
+	$(Q)$(CXX) -o $@ $^ $(Z3_LINK) -lpthread -static-libstdc++
 
 clean :
 	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*.a
