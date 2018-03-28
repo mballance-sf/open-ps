@@ -568,34 +568,27 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 	} else if (ctx->chandle_type()) {
 		ret = m_factory->mkScalarType(IScalarType::ScalarType_Chandle, 0, 0);
 	} else if (ctx->integer_type()) {
-		// TODO: get range
 		IExpr *msb=0, *lsb=0;
 		if (ctx->integer_type()->lhs) {
 			if (ctx->integer_type()->rhs) {
 				msb = ctx->integer_type()->expression(0)->accept(this);
 				lsb = ctx->integer_type()->expression(1)->accept(this);
 			} else {
-				// WIDTH-1:0
-				msb = m_factory->mkBinExpr(
-								ctx->integer_type()->expression(0)->accept(this),
-								IBinaryExpr::BinOp_Minus,
-								m_factory->mkIntLiteral(1));
-				lsb = m_factory->mkIntLiteral(0);
+				// Simple width
+				lsb = ctx->integer_type()->expression(0)->accept(this);
 			}
 		} else {
 			todo("support domain");
 		}
 
 		if (ctx->integer_type()->integer_atom_type()->getText() == "int") {
-			if (!msb) {
-				msb = m_factory->mkIntLiteral(31);
-				lsb = m_factory->mkIntLiteral(0);
+			if (!msb && !lsb) {
+				lsb = m_factory->mkIntLiteral(32);
 			}
 			ret = m_factory->mkScalarType(IScalarType::ScalarType_Int, msb, lsb);
 		} else if (ctx->integer_type()->integer_atom_type()->getText() == "bit") {
-			if (!msb) {
-				msb = m_factory->mkIntLiteral(0);
-				lsb = m_factory->mkIntLiteral(0);
+			if (!msb && !lsb) {
+				lsb = m_factory->mkIntLiteral(1);
 			}
 			ret = m_factory->mkScalarType(IScalarType::ScalarType_Bit, msb, lsb);
 		} else {

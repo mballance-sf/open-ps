@@ -25,7 +25,15 @@ TEST(z3_model,smoke) {
 	const char *src = R"(
 		component top {
 			action entry {
-				rand bit[4]		a, b, c;
+				rand bit[16]	a, b, c, d, e, f;
+				rand string		s1, s2, s3;
+
+				constraint c {
+//					a < 4;
+					s1 == "abc";
+					s2 == "def";
+					s3 == "ghi";
+				}
 			}
 		}
 	)";
@@ -53,7 +61,48 @@ TEST(z3_model,smoke) {
 	ASSERT_TRUE(EntryFinder::find(
 			model, "top", "entry", entry));
 
-	z3_processor.process(std::get<0>(entry), std::get<1>(entry));
+	z3_processor.build(std::get<0>(entry), std::get<1>(entry));
+
+	for (uint32_t i=0; i<10; i++) {
+		z3_processor.run();
+	}
 }
 
+TEST(z3_model,hierarchy) {
+	const char *src = R"(
+		component top {
+			struct S {
+				rand bit[4]		a, b, c;
+			}
+			action entry {
+				rand S		a1, a2, a3;
+			}
+		}
+	)";
+
+	IModel *model = new psi::ModelImpl();
+	ResolveRefsProcessor refs_processor;
+	Z3ModelProcessor z3_processor;
+
+	std::istringstream in(src);
+	ANTLRInputStream input(in);
+	PSSLexer lexer(&input);
+
+	CommonTokenStream tokens(&lexer);
+	PSSParser parser(&tokens);
+	PSSParser::ModelContext *ctxt = parser.model();
+
+	ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
+
+	PSS2PSIVisitor pss2psi(model, "smoke");
+	pss2psi.visitModel(ctxt);
+
+	ASSERT_TRUE(refs_processor.process(model));
+
+	std::tuple<IComponent *, IAction *> entry;
+	ASSERT_TRUE(EntryFinder::find(
+			model, "top", "entry", entry));
+
+	z3_processor.build(std::get<0>(entry), std::get<1>(entry));
+}
 

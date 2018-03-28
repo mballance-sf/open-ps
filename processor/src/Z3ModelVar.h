@@ -13,9 +13,15 @@
 class Z3ModelVar {
 public:
 
+//	enum Type {
+//		TypeSet,
+//		TypeBit
+//	};
+
 	Z3ModelVar(
 			const std::string		&name,
-			Z3_ast					m_var);
+			Z3_ast					m_var,
+			uint32_t				m_bits);
 
 	virtual ~Z3ModelVar();
 
@@ -23,9 +29,12 @@ public:
 
 	Z3_ast var() const { return m_var; }
 
+	uint32_t bits() const { return m_bits; }
+
 private:
 	std::string			m_name;
 	Z3_ast				m_var;
+	uint32_t			m_bits;
 };
 
 #endif /* PROCESSOR_SRC_Z3MODELVAR_H_ */

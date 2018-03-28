@@ -9,9 +9,11 @@
 
 Z3ModelVar::Z3ModelVar(
 		const std::string		&name,
-		Z3_ast					var) {
+		Z3_ast					var,
+		uint32_t				bits) {
 	m_name = name;
 	m_var = var;
+	m_bits = bits;
 }
 
 Z3ModelVar::~Z3ModelVar() {
