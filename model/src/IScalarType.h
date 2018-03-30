@@ -27,6 +27,7 @@
 #define SRC_PSI_API_ISCALARTYPE_H_
 #include <stdint.h>
 #include "IBaseItem.h"
+#include "IOpenRangeList.h"
 
 namespace psi_api {
 
@@ -53,6 +54,8 @@ public:
 	 * Returns the LSB of the type for pss_bit and pss_int types
 	 */
 	virtual IExpr *getLSB() const = 0;
+
+	virtual IOpenRangeList *getDomain() const = 0;
 
 };
 }

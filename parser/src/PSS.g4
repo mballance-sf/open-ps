@@ -398,7 +398,7 @@ activity_action_traversal_stmt:
 inline_with_constraint:
 	 (
 		('with' '{' constraint_body_item* '}') | 
-		('with' constant_expression)
+		('with' single_stmt_constraint)
 	)
 ;
 
@@ -584,8 +584,8 @@ domain_open_range_list:
 ;
 
 domain_open_range_value:
-	('..' rhs=expression) |
-	lhs=expression ('..' (rhs=expression)?)?
+	(limit_low='..' rhs=expression) |
+	lhs=expression (limit_high='..' (rhs=expression)?)?
 ;
 
 open_range_list:

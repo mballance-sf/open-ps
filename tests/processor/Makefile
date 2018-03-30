@@ -18,11 +18,11 @@ PACKAGES_DIR := $(OPEN_PS_DIR)/packages
 TESTS_DATA_DIR := $(shell cd $(TESTS_PARSER_DIR)/../data ; pwd)
 
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../tests.mk
-ifeq (true,$(BUILD))
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../scripts/common.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../model/model.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../parser/src/pss-parser.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../processor/processor.mk
+ifeq (true,$(BUILD))
 endif
 
 PARSER_TESTS_SRC = $(notdir $(wildcard $(TESTS_PARSER_DIR)/src/*.cpp))
@@ -49,7 +49,8 @@ vpath %.cpp $(SRC_DIRS)
 vpath %.cc $(SRC_DIRS)
 vpath %.c $(SRC_DIRS)
 
-all : $(BUILD_DIR)/googletest.unpack
+all : $(UNPACK_TARGETS)
+	$(Q)echo "UNPACK_TARGETS=$(UNPACK_TARGETS)"
 	$(MAKE) -C $(BUILD_DIR) -f $(TESTS_PARSER_DIR)/Makefile BUILD=true \
 		VERBOSE=$(VERBOSE) \
 		-j$(NUM_CORES) TESTS_PARSER_DIR=$(TESTS_PARSER_DIR) __run

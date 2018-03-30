@@ -20,8 +20,9 @@ public:
 
 	Z3ModelVar(
 			const std::string		&name,
-			Z3_ast					m_var,
-			uint32_t				m_bits);
+			Z3_ast					var,
+			uint32_t				bits,
+			bool					is_signed);
 
 	virtual ~Z3ModelVar();
 
@@ -31,10 +32,13 @@ public:
 
 	uint32_t bits() const { return m_bits; }
 
+	bool is_signed() const { return m_is_signed; }
+
 private:
 	std::string			m_name;
 	Z3_ast				m_var;
 	uint32_t			m_bits;
+	bool				m_is_signed;
 };
 
 #endif /* PROCESSOR_SRC_Z3MODELVAR_H_ */

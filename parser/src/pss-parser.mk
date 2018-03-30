@@ -21,8 +21,10 @@ endif
 
 ifneq (1, $(RULES))
 
+ifeq (true,$(BUILD))
 -include grammar/src.mk
 -include antlr4-cpp-runtime/src.mk
+endif
 
 ANTLR4_CPP_RUNTIME_DIR=antlr4-cpp-runtime/runtime/src
 ANTLR4_RUNTIME_LINK=antlr/libantlr_runtime.a
@@ -38,6 +40,7 @@ SRC_DIRS += $(ANTLR4_CPP_RUNTIME_DIR)/tree/xpath
 SRC_DIRS += grammar
 
 LIB_TARGETS += libpss_parser.a libantlr_runtime.a
+UNPACK_TARGETS += $(BUILD_DIR)/runtime.unpack
 
 else # Rules
 
@@ -59,10 +62,12 @@ antlr/%.o : %.cpp
 	$(Q)$(CXX) -c -o $@ $(CXXFLAGS) $^
 endif
 
-runtime.unpack : $(PACKAGES_DIR)/$(ANTLR_RUNTIME_SRC_ZIP)
-	$(Q)rm -rf antlr4-cpp-runtime
-	$(Q)mkdir antlr4-cpp-runtime
-	$(Q)cd antlr4-cpp-runtime ; $(UNZIP) $^
+$(BUILD_DIR)/runtime.unpack : $(PACKAGES_DIR)/$(ANTLR_RUNTIME_SRC_ZIP)
+	$(Q)if test ! -d $(BUILD_DIR); then mkdir -p $(BUILD_DIR); fi
+	$(Q)cd $(BUILD_DIR); rm -rf antlr4-cpp-runtime
+	$(Q)cd $(BUILD_DIR); mkdir antlr4-cpp-runtime
+	$(Q)cd $(BUILD_DIR)/antlr4-cpp-runtime ; $(UNZIP) $^
+	$(Q)cd $(BUILD_DIR)/antlr4-cpp-runtime ; patch -p2 < $(PSS_PARSER_SRC_DIR)/Any.h.patch
 	$(Q)touch $@
 
 pss-grammar.gen : $(PSS_PARSER_SRC_DIR)/PSS.g4 $(PACKAGES_DIR)/$(ANTLR_JAR)
@@ -71,7 +76,7 @@ pss-grammar.gen : $(PSS_PARSER_SRC_DIR)/PSS.g4 $(PACKAGES_DIR)/$(ANTLR_JAR)
 		-Dlanguage=Cpp -visitor -o grammar $(PSS_PARSER_SRC_DIR)/PSS.g4
 	$(Q)touch $@
 
-grammar/src.mk : pss-grammar.gen runtime.unpack
+grammar/src.mk : pss-grammar.gen 
 	$(Q)echo 'PSS_GRAMMAR_SRC += $$(notdir $$(wildcard grammar/*.cpp))' > $@
 	
 antlr4-cpp-runtime/src.mk : runtime.unpack

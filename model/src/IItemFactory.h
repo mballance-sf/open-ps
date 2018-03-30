@@ -34,6 +34,7 @@
 #include "IComponent.h"
 #include "IConstraintBlock.h"
 #include "IConstraintExpr.h"
+#include "IConstraintForeach.h"
 #include "IConstraintIf.h"
 #include "ICoverspec.h"
 #include "IEnumerator.h"
@@ -56,6 +57,8 @@
 #include "IImport.h"
 #include "IImportFunc.h"
 #include "IMethodCallExpr.h"
+#include "IOpenRangeValue.h"
+#include "IOpenRangeList.h"
 #include "IRefType.h"
 #include "IVariableRef.h"
 #include "ISymbol.h"
@@ -84,7 +87,8 @@ public:
 	virtual IScalarType *mkScalarType(
 			IScalarType::ScalarType t,
 			IExpr					*msb,
-			IExpr					*lsb) = 0;
+			IExpr					*lsb,
+			IOpenRangeList			*domain=0) = 0;
 
 	/**
 	 * action
@@ -172,6 +176,14 @@ public:
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs) = 0;
 
+	virtual IOpenRangeValue *mkOpenRangeValue(
+			IExpr					*lhs,
+			IExpr					*rhs,
+			bool					domain_bound=false) = 0;
+
+	virtual IOpenRangeList *mkOpenRangeList(
+			const std::vector<IOpenRangeValue *>	&ranges) = 0;
+
 	virtual IVariableRef *mkVariableRef(
 			IBaseItem				*scope,
 			const std::string		&id,
@@ -230,6 +242,11 @@ public:
 			const std::vector<IConstraint *>	&cl) = 0;
 
 	virtual IConstraintExpr *mkConstraintExpr(IExpr *expr) = 0;
+
+	virtual IConstraintForeach *mkConstraintForeach(
+			IVariableRef			*target,
+			const std::string		&iterator,
+			IConstraintBlock		*body) = 0;
 
 	virtual IConstraintIf *mkConstraintIf(
 			IExpr 			*cond,

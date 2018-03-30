@@ -11,6 +11,7 @@
 #include <exception>
 #include <typeinfo>
 #include <stdarg.h>
+#include "VariableRefImpl.h"
 
 using namespace antlrcpp;
 
@@ -140,21 +141,28 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_bind_stmt(PSSParser::Activity_bind_s
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Activity_action_traversal_stmtContext *ctx) {
 	IGraphStmt *ret = 0;
-	IConstraint *with_c = 0;
+	IConstraintBlock *with_c = 0;
 
 	enter("visitActivity_action_traveral_stmt");
 
 	if (ctx->inline_with_constraint()) {
-		todo("inline constraint");
+		std::vector<IConstraint *> constraints;
+
+		if (ctx->inline_with_constraint()->single_stmt_constraint()) {
+			IConstraint *c = ctx->inline_with_constraint()->single_stmt_constraint()->accept(this);
+			constraints.push_back(c);
+		} else {
+			uint32_t n=ctx->inline_with_constraint()->constraint_body_item().size();
+			for (uint32_t i=0; i<n; i++) {
+				IConstraint *c = ctx->inline_with_constraint()->constraint_body_item(i)->accept(this);
+				constraints.push_back(c);
+			}
+		}
+		with_c = m_factory->mkConstraintBlock("", constraints);
 	}
 
 	if (ctx->is_do) {
 		// Do <type>
-		IConstraintBlock *with_c = 0;
-
-		if (ctx->inline_with_constraint()) {
-			todo("do <action::type> with inline constraint");
-		}
 		IActivityDoActionStmt *stmt = m_factory->mkActivityDoActionStmt(
 				m_factory->mkRefType(scope(),
 						type2vector(ctx->type_identifier())),
@@ -295,7 +303,15 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_schedule_stmt(PSSParser::Activity_sc
 	IGraphStmt *ret = 0;
 
 	enter("visitActivity_schedule_stmt");
-	todo("visitActivity_schedule_stmt");
+	IGraphBlockStmt *schedule = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Schedule);
+
+	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
+		IGraphStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
+		schedule->add(stmt);
+	}
+
+	ret = schedule;
+
 	leave("visitActivity_schedule_stmt");
 
 	return ret;
@@ -569,6 +585,8 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 		ret = m_factory->mkScalarType(IScalarType::ScalarType_Chandle, 0, 0);
 	} else if (ctx->integer_type()) {
 		IExpr *msb=0, *lsb=0;
+		IOpenRangeList *domain;
+
 		if (ctx->integer_type()->lhs) {
 			if (ctx->integer_type()->rhs) {
 				msb = ctx->integer_type()->expression(0)->accept(this);
@@ -578,18 +596,22 @@ antlrcpp::Any PSS2PSIVisitor::visitScalar_data_type(PSSParser::Scalar_data_typeC
 				lsb = ctx->integer_type()->expression(0)->accept(this);
 			}
 		} else {
-			todo("support domain");
+			// Implied width
+			if (ctx->integer_type()->integer_atom_type()->getText() == "int") {
+				lsb = m_factory->mkBitLiteral(32);
+			} else {
+				lsb = m_factory->mkBitLiteral(1);
+			}
+		}
+
+		if (ctx->integer_type()->domain_open_range_list()) {
+			IOpenRangeList *domain =
+					ctx->integer_type()->domain_open_range_list()->accept(this);
 		}
 
 		if (ctx->integer_type()->integer_atom_type()->getText() == "int") {
-			if (!msb && !lsb) {
-				lsb = m_factory->mkIntLiteral(32);
-			}
 			ret = m_factory->mkScalarType(IScalarType::ScalarType_Int, msb, lsb);
 		} else if (ctx->integer_type()->integer_atom_type()->getText() == "bit") {
-			if (!msb && !lsb) {
-				lsb = m_factory->mkIntLiteral(1);
-			}
 			ret = m_factory->mkScalarType(IScalarType::ScalarType_Bit, msb, lsb);
 		} else {
 			error("unknown scalar data-type %s",
@@ -760,6 +782,68 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_declaration(PSSParser::Component_de
 	return ret;
 }
 
+antlrcpp::Any PSS2PSIVisitor::visitDomain_open_range_value(PSSParser::Domain_open_range_valueContext *ctx) {
+	IOpenRangeValue *ret = 0;
+	IExpr *lhs=0, *rhs=0;
+	bool domain_bound = false;
+
+	if (ctx->lhs) {
+		lhs = ctx->lhs->accept(this);
+		if (ctx->rhs) {
+			// dual bound
+			rhs = ctx->rhs->accept(this);
+		} else if (ctx->limit_high) {
+			domain_bound = true;
+
+		}
+	} else if (ctx->rhs) {
+		domain_bound = true;
+		rhs = ctx->rhs->accept(this);
+	}
+
+	ret = m_factory->mkOpenRangeValue(lhs, rhs, domain_bound);
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitDomain_open_range_list(PSSParser::Domain_open_range_listContext *ctx) {
+	IOpenRangeList *ret = 0;
+	std::vector<IOpenRangeValue *> ranges;
+
+	for (uint32_t i=0; i<ctx->domain_open_range_value().size(); i++) {
+		ranges.push_back(ctx->domain_open_range_value(i)->accept(this));
+	}
+	ret = m_factory->mkOpenRangeList(ranges);
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitOpen_range_value(PSSParser::Open_range_valueContext *ctx) {
+	IOpenRangeValue *ret = 0;
+	IExpr *lhs=0, *rhs=0;
+
+	lhs = ctx->lhs->accept(this);
+	if (ctx->rhs) {
+		rhs = ctx->rhs->accept(this);
+	}
+
+	ret = m_factory->mkOpenRangeValue(lhs, rhs);
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitOpen_range_list(PSSParser::Open_range_listContext *ctx) {
+	IOpenRangeList *ret = 0;
+	std::vector<IOpenRangeValue *> ranges;
+
+	for (uint32_t i=0; i<ctx->open_range_value().size(); i++) {
+		ranges.push_back(ctx->open_range_value(i)->accept(this));
+	}
+	ret = m_factory->mkOpenRangeList(ranges);
+
+	return ret;
+}
+
 antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 	std::vector<IConstraint *> constraints;
@@ -836,7 +920,44 @@ antlrcpp::Any PSS2PSIVisitor::visitForeach_constraint_item(PSSParser::Foreach_co
 	IConstraint *ret = 0;
 
 	enter("visitForeach_constraint_item");
-	todo("visitForeach_constraint_item");
+	IExpr *expr = ctx->expression()->accept(this);
+	IConstraint *cs = ctx->constraint_set()->accept(this);
+	IConstraintBlock *body;
+	IVariableRef *target = 0;
+	std::string iterator;
+
+	if (expr->getType() != IExpr::ExprType_VariableRef) {
+		fprintf(stdout, "Error: foreach expression is not variable-ref\n");
+		return ret;
+	}
+
+	IVariableRef *last = dynamic_cast<IVariableRef *>(expr);
+	while (last->getNext()) {
+		last = last->getNext();
+	}
+
+	if (!last->getIndexLhs()) {
+		fprintf(stdout, "Error: foreach expression is missing an index\n");
+		return ret;
+	} else if (last->getIndexLhs()->getType() != IExpr::ExprType_VariableRef) {
+		fprintf(stdout, "Error: foreach expression index isn't a variable-ref\n");
+		return ret;
+	}
+	iterator = dynamic_cast<IVariableRef *>(last->getIndexLhs())->getId();
+
+	VariableRefImpl *last_vr = dynamic_cast<VariableRefImpl *>(last);
+	delete last_vr->getIndexLhs();
+	last_vr->setIndexLhs(0);
+
+	if (dynamic_cast<IConstraintBlock *>(cs)) {
+		body = dynamic_cast<IConstraintBlock *>(cs);
+	} else {
+		std::vector<IConstraint *> c;
+		c.push_back(cs);
+		body = m_factory->mkConstraintBlock("", c);
+	}
+
+	ret = m_factory->mkConstraintForeach(target, iterator, body);
 	leave("visitForeach_constraint_item");
 
 	return ret;
@@ -1451,7 +1572,14 @@ antlrcpp::Any PSS2PSIVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *ct
 	} else if (type == "enum") {
 		std::vector<IEnumerator *> enumerators;
 		for (uint32_t i=0; i<ctx->enum_item().size(); i++) {
-			enumerators.push_back(ctx->enum_item(i)->accept(this));
+			const std::string &id = ctx->enum_item(i)->identifier()->getText();
+			IExpr *v = 0;
+
+			if (ctx->enum_item(i)->constant_expression()) {
+				v = ctx->enum_item(i)->constant_expression()->accept(this);
+			}
+
+			enumerators.push_back(m_factory->mkEnumerator(id, v));
 		}
 		IExtendEnum *ext = m_factory->mkExtendEnum(target, enumerators);
 		ret = ext;

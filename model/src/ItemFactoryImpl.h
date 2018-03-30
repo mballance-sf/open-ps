@@ -50,7 +50,8 @@ public:
 	virtual IScalarType *mkScalarType(
 			IScalarType::ScalarType t,
 			IExpr					*msb,
-			IExpr					*lsb);
+			IExpr					*lsb,
+			IOpenRangeList			*domain);
 
 	/**
 	 * action
@@ -143,6 +144,13 @@ public:
 			IGraphRepeatStmt::RepeatType type,
 			IExpr *expr, IGraphStmt *body);
 
+	virtual IOpenRangeValue *mkOpenRangeValue(
+			IExpr 					*lhs,
+			IExpr 					*rhs,
+			bool					domain_bound);
+
+	virtual IOpenRangeList *mkOpenRangeList(
+			const std::vector<IOpenRangeValue *>	&ranges);
 
 	virtual IBinaryExpr *mkBinExpr(
 			IExpr 					*lhs,
@@ -173,6 +181,11 @@ public:
 			const std::vector<IConstraint *>	&cl);
 
 	virtual IConstraintExpr *mkConstraintExpr(IExpr *expr);
+
+	virtual IConstraintForeach *mkConstraintForeach(
+			IVariableRef			*target,
+			const std::string		&iterator,
+			IConstraintBlock		*body);
 
 	virtual IConstraintIf *mkConstraintIf(
 			IExpr 			*cond,

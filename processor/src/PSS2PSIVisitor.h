@@ -51,6 +51,12 @@ public:
 	antlrcpp::Any visitComponent_data_declaration(PSSParser::Component_data_declarationContext *ctx) override;
 	antlrcpp::Any visitComponent_pool_declaration(PSSParser::Component_pool_declarationContext *ctx) override;
 	antlrcpp::Any visitObject_bind_stmt(PSSParser::Object_bind_stmtContext *ctx) override;
+
+	antlrcpp::Any visitDomain_open_range_value(PSSParser::Domain_open_range_valueContext *ctx) override;
+	antlrcpp::Any visitDomain_open_range_list(PSSParser::Domain_open_range_listContext *ctx) override;
+	antlrcpp::Any visitOpen_range_value(PSSParser::Open_range_valueContext *ctx) override;
+	antlrcpp::Any visitOpen_range_list(PSSParser::Open_range_listContext *ctx) override;
+
 	antlrcpp::Any visitConstraint_declaration(PSSParser::Constraint_declarationContext *ctx) override;
 	antlrcpp::Any visitExpression_constraint_item(PSSParser::Expression_constraint_itemContext *ctx) override;
 	antlrcpp::Any visitIf_constraint_item(PSSParser::If_constraint_itemContext *ctx) override;

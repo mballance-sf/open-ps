@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include "Z3ModelVar.h"
+#include "Z3ExprTerm.h"
 #include "PSIVisitor.h"
 #include "StringTableBuilder.h"
 #include "LFSR.h"
@@ -39,9 +40,13 @@ protected:
 
 	uint32_t compute_bits(IScalarType *t);
 
+	bool compute_sign(IScalarType *t);
+
 	virtual void visit_binary_expr(IBinaryExpr *be) override;
 
 	virtual void visit_constraint_expr_stmt(IConstraintExpr *c) override;
+
+	virtual void visit_constraint_if_stmt(IConstraintIf *c) override;
 
 	virtual void visit_literal_expr(ILiteral *l) override;
 
@@ -53,6 +58,10 @@ protected:
 
 	const std::string &prefix();
 
+	Z3ExprTerm upsize(const Z3ExprTerm &target, uint32_t bits);
+
+	void compute_domain(Z3ModelVar &var);
+
 private:
 	StringTableBuilder						m_strtab;
 	Z3_config								m_cfg;
@@ -63,7 +72,7 @@ private:
 	std::string								m_prefix;
 	bool									m_prefix_valid;
 	LFSR									m_lfsr;
-	Z3_ast									m_expr;
+	Z3ExprTerm								m_expr;
 
 };
 

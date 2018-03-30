@@ -25,6 +25,8 @@ public:
 
 	virtual const std::string &getId() const { return m_id; }
 
+	virtual void setIndexLhs(IExpr *lhs) { m_index_lhs = lhs; }
+
 	virtual IExpr *getIndexLhs() const { return m_index_lhs; }
 
 	virtual IExpr *getIndexRhs() const { return m_index_rhs; }

@@ -15,8 +15,10 @@ endif
 ifneq (1,$(RULES))
 
 LIB_TARGETS += $(PACKAGES_DIR)/$(Z3_ZIP)
+UNPACK_TARGETS += $(BUILD_DIR)/z3.unpack
 
 PROCESSOR_SRC = $(notdir $(wildcard $(PROCESSOR_DIR)/src/*.cpp))
+PROCESSOR_SRC_FILES := $(wildcard $(PROCESSOR_DIR)/src/*.cpp)
 SRC_DIRS += $(PROCESSOR_DIR)/src $(Z3_DIR)/include
 
 Z3_LINK = -L$(Z3_DIR)/bin -lz3
@@ -28,10 +30,9 @@ libpss_processor.a : $(PROCESSOR_SRC:.cpp=.o)
 	$(Q)rm -f $@
 	$(Q)$(AR) vcq $@ $^
 	
-$(PROCESSOR_SRC) : z3.unpack
-
-z3.unpack : $(PACKAGES_DIR)/$(Z3_ZIP)
-	$(Q)$(UNZIP) $^
+$(BUILD_DIR)/z3.unpack : $(PACKAGES_DIR)/$(Z3_ZIP)
+	$(Q)if test ! -d $(BUILD_DIR); then mkdir -p $(BUILD_DIR); fi
+	$(Q)cd $(BUILD_DIR) ; $(UNZIP) $^
 	$(Q)touch $@
 
 $(PACKAGES_DIR)/$(Z3_ZIP) : 

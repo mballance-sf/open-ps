@@ -29,7 +29,9 @@ TEST(z3_model,smoke) {
 				rand string		s1, s2, s3;
 
 				constraint c {
-//					a < 4;
+					a < 4;
+					a > 0;
+					b == 7;
 					s1 == "abc";
 					s2 == "def";
 					s3 == "ghi";

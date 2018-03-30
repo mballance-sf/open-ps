@@ -6,6 +6,7 @@
  */
 
 #include "Z3ModelProcessor.h"
+#include <limits.h>
 
 
 Z3ModelProcessor::Z3ModelProcessor() : m_cfg(0), m_ctxt(0) {
@@ -129,13 +130,15 @@ void Z3ModelProcessor::visit_field(IField *f) {
 		std::string id = prefix() + "." + f->getName();
 		uint32_t bits = compute_bits(
 				dynamic_cast<IScalarType *>(f->getDataType()));
+		bool is_signed = compute_sign(
+				dynamic_cast<IScalarType *>(f->getDataType()));
 
 		fprintf(stdout, "Note: scalar variable %s\n", id.c_str());
 
 		Z3_ast var = Z3_mk_const(m_ctxt,
 				Z3_mk_string_symbol(m_ctxt, id.c_str()),
 				Z3_mk_bv_sort(m_ctxt, bits));
-		m_variables[id] = new Z3ModelVar(id, var, bits);
+		m_variables[id] = new Z3ModelVar(id, var, bits, is_signed);
 
 	} else if (f->getDataType()->getType() == IBaseItem::TypeArray) {
 
@@ -163,49 +166,49 @@ void Z3ModelProcessor::apply_bias(const std::vector<Z3ModelVar *> &vars) {
 	Z3_lbool result;
 
 	Z3_solver_push(m_ctxt, m_solver);
-	for (uint32_t i=0; i<100; i++) {
-
-		// TODO: For each variable, select a bit to force
-		for (uint32_t j=0; j<vars.size(); j++) {
-			if (vars.at(j)->bits() < 4) {
-				continue;
-			}
-			uint32_t bits = vars.at(j)->bits();
-			uint32_t num_sel_bits = (bits/4)?(bits/4):1; // always need to set at least one bit
-			uint64_t mask = 0;
-			for (uint32_t k=0; k<num_sel_bits; k++) {
-				uint64_t rv = m_lfsr.next();
-				uint32_t bit = ((rv >> 10) % bits);
-				uint32_t val = (rv & (1 << bit))?1:0;
-				if (mask & (1 << bit)) {
-					k--;
-					continue;
-				}
-				mask |= (1 << bit);
-
-				fprintf(stdout, "%s: Set bit %d to %d (0x%08llx)\n",
-						vars.at(j)->name().c_str(),
-						bit, val, rv);
-
-				Z3_solver_assert(m_ctxt, m_solver,
-					Z3_mk_eq(m_ctxt,
-							Z3_mk_extract(m_ctxt, bit, bit, vars.at(j)->var()),
-							(val)?
-									Z3_mk_numeral(m_ctxt, "1", Z3_mk_bv_sort(m_ctxt, 1)):
-									Z3_mk_numeral(m_ctxt, "0", Z3_mk_bv_sort(m_ctxt, 1))
-					)
-				);
-			}
-		}
+//	for (uint32_t i=0; i<100; i++) {
+//
+//		// TODO: For each variable, select a bit to force
+//		for (uint32_t j=0; j<vars.size(); j++) {
+//			if (vars.at(j)->bits() < 4) {
+//				continue;
+//			}
+//			uint32_t bits = vars.at(j)->bits();
+//			uint32_t num_sel_bits = (bits/4)?(bits/4):1; // always need to set at least one bit
+//			uint64_t mask = 0;
+//			for (uint32_t k=0; k<num_sel_bits; k++) {
+//				uint64_t rv = m_lfsr.next();
+//				uint32_t bit = ((rv >> 10) % bits);
+//				uint32_t val = (rv & (1 << bit))?1:0;
+//				if (mask & (1 << bit)) {
+//					k--;
+//					continue;
+//				}
+//				mask |= (1 << bit);
+//
+//				fprintf(stdout, "%s: Set bit %d to %d (0x%08llx)\n",
+//						vars.at(j)->name().c_str(),
+//						bit, val, rv);
+//
+//				Z3_solver_assert(m_ctxt, m_solver,
+//					Z3_mk_eq(m_ctxt,
+//							Z3_mk_extract(m_ctxt, bit, bit, vars.at(j)->var()),
+//							(val)?
+//									Z3_mk_numeral(m_ctxt, "1", Z3_mk_bv_sort(m_ctxt, 1)):
+//									Z3_mk_numeral(m_ctxt, "0", Z3_mk_bv_sort(m_ctxt, 1))
+//					)
+//				);
+//			}
+//		}
 
 		result = Z3_solver_check(m_ctxt, m_solver);
-		if (result == Z3_L_TRUE) {
-			break;
-		} else {
-			fprintf(stdout, "Retry\n");
-			Z3_solver_pop(m_ctxt, m_solver, 1);
-		}
-	}
+//		if (result == Z3_L_TRUE) {
+//			break;
+//		} else {
+//			fprintf(stdout, "Retry\n");
+//			Z3_solver_pop(m_ctxt, m_solver, 1);
+//		}
+//	}
 
 	if (result != Z3_L_TRUE) {
 		fprintf(stdout, "Failed to apply bias\n");
@@ -264,44 +267,243 @@ uint32_t Z3ModelProcessor::compute_bits(IScalarType *t) {
 	return ret;
 }
 
+bool Z3ModelProcessor::compute_sign(IScalarType *t) {
+	bool is_signed = true;
+
+	switch (t->getScalarType()) {
+		case IScalarType::ScalarType_Bool:
+			is_signed = false;
+			break;
+		case IScalarType::ScalarType_Bit:
+			is_signed = false;
+		break;
+		case IScalarType::ScalarType_Int:
+			is_signed = true;
+		break;
+
+		case IScalarType::ScalarType_String:
+			is_signed = false;
+		break;
+
+		default:
+			fprintf(stdout, "Error: unhandled compute-bits case %d\n",
+					t->getScalarType());
+			break;
+	}
+
+	return is_signed;
+}
+
 void Z3ModelProcessor::visit_binary_expr(IBinaryExpr *be) {
 	visit_expr(be->getLHS());
-	Z3_ast lhs = m_expr;
+	Z3ExprTerm lhs = m_expr;
 	visit_expr(be->getRHS());
-	Z3_ast rhs = m_expr;
+	Z3ExprTerm rhs = m_expr;
 
 	switch (be->getBinOpType()) {
-	case IBinaryExpr::BinOp_And:
-		m_expr = Z3_mk_bvand(m_ctxt, lhs, rhs);
-		break;
-	case IBinaryExpr::BinOp_AndAnd:
-		// TODO:
-		m_expr = Z3_mk_bvand(m_ctxt, lhs, rhs);
-		break;
-	case IBinaryExpr::BinOp_ArrayRef:
-		break;
-	case IBinaryExpr::BinOp_Divide:
-		// TODO: figure out signing
-		m_expr = Z3_mk_bvudiv(m_ctxt, lhs, rhs);
-		break;
-	case IBinaryExpr::BinOp_Eq:
-		fprintf(stdout, "TODO: '=' not supported\n");
-		break;
-	case IBinaryExpr::BinOp_EqEq:
-		m_expr = Z3_mk_eq(m_ctxt, lhs, rhs);
-		break;
-	case IBinaryExpr::BinOp_GE:
-		m_expr = Z3_mk_bvsge(m_ctxt, lhs, rhs);
-		break;
-	case IBinaryExpr::BinOp_GT:
-		m_expr = Z3_mk_bvsgt(m_ctxt, lhs, rhs);
-		break;
-	case IBinaryExpr::BinOp_LE:
-		m_expr = Z3_mk_bvsle(m_ctxt, lhs, rhs);
-		break;
-	case IBinaryExpr::BinOp_LT:
-		m_expr = Z3_mk_bvslt(m_ctxt, lhs, rhs);
-		break;
+	case IBinaryExpr::BinOp_And: {
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		m_expr = Z3ExprTerm(
+				Z3_mk_bvand(m_ctxt,
+						lhs.expr(),
+						rhs.expr()),
+				lhs.size(),
+				lhs.is_signed());
+	} break;
+	case IBinaryExpr::BinOp_AndAnd: {
+		// TODO: bool AND?
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		m_expr = Z3ExprTerm(
+				Z3_mk_bvand(m_ctxt,
+						lhs.expr(),
+						rhs.expr()),
+				lhs.size(),
+				lhs.is_signed());
+	} break;
+//	case IBinaryExpr::BinOp_ArrayRef:
+//		break;
+//	case IBinaryExpr::BinOp_Divide:
+//		// TODO: figure out signing
+//		m_expr = Z3_mk_bvudiv(m_ctxt, lhs, rhs);
+//		break;
+//	case IBinaryExpr::BinOp_Eq:
+//		fprintf(stdout, "TODO: '=' not supported\n");
+//		break;
+	case IBinaryExpr::BinOp_EqEq: {
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		m_expr = Z3ExprTerm(
+				Z3_mk_eq(m_ctxt,
+						lhs.expr(),
+						rhs.expr()),
+				lhs.size(),
+				lhs.is_signed());
+	} break;
+
+	case IBinaryExpr::BinOp_GE: {
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		if (lhs.is_signed() && rhs.is_signed()) {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvsge(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		} else {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvuge(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		}
+	} break;
+
+	case IBinaryExpr::BinOp_GT: {
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		if (lhs.is_signed() && rhs.is_signed()) {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvsgt(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		} else {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvugt(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		}
+	} break;
+	case IBinaryExpr::BinOp_LE: {
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		if (lhs.is_signed() && rhs.is_signed()) {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvsle(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		} else {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvule(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		}
+	} break;
+
+	case IBinaryExpr::BinOp_LT: {
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		if (lhs.is_signed() && rhs.is_signed()) {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvslt(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		} else {
+			m_expr = Z3ExprTerm(
+					Z3_mk_bvult(m_ctxt,
+							lhs.expr(),
+							rhs.expr()),
+							bits,
+							lhs.is_signed());
+		}
+	} break;
 	default:
 		fprintf(stdout, "Error: unhandled binary expr %d\n",
 				be->getBinOpType());
@@ -309,35 +511,78 @@ void Z3ModelProcessor::visit_binary_expr(IBinaryExpr *be) {
 }
 
 void Z3ModelProcessor::visit_constraint_expr_stmt(IConstraintExpr *c) {
-	m_expr = 0;
+	m_expr = Z3ExprTerm();
 	visit_expr(c->getExpr());
-	Z3_solver_assert(m_ctxt, m_solver, m_expr);
+	if (m_expr.expr()) {
+		Z3_solver_assert(m_ctxt, m_solver,
+				m_expr.expr());
+	} else {
+		fprintf(stdout, "Error: expr resulted in null term\n");
+	}
 
-	fprintf(stdout, "constraint statement: %p\n", m_expr);
+//	fprintf(stdout, "constraint statement: %p\n", m_expr);
 }
 
+void Z3ModelProcessor::visit_constraint_if_stmt(IConstraintIf *c) {
+//	visit_expr(c->getCond());
+//	Z3ExprTerm iff = m_expr;
+//	visit_constraint(c->getTrue());
+//	Z3ExprTerm case_true = m_expr;
+//
+//	Z3_solver_assert(
+//			m_ctxt,
+//			m_solver,
+//			Z3_mk_implies(m_ctxt,
+//					iff.expr(),
+//					t2)
+//			);
+//
+//	// Add the 'else' case
+//	Z3_solver_assert(
+//			m_ctxt,
+//			m_solver,
+//			Z3_mk_implies(m_ctxt,
+//					Z3_mk_not(
+//							m_ctxt,
+//							iff.expr()),
+//					t2)
+//			);
+}
 
 void Z3ModelProcessor::visit_literal_expr(ILiteral *l) {
 	switch (l->getLiteralType()) {
 	case ILiteral::LiteralString:
-		m_expr = Z3_mk_int(m_ctxt,
+		m_expr = Z3ExprTerm(
+				Z3_mk_int(m_ctxt,
 				m_strtab.str2id(l->getString()),
-				Z3_mk_bv_sort(m_ctxt, m_strtab.bits()));
+				Z3_mk_bv_sort(m_ctxt, m_strtab.bits())),
+				m_strtab.bits(),
+				false);
 		break;
 	case ILiteral::LiteralBool:
-		m_expr = Z3_mk_int(m_ctxt,
+		m_expr = Z3ExprTerm(
+				Z3_mk_int(m_ctxt,
 				l->getBool(),
-				Z3_mk_bv_sort(m_ctxt, 2));
+				Z3_mk_bv_sort(m_ctxt, 2)),
+				2,
+				false);
 		break;
 	case ILiteral::LiteralInt:
-		m_expr = Z3_mk_int(m_ctxt,
-				l->getInt(),
-				Z3_mk_bv_sort(m_ctxt, 32));
+		// TODO: determine size from the user
+		m_expr = Z3ExprTerm(
+				Z3_mk_int(m_ctxt,
+						l->getInt(),
+						Z3_mk_bv_sort(m_ctxt, 32)),
+				32,
+				true);
 		break;
 	case ILiteral::LiteralBit:
-		m_expr = Z3_mk_int(m_ctxt,
+		m_expr = Z3ExprTerm(
+				Z3_mk_int(m_ctxt,
 				l->getBit(),
-				Z3_mk_bv_sort(m_ctxt, 32));
+				Z3_mk_bv_sort(m_ctxt, 32)),
+				32,
+				false);
 		break;
 	default:
 		fprintf(stdout, "Error: unhandled literal case %d\n",
@@ -357,7 +602,10 @@ void Z3ModelProcessor::visit_variable_ref(IVariableRef *ref) {
 	std::map<std::string, Z3ModelVar *>::iterator v =
 			m_variables.find(full_name);
 
-	m_expr = v->second->var();
+	m_expr = Z3ExprTerm(
+			v->second->var(),
+			v->second->bits(),
+			true); // TODO: signed nature?
 	fprintf(stdout, "m_expr=%p\n", m_expr);
 }
 
@@ -388,3 +636,39 @@ const std::string &Z3ModelProcessor::prefix() {
 
 	return m_prefix;
 }
+
+
+Z3ExprTerm Z3ModelProcessor::upsize(
+		const Z3ExprTerm		&target,
+		uint32_t				bits) {
+
+	Z3_ast upsized;
+
+	fprintf(stdout, "Upsize to %d\n", bits);
+
+	if (target.is_signed()) {
+		upsized = Z3_mk_sign_ext(m_ctxt,
+				(bits-target.size()), target.expr());
+	} else {
+		upsized = Z3_mk_zero_ext(m_ctxt,
+				(bits-target.size()), target.expr());
+	}
+
+	return Z3ExprTerm(
+			upsized,
+			bits,
+			target.is_signed()
+			);
+}
+
+void Z3ModelProcessor::compute_domain(Z3ModelVar &var) {
+	if (var.is_signed()) {
+		int64_t min = LLONG_MIN;
+		int64_t max = LLONG_MAX;
+
+
+	} else {
+
+	}
+}
+
