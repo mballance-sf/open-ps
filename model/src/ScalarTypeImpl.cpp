@@ -30,9 +30,11 @@ namespace psi {
 ScalarTypeImpl::ScalarTypeImpl(
 		IScalarType::ScalarType			scalar_type,
 		IExpr							*msb,
-		IExpr							*lsb) :
+		IExpr							*lsb,
+		IOpenRangeList					*domain) :
 				BaseItemImpl(IBaseItem::TypeScalar),
-				m_scalarType(scalar_type), m_msb(msb), m_lsb(lsb) { }
+				m_scalarType(scalar_type), m_msb(msb), m_lsb(lsb),
+				m_domain(domain) { }
 
 ScalarTypeImpl::~ScalarTypeImpl() {
 	// TODO Auto-generated destructor stub
@@ -42,7 +44,8 @@ IBaseItem *ScalarTypeImpl::clone() const {
 	return new ScalarTypeImpl(
 			getScalarType(),
 			(getMSB())?getMSB()->clone():0,
-			(getLSB())?getMSB()->clone():0);
+			(getLSB())?getMSB()->clone():0,
+			(getDomain()?getDomain()->clone():0));
 }
 
 } /* namespace psi */

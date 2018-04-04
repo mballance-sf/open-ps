@@ -37,6 +37,8 @@
 #include "MethodCallExprImpl.h"
 #include "StructImpl.h"
 #include "ExtendImpl.h"
+#include "ExtendCompositeImpl.h"
+#include "ExtendEnumImpl.h"
 #include "FieldImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
@@ -47,12 +49,16 @@
 #include "LiteralImpl.h"
 #include "ConstraintBlockImpl.h"
 #include "ConstraintExprImpl.h"
+#include "ConstraintForeachImpl.h"
 #include "ConstraintIfImpl.h"
 #include "ConstraintImpliesImpl.h"
 #include "ImportFuncImpl.h"
 #include "ImportImpl.h"
+#include "OpenRangeValueImpl.h"
+#include "OpenRangeListImpl.h"
 #include "RefTypeImpl.h"
 #include "VariableRefImpl.h"
+#include "SymbolImpl.h"
 
 
 using namespace psi;
@@ -81,12 +87,13 @@ IArrayType *ItemFactoryImpl::mkArrayType(
 IScalarType *ItemFactoryImpl::mkScalarType(
 		IScalarType::ScalarType t,
 		IExpr					*msb,
-		IExpr					*lsb) {
+		IExpr					*lsb,
+		IOpenRangeList			*domain) {
 	if (t != IScalarType::ScalarType_Bit && t != IScalarType::ScalarType_Int) {
 		msb = 0;
 		lsb = 0;
 	}
-	return new ScalarTypeImpl(t, msb, lsb);
+	return new ScalarTypeImpl(t, msb, lsb, domain);
 }
 
 IBind *ItemFactoryImpl::mkBind(const std::vector<IBindPath *> &targets) {
@@ -172,10 +179,23 @@ IStruct *ItemFactoryImpl::mkStruct(
 	return new StructImpl(name, t, super_type);
 }
 
-IExtend *ItemFactoryImpl::mkExtend(
+ISymbol *ItemFactoryImpl::mkSymbol(
+		const std::string				&name,
+		const std::vector<IField *>		&params,
+		IGraphBlockStmt					*body) {
+	return new SymbolImpl(name, params, body);
+}
+
+IExtendComposite *ItemFactoryImpl::mkExtendComposite(
 		IExtend::ExtendType			type,
 		IBaseItem 					*target) {
-	return new ExtendImpl(type, target);
+	return new ExtendCompositeImpl(type, target);
+}
+
+IExtendEnum *ItemFactoryImpl::mkExtendEnum(
+		IBaseItem							*target,
+		const std::vector<IEnumerator *>	&enumerators) {
+	return new ExtendEnumImpl(target, enumerators);
 }
 
 /**
@@ -209,6 +229,18 @@ IActivityDoActionStmt *ItemFactoryImpl::mkActivityDoActionStmt(
 IActivityTraverseStmt *ItemFactoryImpl::mkActivityTraverseStmt(
 		IVariableRef *action, IConstraint *with_c) {
 	return new ActivityTraverseStmtImpl(action, with_c);
+}
+
+IOpenRangeValue *ItemFactoryImpl::mkOpenRangeValue(
+			IExpr 					*lhs,
+			IExpr 					*rhs,
+			bool					domain_bound) {
+	return new OpenRangeValueImpl(lhs, rhs, domain_bound);
+}
+
+IOpenRangeList *ItemFactoryImpl::mkOpenRangeList(
+			const std::vector<IOpenRangeValue *>	&ranges) {
+	return new OpenRangeListImpl(ranges);
 }
 
 IBinaryExpr *ItemFactoryImpl::mkBinExpr(
@@ -269,6 +301,16 @@ IConstraintBlock *ItemFactoryImpl::mkConstraintBlock(
 
 IConstraintExpr *ItemFactoryImpl::mkConstraintExpr(IExpr *expr) {
 	return new ConstraintExprImpl(expr);
+}
+
+IConstraintForeach *ItemFactoryImpl::mkConstraintForeach(
+			IVariableRef			*target,
+			const std::string		&iterator,
+			IConstraintBlock		*body) {
+	return new ConstraintForeachImpl(
+			target,
+			iterator,
+			body);
 }
 
 

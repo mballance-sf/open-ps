@@ -32,7 +32,7 @@ void TypeExtensionProcessor::visit_package(IPackage *pkg) {
 	}
 }
 
-void TypeExtensionProcessor::visit_extend(IExtend *e) {
+void TypeExtensionProcessor::visit_extend_composite(IExtendComposite *e) {
 	// Add content from the extension to the target element
 	IScopeItem *target_s = dynamic_cast<IScopeItem *>(e->getTarget());
 
@@ -48,6 +48,10 @@ void TypeExtensionProcessor::visit_extend(IExtend *e) {
 		target_s->add(item_c);
 		fprintf(stdout, "item_c.parent=%p\n", item_c->getParent());
 	}
+}
+
+void TypeExtensionProcessor::visit_extend_enum(IExtendEnum *e) {
+	fprintf(stdout, "TODO: visit_extend_enum\n");
 }
 
 } /* namespace qpssc */

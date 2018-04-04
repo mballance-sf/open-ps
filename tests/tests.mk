@@ -11,6 +11,8 @@ SRC_DIRS += $(BUILD_DIR)/$(GOOGLETEST_DIR)/googletest
 SRC_DIRS += $(BUILD_DIR)/$(GOOGLETEST_DIR)/googletest/src
 SRC_DIRS += $(BUILD_DIR)/$(GOOGLETEST_DIR)/googletest/include
 
+UNPACK_TARGETS += $(BUILD_DIR)/googletest.unpack
+
 else # Rules
 
 $(PACKAGES_DIR)/$(GOOGLETEST_ZIP) :
@@ -19,7 +21,7 @@ $(PACKAGES_DIR)/$(GOOGLETEST_ZIP) :
 
 $(BUILD_DIR)/googletest.unpack : $(PACKAGES_DIR)/$(GOOGLETEST_ZIP)
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
-	cd $(BUILD_DIR) ; tar xvzf $^
+	cd $(BUILD_DIR) ; $(UNTARGZ) $^
 	touch $@
 
 endif

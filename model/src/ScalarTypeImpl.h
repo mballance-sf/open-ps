@@ -39,7 +39,8 @@ public:
 	ScalarTypeImpl(
 			IScalarType::ScalarType			scalar_type,
 			IExpr							*msb,
-			IExpr							*lsb);
+			IExpr							*lsb,
+			IOpenRangeList					*domain);
 
 	virtual ~ScalarTypeImpl();
 
@@ -55,6 +56,8 @@ public:
 	 */
 	virtual IExpr *getLSB() const { return m_lsb; }
 
+	virtual IOpenRangeList *getDomain() const { return m_domain; }
+
 	virtual IBaseItem *clone() const;
 
 
@@ -62,6 +65,7 @@ private:
 	IScalarType::ScalarType			m_scalarType;
 	IExpr							*m_msb;
 	IExpr							*m_lsb;
+	IOpenRangeList					*m_domain;
 };
 
 } /* namespace psi */

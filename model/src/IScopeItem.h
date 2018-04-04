@@ -31,11 +31,14 @@
 
 #include "IBaseItem.h"
 #include "IStartEndLocation.h"
+#include "IChildItem.h"
 
 namespace psi_api {
 	class IField;
 
-	class IScopeItem : public virtual IStartEndLocation {
+	class IScopeItem :
+			public virtual IChildItem,
+			public virtual IStartEndLocation {
 	public:
 
 		virtual ~IScopeItem() { }

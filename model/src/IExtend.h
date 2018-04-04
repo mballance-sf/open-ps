@@ -25,13 +25,11 @@
 #ifndef SRC_PSI_API_IEXTEND_H_
 #define SRC_PSI_API_IEXTEND_H_
 #include "IBaseItem.h"
-#include "IScopeItem.h"
 
 namespace psi_api {
 
 class IExtend :
-		public virtual IBaseItem,
-		public virtual IScopeItem {
+		public virtual IBaseItem {
 public:
 
 	enum ExtendType {
@@ -44,7 +42,6 @@ public:
 	virtual ExtendType getExtendType() const = 0;
 
 	virtual IBaseItem *getTarget() const = 0;
-
 
 };
 

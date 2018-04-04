@@ -1,0 +1,97 @@
+*** build/antlr4-cpp-runtime/runtime/src/support/Any.h	2017-07-26 11:10:02.000000000 -0700
+--- build2/antlr4-cpp-runtime/runtime/src/support/Any.h	2018-03-30 10:01:03.966304195 -0700
+***************
+*** 8,13 ****
+--- 8,14 ----
+  #pragma once
+  
+  #include "antlr4-common.h"
++ #include <typeinfo>
+  
+  #ifdef _MSC_VER
+    #pragma warning(push)
+***************
+*** 24,47 ****
+    bool isNull() const { return _ptr == nullptr; }
+    bool isNotNull() const { return _ptr != nullptr; }
+  
+!   Any() : _ptr(nullptr) {
+    }
+  
+!   Any(Any& that) : _ptr(that.clone()) {
+    }
+  
+!   Any(Any&& that) : _ptr(that._ptr) {
+      that._ptr = nullptr;
+    }
+  
+!   Any(const Any& that) : _ptr(that.clone()) {
+    }
+  
+!   Any(const Any&& that) : _ptr(that.clone()) {
+    }
+  
+    template<typename U>
+!   Any(U&& value) : _ptr(new Derived<StorageType<U>>(std::forward<U>(value))) {
+    }
+  
+    template<class U>
+--- 25,49 ----
+    bool isNull() const { return _ptr == nullptr; }
+    bool isNotNull() const { return _ptr != nullptr; }
+  
+!   Any() : _ptr(nullptr), _typename("") {
+    }
+  
+!   Any(Any& that) : _ptr(that.clone()), _typename(that._typename) {
+    }
+  
+!   Any(Any&& that) : _ptr(that._ptr), _typename(that._typename) {
+      that._ptr = nullptr;
+    }
+  
+!   Any(const Any& that) : _ptr(that.clone()), _typename(that._typename) {
+    }
+  
+!   Any(const Any&& that) : _ptr(that.clone()), _typename(that._typename) {
+    }
+  
+    template<typename U>
+!   Any(U&& value) : _ptr(new Derived<StorageType<U>>(std::forward<U>(value))),
+!   _typename(typeid(U).name()) {
+    }
+  
+    template<class U>
+***************
+*** 59,66 ****
+  
+      auto derived = dynamic_cast<Derived<T>*>(_ptr);
+  
+!     if (!derived)
+        throw std::bad_cast();
+  
+      return derived->value;
+    }
+--- 61,72 ----
+  
+      auto derived = dynamic_cast<Derived<T>*>(_ptr);
+  
+!     if (!derived) {
+!     	const char *u_name = typeid(U).name();
+!     	fprintf(stdout, "Error: Failed to cast %s to %s\n",
+!     			_typename, u_name);
+        throw std::bad_cast();
++     }
+  
+      return derived->value;
+    }
+***************
+*** 99,104 ****
+--- 105,111 ----
+    }
+  
+  private:
++   const char		*_typename;
+    struct Base {
+      virtual ~Base();
+      virtual Base* clone() const = 0;

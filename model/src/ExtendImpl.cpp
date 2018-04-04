@@ -31,22 +31,12 @@ namespace psi {
 ExtendImpl::ExtendImpl(
 		IExtend::ExtendType		type,
 		IBaseItem 				*target) :
-		BaseItemImpl(IBaseItem::TypeExtend), m_extendType(type), m_target(target) {
+		BaseItemImpl(IBaseItem::TypeExtend),
+		m_extendType(type), m_target(target) {
 }
 
 ExtendImpl::~ExtendImpl() {
 	// TODO Auto-generated destructor stub
-}
-
-IBaseItem *ExtendImpl::clone() const {
-	ExtendImpl *ret = new ExtendImpl(m_extendType, getTarget());
-
-	for (std::vector<IBaseItem *>::const_iterator it=getItems().begin();
-			it!=getItems().end(); it++) {
-		ret->add((*it)->clone());
-	}
-
-	return ret;
 }
 
 } /* namespace psi */

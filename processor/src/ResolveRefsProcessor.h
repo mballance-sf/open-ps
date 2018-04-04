@@ -35,12 +35,16 @@ protected:
 private:
 
 	void resolve_variable_ref(
-			IScopeItem		*scope,
-			IVariableRef	*full_ref,
-			IVariableRef	*ref
+			IScopeItem					*scope,
+			IVariableRef				*full_ref,
+			IVariableRef				*ref
 			);
 
 	IBaseItem *resolve_variable_ref(
+			IScopeItem			*scope,
+			const std::string	&id);
+
+	IBaseItem *resolve_variable_ref_in_ext(
 			IScopeItem			*scope,
 			const std::string	&id);
 

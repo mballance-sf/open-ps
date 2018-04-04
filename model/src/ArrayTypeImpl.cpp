@@ -22,7 +22,7 @@ ArrayTypeImpl::ArrayTypeImpl(
 		m_sum = new FieldImpl("sum",
 			new ScalarTypeImpl(IScalarType::ScalarType_Int,
 					new LiteralImpl((uint64_t)63),
-					new LiteralImpl((uint64_t)0)),
+					new LiteralImpl((uint64_t)0), 0),
 			IField::FieldAttr_None,
 			0
 		);
@@ -31,7 +31,7 @@ ArrayTypeImpl::ArrayTypeImpl(
 	m_size = new FieldImpl("size",
 			new ScalarTypeImpl(IScalarType::ScalarType_Bit,
 					new LiteralImpl((uint64_t)31),
-					new LiteralImpl((uint64_t)0)),
+					new LiteralImpl((uint64_t)0), 0),
 			IField::FieldAttr_None,
 			0
 			);

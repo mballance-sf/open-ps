@@ -34,6 +34,7 @@
 #include "IComponent.h"
 #include "IConstraintBlock.h"
 #include "IConstraintExpr.h"
+#include "IConstraintForeach.h"
 #include "IConstraintIf.h"
 #include "ICoverspec.h"
 #include "IEnumerator.h"
@@ -42,6 +43,8 @@
 #include "IExecStmt.h"
 #include "IExecExprStmt.h"
 #include "IExtend.h"
+#include "IExtendComposite.h"
+#include "IExtendEnum.h"
 #include "IGraphBlockStmt.h"
 #include "IActivityDoActionStmt.h"
 #include "IActivityTraverseStmt.h"
@@ -54,8 +57,11 @@
 #include "IImport.h"
 #include "IImportFunc.h"
 #include "IMethodCallExpr.h"
+#include "IOpenRangeValue.h"
+#include "IOpenRangeList.h"
 #include "IRefType.h"
 #include "IVariableRef.h"
+#include "ISymbol.h"
 
 namespace psi_api {
 
@@ -81,7 +87,8 @@ public:
 	virtual IScalarType *mkScalarType(
 			IScalarType::ScalarType t,
 			IExpr					*msb,
-			IExpr					*lsb) = 0;
+			IExpr					*lsb,
+			IOpenRangeList			*domain=0) = 0;
 
 	/**
 	 * action
@@ -141,9 +148,18 @@ public:
 			IStruct::StructType		t,
 			IBaseItem 				*super_type) = 0;
 
-	virtual IExtend *mkExtend(
+	virtual ISymbol *mkSymbol(
+			const std::string			&name,
+			const std::vector<IField *>	&params,
+			IGraphBlockStmt				*body) = 0;
+
+	virtual IExtendComposite *mkExtendComposite(
 			IExtend::ExtendType		type,
 			IBaseItem				*target) = 0;
+
+	virtual IExtendEnum *mkExtendEnum(
+			IBaseItem							*target,
+			const std::vector<IEnumerator *>	&enumerators) = 0;
 
 	/**
 	 * Create a field for use in declaring the contents of an
@@ -159,6 +175,14 @@ public:
 			IExpr 					*lhs,
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs) = 0;
+
+	virtual IOpenRangeValue *mkOpenRangeValue(
+			IExpr					*lhs,
+			IExpr					*rhs,
+			bool					domain_bound=false) = 0;
+
+	virtual IOpenRangeList *mkOpenRangeList(
+			const std::vector<IOpenRangeValue *>	&ranges) = 0;
 
 	virtual IVariableRef *mkVariableRef(
 			IBaseItem				*scope,
@@ -218,6 +242,11 @@ public:
 			const std::vector<IConstraint *>	&cl) = 0;
 
 	virtual IConstraintExpr *mkConstraintExpr(IExpr *expr) = 0;
+
+	virtual IConstraintForeach *mkConstraintForeach(
+			IVariableRef			*target,
+			const std::string		&iterator,
+			IConstraintBlock		*body) = 0;
 
 	virtual IConstraintIf *mkConstraintIf(
 			IExpr 			*cond,

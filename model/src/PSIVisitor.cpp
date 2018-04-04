@@ -147,6 +147,10 @@ void PSIVisitor::visit_constraint_block(IConstraintBlock *block) {
 	}
 }
 
+void PSIVisitor::visit_coverspec(ICoverspec *coverspec) {
+	// TODO:
+}
+
 void PSIVisitor::visit_exec(IExec *e) {
 	for (std::vector<IExecStmt *>::const_iterator it=e->getStmts().begin();
 			it!=e->getStmts().end(); it++) {
@@ -229,9 +233,30 @@ void PSIVisitor::visit_expr(IExpr *e) {
 
 void PSIVisitor::visit_extend(IExtend *e) {
 	visit_item(e->getTarget());
+
+	switch (e->getExtendType()) {
+	case IExtend::ExtendType_Enum:
+		visit_extend_enum(dynamic_cast<IExtendEnum *>(e));
+		break;
+	case IExtend::ExtendType_Component:
+	case IExtend::ExtendType_Action:
+	case IExtend::ExtendType_Struct:
+		visit_extend_composite(dynamic_cast<IExtendComposite *>(e));
+		break;
+	default:
+		fprintf(stdout, "Error: unhandled extension type %d\n",
+				e->getExtendType());
+	}
+}
+
+void PSIVisitor::visit_extend_composite(IExtendComposite *e) {
 	push_scope(e);
 	visit_scope(e);
 	pop_scope();
+}
+
+void PSIVisitor::visit_extend_enum(IExtendEnum *e) {
+	// Nothing do to
 }
 
 void PSIVisitor::visit_binary_expr(IBinaryExpr *be) {
@@ -445,6 +470,10 @@ void PSIVisitor::visit_item(IBaseItem *it) {
 		visit_constraint(dynamic_cast<IConstraintBlock *>(it));
 		break;
 
+	case IBaseItem::TypeCoverspec:
+		visit_coverspec(dynamic_cast<ICoverspec *>(it));
+		break;
+
 	case IBaseItem::TypeField:
 		visit_field(dynamic_cast<IField *>(it));
 		break;
@@ -465,6 +494,14 @@ void PSIVisitor::visit_item(IBaseItem *it) {
 		// TODO: Ignore
 		break;
 
+	case IBaseItem::TypeArray:
+		// TODO: Ignore
+		break;
+
+	case IBaseItem::TypeSymbol:
+		visit_symbol(dynamic_cast<ISymbol *>(it));
+		break;
+
 	default:
 		fprintf(stdout, "Error: unhandled item %d\n", it->getType());
 		break;
@@ -473,6 +510,10 @@ void PSIVisitor::visit_item(IBaseItem *it) {
 
 void PSIVisitor::visit_ref_type(IRefType *ref) {
 
+}
+
+void PSIVisitor::visit_symbol(ISymbol *sym) {
+	visit_graph_stmt(sym->getBody());
 }
 
 void PSIVisitor::visit_variable_ref(IVariableRef *ref) {

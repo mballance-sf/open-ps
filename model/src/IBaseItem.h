@@ -27,6 +27,7 @@
 #define SRC_API_IBASEITEM_H_
 #include "IAttributes.h"
 #include "IStartLocation.h"
+#include "IChildItem.h"
 
 namespace psi_api {
 	class IItemFactory;
@@ -36,7 +37,10 @@ namespace psi_api {
 	 *
 	 * Common base API to PSI objects
 	 */
-	class IBaseItem : public virtual IAttributes, public virtual IStartLocation {
+	class IBaseItem :
+			public virtual IChildItem,
+			public virtual IAttributes,
+			public virtual IStartLocation {
 
 	public:
 
@@ -73,13 +77,6 @@ namespace psi_api {
 			 * Returns the type of this object.
 			 */
 			virtual ItemType getType() const = 0;
-
-			virtual IBaseItem *getParent() const = 0;
-
-			/**
-			 * Implementation: not called by user code
-			 */
-			virtual void setParent(IBaseItem *it) = 0;
 
 			virtual IBaseItem *clone() const = 0;
 

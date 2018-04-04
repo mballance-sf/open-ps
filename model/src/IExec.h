@@ -40,7 +40,8 @@ public:
 		Declaration,
 		Body,
 		PreSolve,
-		PostSolve
+		PostSolve,
+		Init
 	};
 
 	enum ExecType {

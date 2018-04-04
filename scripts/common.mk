@@ -50,9 +50,11 @@ endif
 
 ifeq (true,$(VERBOSE))
   UNZIP:=unzip -o
+  UNTARGZ:=tar xvzf
   WGET:=wget
 else 
   UNZIP:=unzip -oq
+  UNTARGZ:=tar xzf
   WGET:=wget
   Q:=@
 endif
