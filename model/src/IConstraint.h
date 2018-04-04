@@ -38,7 +38,8 @@ public:
 		ConstraintType_Expr,
 		ConstraintType_If,
 		ConstraintType_Implies,
-		ConstraintType_Foreach
+		ConstraintType_Foreach,
+		ConstraintType_Unique
 	};
 
 public:

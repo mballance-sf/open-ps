@@ -64,5 +64,23 @@ ifeq (cl,$(COMPILER))
 	$(Q)$(CXX) -Fo$(@) $(CXXFLAGS) $^
 endif
 
+ifeq (gcc,$(COMPILER))
+ifeq (true,$(VERBOSE))
+%.o : %.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
+	
+%.o : %.cc
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
+else
+%.o : %.cpp
+	@echo "CXX: $(notdir $^)"
+	@$(CXX) -c -o $@ $(CXXFLAGS) $^
+	
+%.o : %.cc
+	@echo "CXX: $(notdir $^)"
+	@$(CXX) -c -o $@ $(CXXFLAGS) $^
 endif
+endif
+
+endif # Rules
 

@@ -196,6 +196,9 @@ public:
 			IExpr			*cond,
 			IConstraint		*imp);
 
+	virtual IConstraintUnique *mkConstraintUnique(
+			const std::vector<IExpr *> &terms);
+
 	virtual IImport *mkImport(
 			IBaseItem						*target,
 			bool							is_wildcard);
