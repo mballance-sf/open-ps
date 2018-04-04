@@ -26,10 +26,10 @@ PLATFORM := linux_x86_64
 endif
 
 ifeq (true,$(IS_WIN))
-#	ifeq (,$(COMPILER))
+	ifeq (,$(COMPILER))
 #		COMPILER := cl
-#	endif
-	COMPILER := gcc
+		COMPILER := gcc
+	endif
 else
 	COMPILER := gcc
 endif
@@ -39,11 +39,13 @@ CXXFLAGS += $(foreach d,$(SRC_DIRS),-I $(d))
 ifeq (cl,$(COMPILER))
 	CXX=cl
 	CC=cl
-	CXXFLAGS += -std:c++14 -nologo
+	CXXFLAGS += -std:c++14 -nologo -EHsc
+	LINK_EXE=link -nologo -out:$@
 endif
 
 ifeq (gcc,$(COMPILER))
 	CXXFLAGS += -std=c++11 -fPIC -g
+	LINK_EXE=$(CXX) -o $@
 endif
 
 ifeq (true,$(VERBOSE))
@@ -59,7 +61,7 @@ else # Rules
 
 ifeq (cl,$(COMPILER))
 %.o : %.cpp
-	$(Q)$(CXX) -Fo$(@) $(CXXFLAGS) $^
+	$(Q)$(CXX) -c -Fo$(@) $(CXXFLAGS) $^
 endif
 
 endif

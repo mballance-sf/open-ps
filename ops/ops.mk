@@ -47,7 +47,7 @@ print :
 $(OPS_SRC_FULL) : pss-grammar.gen
 
 ops$(EXEEXT) : $(OPS_EXE_DEPS)
-	$(Q)$(CXX) -o $@ $(OPS_EXE_LINK)
+	$(Q)$(LINK_EXE) $(OPS_EXE_LINK)
 	
 $(OPEN_PS_RLS_DIR)/$(PLATFORM)/bin/ops$(EXEEXT) : ops$(EXEEXT)
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
