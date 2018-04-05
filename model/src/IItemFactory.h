@@ -59,6 +59,7 @@
 #include "IMethodCallExpr.h"
 #include "IOpenRangeValue.h"
 #include "IOpenRangeList.h"
+#include "IPool.h"
 #include "IRefType.h"
 #include "IVariableRef.h"
 #include "ISymbol.h"
@@ -170,6 +171,11 @@ public:
 			IBaseItem				*field_type,
 			IField::FieldAttr		attr,
 			IExpr					*array_dim) = 0;
+
+	virtual IPool *mkPool(
+			const std::string		&name,
+			IBaseItem				*pool_type,
+			IExpr					*pool_size) = 0;
 
 	virtual IBinaryExpr *mkBinExpr(
 			IExpr 					*lhs,

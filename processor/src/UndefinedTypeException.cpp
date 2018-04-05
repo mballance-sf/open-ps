@@ -8,7 +8,7 @@
 #include "UndefinedTypeException.h"
 
 UndefinedTypeException::UndefinedTypeException(
-		IScopeItem			*scope,
+		IBaseItem			*scope,
 		IRefType			*type_ref
 		) : m_scope(scope), m_type_ref(type_ref) {
 

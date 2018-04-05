@@ -44,6 +44,14 @@ ifeq (cl,$(COMPILER))
 endif
 
 ifeq (gcc,$(COMPILER))
+	GCC_VERSION := $(shell gcc --version | grep gcc | sed -e 's/^.*\([0-9]\.[0-9]\.[0-9]\).*$$/\1/g')
+	GCC_VERSION_MAJOR := $(shell echo $(GCC_VERSION) | sed -e 's/^\([0-9]\).*$$/\1/g')
+	GCC_VERSION_GE_7 := $(shell test $(GCC_VERSION_MAJOR) -ge 7; echo $$?)
+
+ifeq (0,$(GCC_VERSION_GE_7))
+	CXXFLAGS += -Wno-attributes -fpermissive
+endif
+
 	CXXFLAGS += -std=c++11 -fPIC -g
 	LINK_EXE=$(CXX) -o $@
 endif
@@ -65,6 +73,11 @@ ifeq (cl,$(COMPILER))
 %.o : %.cpp
 	$(Q)$(CXX) -c -Fo$(@) $(CXXFLAGS) $^
 endif
+
+do_test:
+	echo "GCC_VERSION: $(GCC_VERSION)"
+	echo "GCC_VERSION_MAJOR: $(GCC_VERSION_MAJOR)"
+	echo "GCC_VERSION_GE_7: $(GCC_VERSION_GE_7)"
 
 endif
 

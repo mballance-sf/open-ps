@@ -131,6 +131,11 @@ public:
 			IField::FieldAttr		attr,
 			IExpr					*array_dim);
 
+	virtual IPool *mkPool(
+			const std::string		&name,
+			IBaseItem				*pool_type,
+			IExpr					*pool_size);
+
 	virtual IGraphBlockStmt *mkGraphBlockStmt(
 			IGraphStmt::GraphStmtType type=IGraphStmt::GraphStmt_Block);
 

@@ -62,9 +62,10 @@ namespace psi_api {
 			TypeModel,
 			TypeObject,		// 15
 			TypePackage,
+			TypePool,
 			TypeScalar,
 			TypeStruct,
-			TypeSymbol,
+			TypeSymbol,		// 20
 			TypeRefType,
 			TypeVendor
 		};

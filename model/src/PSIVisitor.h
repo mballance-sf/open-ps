@@ -133,13 +133,13 @@ protected:
 
 	virtual void visit_scope(IScopeItem *s);
 
-	virtual void push_scope(IScopeItem *scope);
+	virtual void push_scope(IBaseItem *scope);
 
-	virtual IScopeItem *scope() const;
+	virtual IBaseItem *scope() const;
 
-	virtual const std::vector<IScopeItem *> &scopes() const;
+	virtual const std::vector<IBaseItem *> &scopes() const;
 
-	virtual IScopeItem *pop_scope();
+	virtual IBaseItem *pop_scope();
 
 	static std::string type2string(IBaseItem *it);
 
@@ -161,7 +161,7 @@ private:
 private:
 	bool						m_debug;
 	bool						m_removed;
-	std::vector<IScopeItem *>	m_scope_stack;
+	std::vector<IBaseItem *>	m_scope_stack;
 	std::vector<IGraphStmt *>	m_graph_stack;
 
 };

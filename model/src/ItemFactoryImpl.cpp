@@ -40,6 +40,7 @@
 #include "ExtendCompositeImpl.h"
 #include "ExtendEnumImpl.h"
 #include "FieldImpl.h"
+#include "PoolImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
 #include "ActivityDoActionStmtImpl.h"
@@ -208,6 +209,13 @@ IField *ItemFactoryImpl::mkField(
 		IField::FieldAttr		attr,
 		IExpr					*array_dim) {
 	return new FieldImpl(name, field_type, attr, array_dim);
+}
+
+IPool *ItemFactoryImpl::mkPool(
+			const std::string		&name,
+			IBaseItem				*pool_type,
+			IExpr					*pool_size) {
+	return new PoolImpl(name, pool_type, pool_size);
 }
 
 IGraphBlockStmt *ItemFactoryImpl::mkGraphBlockStmt(IGraphStmt::GraphStmtType type) {

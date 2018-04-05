@@ -731,7 +731,23 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 antlrcpp::Any PSS2PSIVisitor::visitComponent_pool_declaration(PSSParser::Component_pool_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 	enter("visitComponent_pool_declaration");
-	todo("pool_declaration");
+	IBaseItem *pool_type = ctx->data_declaration()->data_type()->accept(this);
+	IExpr *pool_size = 0;
+
+	if (ctx->expression()) {
+		pool_size = ctx->expression()->accept(this);
+	}
+
+	for (uint32_t i=0;
+			i<ctx->data_declaration()->data_instantiation().size(); i++) {
+
+		IPool *pool = m_factory->mkPool(
+				ctx->data_declaration()->data_instantiation(i)->identifier()->getText(),
+				pool_type,
+				pool_size);
+
+		scope()->add(pool);
+	}
 
 	leave("visitComponent_pool_declaration");
 	return ret;

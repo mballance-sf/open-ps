@@ -581,20 +581,20 @@ std::string PSIVisitor::path2string(const std::vector<IField *> &path) {
 	return ret;
 }
 
-void PSIVisitor::push_scope(IScopeItem *scope) {
+void PSIVisitor::push_scope(IBaseItem *scope) {
 	m_scope_stack.push_back(scope);
 }
 
-const std::vector<IScopeItem *> &PSIVisitor::scopes() const {
+const std::vector<IBaseItem *> &PSIVisitor::scopes() const {
 	return m_scope_stack;
 }
 
-IScopeItem *PSIVisitor::scope() const {
+IBaseItem *PSIVisitor::scope() const {
 	return m_scope_stack.back();
 }
 
-IScopeItem *PSIVisitor::pop_scope() {
-	IScopeItem *ret = m_scope_stack.back();
+IBaseItem *PSIVisitor::pop_scope() {
+	IBaseItem *ret = m_scope_stack.back();
 	m_scope_stack.pop_back();
 
 	return ret;

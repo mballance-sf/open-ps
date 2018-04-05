@@ -17,17 +17,17 @@ class UndefinedTypeException : public std::exception {
 public:
 
 	UndefinedTypeException(
-			IScopeItem		*scope,
+			IBaseItem		*scope,
 			IRefType		*type);
 
 	virtual ~UndefinedTypeException();
 
-	IScopeItem *scope() const { return m_scope; }
+	IBaseItem *scope() const { return m_scope; }
 
 	IRefType *type_ref() const { return m_type_ref; }
 
 private:
-	IScopeItem				*m_scope;
+	IBaseItem				*m_scope;
 	IRefType				*m_type_ref;
 
 };

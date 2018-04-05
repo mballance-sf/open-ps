@@ -38,6 +38,8 @@ CFLAGS += -g
 include $(MK_INCLUDES)
 
 ifeq (true,$(IS_WIN))
+	PATH := $(Z3_DIR)/bin:$(PATH)
+	export PATH
 else
 	LD_LIBRARY_PATH := $(Z3_DIR)/bin:$(LD_LIBRARY_PATH)
 	export LD_LIBRARY_PATH
