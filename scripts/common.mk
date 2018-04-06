@@ -74,10 +74,23 @@ ifeq (cl,$(COMPILER))
 	$(Q)$(CXX) -c -Fo$(@) $(CXXFLAGS) $^
 endif
 
-do_test:
-	echo "GCC_VERSION: $(GCC_VERSION)"
-	echo "GCC_VERSION_MAJOR: $(GCC_VERSION_MAJOR)"
-	echo "GCC_VERSION_GE_7: $(GCC_VERSION_GE_7)"
-
+ifeq (gcc,$(COMPILER))
+ifeq (true,$(VERBOSE))
+%.o : %.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
+	
+%.o : %.cc
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
+else
+%.o : %.cpp
+	@echo "CXX: $(notdir $^)"
+	@$(CXX) -c -o $@ $(CXXFLAGS) $^
+	
+%.o : %.cc
+	@echo "CXX: $(notdir $^)"
+	@$(CXX) -c -o $@ $(CXXFLAGS) $^
 endif
+endif
+
+endif # Rules
 

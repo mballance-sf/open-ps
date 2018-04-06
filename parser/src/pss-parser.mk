@@ -57,10 +57,18 @@ antlr/%.o : %.cpp
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(CXX) -Fo$(@) $(CXXFLAGS) $^
 else
+ifeq (true,$(VERBOSE))
 antlr/%.o : %.cpp
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(CXX) -c -o $@ $(CXXFLAGS) $^
+else
+antlr/%.o : %.cpp
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(Q)echo "CXX $(notdir $^)"
+	$(Q)$(CXX) -c -o $@ $(CXXFLAGS) $^
 endif
+endif
+
 
 $(BUILD_DIR)/runtime.unpack : $(PACKAGES_DIR)/$(ANTLR_RUNTIME_SRC_ZIP)
 	$(Q)if test ! -d $(BUILD_DIR); then mkdir -p $(BUILD_DIR); fi

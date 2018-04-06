@@ -53,6 +53,7 @@
 #include "ConstraintForeachImpl.h"
 #include "ConstraintIfImpl.h"
 #include "ConstraintImpliesImpl.h"
+#include "ConstraintUniqueImpl.h"
 #include "ImportFuncImpl.h"
 #include "ImportImpl.h"
 #include "OpenRangeValueImpl.h"
@@ -333,6 +334,11 @@ IConstraintImplies *ItemFactoryImpl::mkConstraintImplies(
 				IExpr			*cond,
 				IConstraint		*imp) {
 	return new ConstraintImpliesImpl(cond, imp);
+}
+
+IConstraintUnique *ItemFactoryImpl::mkConstraintUnique(
+			const std::vector<IExpr *> &terms) {
+	return new ConstraintUniqueImpl(terms);
 }
 
 IImport *ItemFactoryImpl::mkImport(

@@ -36,6 +36,7 @@
 #include "IConstraintExpr.h"
 #include "IConstraintForeach.h"
 #include "IConstraintIf.h"
+#include "IConstraintUnique.h"
 #include "ICoverspec.h"
 #include "IEnumerator.h"
 #include "IEnumType.h"
@@ -262,6 +263,9 @@ public:
 	virtual IConstraintImplies *mkConstraintImplies(
 			IExpr			*cond,
 			IConstraint		*imp) = 0;
+
+	virtual IConstraintUnique *mkConstraintUnique(
+			std::vector<IExpr *>	&terms) = 0;
 
 	virtual IImport *mkImport(
 			IBaseItem						*target,

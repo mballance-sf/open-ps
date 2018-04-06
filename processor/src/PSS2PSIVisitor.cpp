@@ -506,8 +506,7 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 		} else if (modifier == "share") {
 			attr = IField::FieldAttr_Share;
 		} else if (modifier == "action") {
-			// TODO:
-			todo("action-qualified action data field");
+			attr = IField::FieldAttr_Action;
 		} else {
 			todo("unknown action-field modifier %s", modifier.c_str());
 		}
@@ -1016,10 +1015,12 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_block(PSSParser::Constraint_blockC
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitUnique_constraint_item(PSSParser::Unique_constraint_itemContext *ctx) {
+	IConstraint *ret = 0;
 	enter("visitUnique_constraint_item");
+	ctx->
 	todo("unique constraint");
 	leave("visitUnique_constraint_item");
-	return (IConstraint *)0;
+	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitBins_declaration(PSSParser::Bins_declarationContext *ctx) {
