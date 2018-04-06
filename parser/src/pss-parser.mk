@@ -39,18 +39,26 @@ SRC_DIRS += $(ANTLR4_CPP_RUNTIME_DIR)/tree/pattern
 SRC_DIRS += $(ANTLR4_CPP_RUNTIME_DIR)/tree/xpath 
 SRC_DIRS += grammar
 
-LIB_TARGETS += libpss_parser.a libantlr_runtime.a
+PSS_PARSER_DEPS = $(DLIBPREF)pss_parser$(DLIBEXT) 
+ANTLR4_DEPS = antlr/$(DLIBPREF)antlr_runtime$(DLIBEXT)
+LIB_TARGETS += $(PSS_PARSER_DEPS) $(ANTLR4_DEPS)
 UNPACK_TARGETS += $(BUILD_DIR)/runtime.unpack
+
+ifeq (gcc,$(COMPILER))
+ANTLR4_LINK = -Lantlr -lantlr_runtime
+PSS_PARSER_LINK = -L. -lpss_parser
+else
+ANTLR4_LINK = -lantlr/antlr_runtime
+PSS_PARSER_LINK = -lpss_parser
+endif
 
 else # Rules
 
-libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o) 
-	$(Q)rm -f $@
-	$(Q)$(AR) vcq $@ $(filter-out build-%,$^)
+$(DLIBPREF)pss_parser$(DLIBEXT) : $(PSS_GRAMMAR_SRC:.cpp=.o) 
+	$(Q)$(LINK_DLIB) $(filter-out build-%,$^)
 
-antlr/libantlr_runtime.a : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),antlr/$(o))
-	rm -f $@
-	$(AR) vcq $@ $(filter-out build-%,$^)
+antlr/$(DLIBPREF)antlr_runtime$(DLIBEXT) : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),antlr/$(o))
+	$(Q)$(LINK_DLIB) $(filter-out build-%,$^)
 
 ifeq (cl,$(COMPILER))
 antlr/%.o : %.cpp

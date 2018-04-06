@@ -651,7 +651,7 @@ constraint_block:
 ;
 
 unique_constraint_item:
-	'unique' '{' hierarchical_id (',' hierarchical_id)* '}' ';'
+	'unique' '{' open_range_list '}' ';'
 ;
 
 /********************************************************************

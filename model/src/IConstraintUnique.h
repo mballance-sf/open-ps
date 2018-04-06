@@ -9,6 +9,7 @@
 #define MODEL_SRC_ICONSTRAINTUNIQUE_H_
 #include <vector>
 #include "IConstraint.h"
+#include "IOpenRangeList.h"
 #include "IExpr.h"
 
 using namespace psi_api;
@@ -18,7 +19,7 @@ public:
 
 	virtual ~IConstraintUnique() { }
 
-	virtual const std::vector<IExpr *> &getTerms() const = 0;
+	virtual IOpenRangeList *getTarget() const = 0;
 
 };
 

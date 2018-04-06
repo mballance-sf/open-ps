@@ -8,10 +8,17 @@ MODEL_SRC=$(notdir $(wildcard $(MODEL_DIR)/src/*.cpp))
 
 SRC_DIRS += $(MODEL_DIR)/src
 
+MODEL_DEPS := $(DLIBPREF)pss_model$(DLIBEXT)
+
+ifeq (gcc,$(COMPILER))
+MODEL_LINK := -L. -lpss_model
+else
+MODEL_LINK := -L. -lpss_model
+endif
+
 else # Rules
 
-libops_model.a : $(MODEL_SRC:.cpp=.o)
-	$(Q)rm -f $@
-	$(Q)$(AR) vcq $@ $^
+$(DLIBPREF)pss_model$(DLIBEXT) : $(MODEL_SRC:.cpp=.o)
+	$(Q)$(LINK_DLIB) $(MODEL_SRC:.cpp=.o)
 
 endif

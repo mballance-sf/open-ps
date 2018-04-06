@@ -38,10 +38,11 @@ CFLAGS += -g
 include $(MK_INCLUDES)
 
 ifeq (true,$(IS_WIN))
-	PATH := $(Z3_DIR)/bin:$(PATH)
+	PATH := $(Z3_DIR)/bin:.:./antlr:$(PATH)
 	export PATH
 else
-	LD_LIBRARY_PATH := $(Z3_DIR)/bin:$(LD_LIBRARY_PATH)
+	GCC_BINDIR := $(dir $(shell which g++))
+	LD_LIBRARY_PATH := $(Z3_DIR)/bin:.:./antlr:$(GCC_BINDIR)/../lib64:$(LD_LIBRARY_PATH)
 	export LD_LIBRARY_PATH
 endif
 
@@ -63,11 +64,16 @@ __run: unittest$(EXEEXT)
 	./unittest$(EXEEXT) $(GTEST_ARGS)
 
 unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
-		libpss_parser.a antlr/libantlr_runtime.a \
-		libpss_processor.a		\
-		libops_model.a			\
+		$(PSS_PARSER_DEPS) $(ANTLR4_DEPS) \
+		$(PROCESSOR_DEPS) \
+		$(MODEL_DEPS) \
 		gtest-all.o gtest_main.o
-	$(Q)$(CXX) -o $@ $^ $(Z3_LINK) -lpthread -static-libstdc++
+	$(Q)$(CXX) -o $@ \
+		$(PARSER_TESTS_SRC:.cpp=.o) \
+		$(PROCESSOR_LINK) \
+		$(MODEL_LINK) \
+		gtest-all.o gtest_main.o \
+		$(Z3_LINK) $(PSS_PARSER_LINK) $(ANTLR4_LINK) -lpthread
 
 clean :
 	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*.a

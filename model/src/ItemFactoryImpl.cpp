@@ -337,8 +337,8 @@ IConstraintImplies *ItemFactoryImpl::mkConstraintImplies(
 }
 
 IConstraintUnique *ItemFactoryImpl::mkConstraintUnique(
-			const std::vector<IExpr *> &terms) {
-	return new ConstraintUniqueImpl(terms);
+		IOpenRangeList				*target) {
+	return new ConstraintUniqueImpl(target);
 }
 
 IImport *ItemFactoryImpl::mkImport(

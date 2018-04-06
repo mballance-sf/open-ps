@@ -34,6 +34,10 @@ else
 	COMPILER := gcc
 endif
 
+ifeq (cl, $(COMPILER))
+else
+endif
+
 CXXFLAGS += $(foreach d,$(SRC_DIRS),-I $(d))
 
 ifeq (cl,$(COMPILER))
@@ -41,6 +45,7 @@ ifeq (cl,$(COMPILER))
 	CC=cl
 	CXXFLAGS += -std:c++14 -nologo -EHsc
 	LINK_EXE=link -nologo -out:$@
+	DLIBPREF := 
 endif
 
 ifeq (gcc,$(COMPILER))
@@ -52,8 +57,10 @@ ifeq (0,$(GCC_VERSION_GE_7))
 	CXXFLAGS += -Wno-attributes -fpermissive
 endif
 
+	DLIBPREF := lib
 	CXXFLAGS += -std=c++11 -fPIC -g
 	LINK_EXE=$(CXX) -o $@
+	LINK_DLIB=$(CXX) -shared -o $@
 endif
 
 ifeq (true,$(VERBOSE))

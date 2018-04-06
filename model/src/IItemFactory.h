@@ -265,7 +265,7 @@ public:
 			IConstraint		*imp) = 0;
 
 	virtual IConstraintUnique *mkConstraintUnique(
-			std::vector<IExpr *>	&terms) = 0;
+			IOpenRangeList			*target) = 0;
 
 	virtual IImport *mkImport(
 			IBaseItem						*target,

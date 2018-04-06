@@ -14,21 +14,31 @@ endif
 
 ifneq (1,$(RULES))
 
-LIB_TARGETS += $(PACKAGES_DIR)/$(Z3_ZIP)
+# LIB_TARGETS += $(PACKAGES_DIR)/$(Z3_ZIP)
+PROCESSOR_DEPS = $(DLIBPREF)pss_processor$(DLIBEXT)
 UNPACK_TARGETS += $(BUILD_DIR)/z3.unpack
 
 PROCESSOR_SRC = $(notdir $(wildcard $(PROCESSOR_DIR)/src/*.cpp))
 PROCESSOR_SRC_FILES := $(wildcard $(PROCESSOR_DIR)/src/*.cpp)
 SRC_DIRS += $(PROCESSOR_DIR)/src $(Z3_DIR)/include
 
+ifeq (gcc,$(COMPILER))
+PROCESSOR_LINK = -L. -lpss_processor
+else
+PROCESSOR_LINK = -L. -lpss_processor
+endif
+
 Z3_LINK = -L$(Z3_DIR)/bin -lz3
 
 
 else # Rules
 
-libpss_processor.a : $(PROCESSOR_SRC:.cpp=.o)
-	$(Q)rm -f $@
-	$(Q)$(AR) vcq $@ $^
+$(DLIBPREF)pss_processor$(DLIBEXT) : \
+	$(PROCESSOR_SRC:.cpp=.o) \
+	$(PSS_PARSER_DEPS) \
+	$(MODEL_DEPS) \
+	$(ANTLR4_DEPS) 
+	$(Q)$(LINK_DLIB) $(PROCESSOR_SRC:.cpp=.o) $(PSS_PARSER_LINK) $(ANTLR4_LINK) $(MODEL_LINK)
 	
 $(BUILD_DIR)/z3.unpack : $(PACKAGES_DIR)/$(Z3_ZIP)
 	$(Q)if test ! -d $(BUILD_DIR); then mkdir -p $(BUILD_DIR); fi

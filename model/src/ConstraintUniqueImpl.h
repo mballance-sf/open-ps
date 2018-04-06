@@ -16,8 +16,7 @@ using namespace psi;
 class ConstraintUniqueImpl: public virtual IConstraintUnique, public virtual BaseItemImpl {
 public:
 
-	ConstraintUniqueImpl(
-			const std::vector<IExpr *>	&terms);
+	ConstraintUniqueImpl(IOpenRangeList	*target);
 
 	virtual ~ConstraintUniqueImpl();
 
@@ -25,12 +24,12 @@ public:
 		return IConstraint::ConstraintType_Unique;
 	}
 
-	virtual const std::vector<IExpr *> &getTerms() const { return m_terms; }
+	virtual IOpenRangeList *getTarget() const { return m_target; }
 
 	virtual IBaseItem *clone() const;
 
 private:
-	std::vector<IExpr *>			m_terms;
+	IOpenRangeList					*m_target;
 };
 
 #endif /* MODEL_SRC_CONSTRAINTUNIQUEIMPL_H_ */

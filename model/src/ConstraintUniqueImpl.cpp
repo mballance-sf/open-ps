@@ -7,10 +7,8 @@
 
 #include "ConstraintUniqueImpl.h"
 
-ConstraintUniqueImpl::ConstraintUniqueImpl(
-		const std::vector<IExpr *>		&terms) :
-	BaseItemImpl(IBaseItem::TypeConstraint), m_terms(terms) {
-	// TODO Auto-generated constructor stub
+ConstraintUniqueImpl::ConstraintUniqueImpl(IOpenRangeList *target) :
+	BaseItemImpl(IBaseItem::TypeConstraint), m_target(target) {
 
 }
 
@@ -19,5 +17,5 @@ ConstraintUniqueImpl::~ConstraintUniqueImpl() {
 }
 
 IBaseItem *ConstraintUniqueImpl::clone() const {
-	return new ConstraintUniqueImpl(m_terms);
+	return new ConstraintUniqueImpl(m_target);
 }

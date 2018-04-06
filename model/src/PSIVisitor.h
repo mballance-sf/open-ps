@@ -139,6 +139,8 @@ protected:
 
 	virtual const std::vector<IBaseItem *> &scopes() const;
 
+	virtual const std::vector<IScopeItem *> &get_decl_scopes() const;
+
 	virtual IBaseItem *pop_scope();
 
 	static std::string type2string(IBaseItem *it);
@@ -162,6 +164,7 @@ private:
 	bool						m_debug;
 	bool						m_removed;
 	std::vector<IBaseItem *>	m_scope_stack;
+	std::vector<IScopeItem *>	m_decl_scopes;
 	std::vector<IGraphStmt *>	m_graph_stack;
 
 };

@@ -1017,8 +1017,7 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_block(PSSParser::Constraint_blockC
 antlrcpp::Any PSS2PSIVisitor::visitUnique_constraint_item(PSSParser::Unique_constraint_itemContext *ctx) {
 	IConstraint *ret = 0;
 	enter("visitUnique_constraint_item");
-	ctx->
-	todo("unique constraint");
+	ret = m_factory->mkConstraintUnique(ctx->open_range_list()->accept(this));
 	leave("visitUnique_constraint_item");
 	return ret;
 }

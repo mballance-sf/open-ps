@@ -77,13 +77,15 @@ void ResolveRefsProcessor::resolve_variable_ref(
 				ref->getId().c_str(), (ni)?ni->getName().c_str():"unnamed");
 	}
 
+	const std::vector<IScopeItem *> &scope_l = get_decl_scopes();
 
 	// If this is the first path element, then
 	// we can search up the containing scopes
 	if (!scope) {
-		for (int32_t i=scopes().size()-1; i>=0; i--) {
+
+		for (int32_t i=scope_l.size()-1; i>=0; i--) {
 			resolved_ref = resolve_variable_ref(
-					scopes().at(i), ref->getId());
+					scope_l.at(i), ref->getId());
 
 			if (resolved_ref) {
 				break;
@@ -96,12 +98,12 @@ void ResolveRefsProcessor::resolve_variable_ref(
 	if (!resolved_ref) {
 		// TODO: search imports for extensions
 		fprintf(stdout, "TODO: search imports for extensions\n");
-		for (int32_t i=scopes().size()-1; i>=0; i--) {
+		for (int32_t i=scope_l.size()-1; i>=0; i--) {
 			INamedItem *sni = dynamic_cast<INamedItem *>(scopes().at(i));
 			fprintf(stdout, "  Scope(1): %s\n",
 					(sni)?sni->getName().c_str():"unnamed");
 			resolved_ref = resolve_variable_ref_in_ext(
-					scopes().at(i), ref->getId());
+					scope_l.at(i), ref->getId());
 			if (resolved_ref) {
 				break;
 			}
@@ -357,8 +359,9 @@ IBaseItem *ResolveRefsProcessor::find_type(const std::string &name) {
 	}
 
 	// Search for unqualified type
-	for (int32_t i=scopes().size()-1; i>=0; i--) {
-		IScopeItem *s = scopes().at(i);
+	const std::vector<IScopeItem *> &scope_l = get_decl_scopes();
+	for (int32_t i=scope_l.size()-1; i>=0; i--) {
+		IScopeItem *s = scope_l.at(i);
 
 		if (m_debug) {
 			debug("--> Search scope %d\n", i);

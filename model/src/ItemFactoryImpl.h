@@ -202,7 +202,7 @@ public:
 			IConstraint		*imp);
 
 	virtual IConstraintUnique *mkConstraintUnique(
-			const std::vector<IExpr *> &terms);
+			IOpenRangeList					*target);
 
 	virtual IImport *mkImport(
 			IBaseItem						*target,
