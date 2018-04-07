@@ -26,7 +26,8 @@
 
 namespace psi {
 
-ActivityBlockStmtImpl::ActivityBlockStmtImpl(IGraphBlockStmt::GraphStmtType type) : m_type(type) {
+ActivityBlockStmtImpl::ActivityBlockStmtImpl(IActivityBlockStmt::ActivityStmtType type) :
+		BaseItemImpl(IBaseItem::TypeActivityStmt), m_type(type) {
 
 }
 
@@ -34,26 +35,26 @@ ActivityBlockStmtImpl::~ActivityBlockStmtImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-const std::vector<IGraphStmt *> &ActivityBlockStmtImpl::getStmts() const {
+const std::vector<IActivityStmt *> &ActivityBlockStmtImpl::getStmts() const {
 	return m_stmts;
 }
 
-std::vector<IGraphStmt *> &ActivityBlockStmtImpl::getStmtsM() {
+std::vector<IActivityStmt *> &ActivityBlockStmtImpl::getStmtsM() {
 	return m_stmts;
 }
 
-void ActivityBlockStmtImpl::add(IGraphStmt *stmt) {
+void ActivityBlockStmtImpl::add(IActivityStmt *stmt) {
 	m_stmts.push_back(stmt);
 }
 
-void ActivityBlockStmtImpl::insert(std::vector<IGraphStmt *>::iterator it, IGraphStmt *stmt) {
+void ActivityBlockStmtImpl::insert(std::vector<IActivityStmt *>::iterator it, IActivityStmt *stmt) {
 	m_stmts.insert(it, stmt);
 }
 
-IGraphStmt *ActivityBlockStmtImpl::clone() const {
+IActivityStmt *ActivityBlockStmtImpl::clone() const {
 	ActivityBlockStmtImpl *ret = new ActivityBlockStmtImpl(getStmtType());
 
-	for (std::vector<IGraphStmt *>::const_iterator it=getStmts().begin();
+	for (std::vector<IActivityStmt *>::const_iterator it=getStmts().begin();
 			it != getStmts().end(); it++) {
 		ret->add(((*it)->clone()));
 	}

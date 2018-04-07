@@ -184,7 +184,7 @@ IStruct *ItemFactoryImpl::mkStruct(
 ISymbol *ItemFactoryImpl::mkSymbol(
 		const std::string				&name,
 		const std::vector<IField *>		&params,
-		IGraphBlockStmt					*body) {
+		IActivityBlockStmt					*body) {
 	return new SymbolImpl(name, params, body);
 }
 
@@ -219,13 +219,13 @@ IPool *ItemFactoryImpl::mkPool(
 	return new PoolImpl(name, pool_type, pool_size);
 }
 
-IGraphBlockStmt *ItemFactoryImpl::mkGraphBlockStmt(IGraphStmt::GraphStmtType type) {
+IActivityBlockStmt *ItemFactoryImpl::mkActivityBlockStmt(IActivityStmt::ActivityStmtType type) {
 	return new ActivityBlockStmtImpl(type);
 }
 
-IGraphRepeatStmt *ItemFactoryImpl::mkGraphRepeatStmt(
-		IGraphRepeatStmt::RepeatType type,
-		IExpr *expr, IGraphStmt *body) {
+IActivityRepeatStmt *ItemFactoryImpl::mkActivityRepeatStmt(
+		IActivityRepeatStmt::RepeatType type,
+		IExpr *expr, IActivityStmt *body) {
 	return new ActivityRepeatStmtImpl(type, expr, body);
 }
 

@@ -24,7 +24,7 @@ public:
 
 	virtual bool process(IModel *model);
 
-	virtual void visit_graph_block_stmt(IGraphBlockStmt *block);
+	virtual void visit_graph_block_stmt(IActivityBlockStmt *block);
 
 };
 

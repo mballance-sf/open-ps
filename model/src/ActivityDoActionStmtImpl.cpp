@@ -9,7 +9,7 @@
 
 ActivityDoActionStmtImpl::ActivityDoActionStmtImpl(
 		IBaseItem			*target,
-		IConstraintBlock	*constraint) :
+		IConstraintBlock	*constraint) : BaseItemImpl(IBaseItem::TypeActivityStmt),
 		m_target(target), m_constraint(constraint) {
 
 }
@@ -18,6 +18,6 @@ ActivityDoActionStmtImpl::~ActivityDoActionStmtImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-IGraphStmt *ActivityDoActionStmtImpl::clone() const {
+IActivityStmt *ActivityDoActionStmtImpl::clone() const {
 	return new ActivityDoActionStmtImpl(m_target, m_constraint);
 }

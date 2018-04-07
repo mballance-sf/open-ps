@@ -74,8 +74,8 @@ void ParallelImpProcessor::visit_action(IAction *a) {
 	for (uint32_t i=0; i<m_parallel_ins_p.size(); i++) {
 		ActivityBlockStmtImpl *block = dynamic_cast<ActivityBlockStmtImpl *>(
 				m_parallel_ins_p.at(i));
-		std::vector<IGraphStmt *>::iterator pos = m_parallel_ins.at(i);
-		IGraphStmt *s = *pos;
+		std::vector<IActivityStmt *>::iterator pos = m_parallel_ins.at(i);
+		IActivityStmt *s = *pos;
 
 		path.clear();
 		path.push_back(m_thread_context_create_a);
@@ -110,7 +110,7 @@ void ParallelImpProcessor::visit_action(IAction *a) {
 	m_parallel_ins.clear();
 }
 
-void ParallelImpProcessor::visit_graph_parallel_block_stmt(IGraphBlockStmt *s) {
+void ParallelImpProcessor::visit_graph_parallel_block_stmt(IActivityBlockStmt *s) {
 
 	ActionImpl *a = dynamic_cast<ActionImpl *>(scope_parent());
 
@@ -144,14 +144,14 @@ void ParallelImpProcessor::visit_graph_parallel_block_stmt(IGraphBlockStmt *s) {
 	}
 
 	// Stitch this into the parallel flow
-	IGraphStmt *gp = graph_parent(s);
+	IActivityStmt *gp = graph_parent(s);
 	ActivityBlockStmtImpl *gp_block = dynamic_cast<ActivityBlockStmtImpl *>(gp);
 
 	if (!gp_block) {
 		fprintf(stdout, "Fatal: Not a block\n");
 	}
 
-	std::vector<IGraphStmt *>::iterator parallel_pos;
+	std::vector<IActivityStmt *>::iterator parallel_pos;
 	for (parallel_pos=gp_block->getStmtsM().begin();
 			parallel_pos!=gp_block->getStmtsM().end(); parallel_pos++) {
 		if (*parallel_pos == s) {
@@ -169,7 +169,7 @@ void ParallelImpProcessor::visit_graph_parallel_block_stmt(IGraphBlockStmt *s) {
 	std::vector<IField *> path;
 
 	// Insert thread_begin/thread_end in the children of the parallel block
-	for (std::vector<IGraphStmt *>::const_iterator it=s->getStmts().begin();
+	for (std::vector<IActivityStmt *>::const_iterator it=s->getStmts().begin();
 			it!=s->getStmts().end(); it++) {
 		ActivityBlockStmtImpl *block = dynamic_cast<ActivityBlockStmtImpl *>(*it);
 		if (!block) {

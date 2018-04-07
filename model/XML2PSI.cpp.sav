@@ -161,7 +161,7 @@ IAction *XML2PSI::elaborate_action(xmlNode *p, const strmap &attr) {
 		std::string p_n = reinterpret_cast<const char *>(n->name);
 		get_attributes(n, attr_m);
 		if (p_n == "activity") {
-			IGraphStmt *activity = elaborate_activity(n, attr_m);
+			IActivityStmt *activity = elaborate_activity(n, attr_m);
 			a->setGraph(activity);
 		} else {
 			a->add(elaborate_action_struct_component_item(n, attr_m));
@@ -174,8 +174,8 @@ IAction *XML2PSI::elaborate_action(xmlNode *p, const strmap &attr) {
 	return a;
 }
 
-IGraphStmt *XML2PSI::elaborate_activity(xmlNode *p, const strmap &attr) {
-	IGraphBlockStmt *ret = m_model->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+IActivityStmt *XML2PSI::elaborate_activity(xmlNode *p, const strmap &attr) {
+	IActivityBlockStmt *ret = m_model->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Block);
 
 	for (xmlNode *n=p->children; n; n=n->next) {
 		strmap attr_n;
@@ -207,7 +207,7 @@ IGraphStmt *XML2PSI::elaborate_activity(xmlNode *p, const strmap &attr) {
 	return ret;
 }
 
-IGraphBlockStmt *XML2PSI::elaborate_block(IGraphBlockStmt *b, xmlNode *p, const strmap &attr) {
+IActivityBlockStmt *XML2PSI::elaborate_block(IActivityBlockStmt *b, xmlNode *p, const strmap &attr) {
 
 	for (xmlNode *n=p->children; n; n=n->next) {
 		strmap attr_n;
@@ -242,15 +242,15 @@ IGraphBlockStmt *XML2PSI::elaborate_block(IGraphBlockStmt *b, xmlNode *p, const 
 
 
 
-IGraphBlockStmt *XML2PSI::elaborate_block(xmlNode *p, const strmap &attr) {
-	IGraphBlockStmt *ret = m_model->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+IActivityBlockStmt *XML2PSI::elaborate_block(xmlNode *p, const strmap &attr) {
+	IActivityBlockStmt *ret = m_model->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Block);
 	return elaborate_block(ret, p, attr);
 }
 
-IGraphRepeatStmt *XML2PSI::elaborate_repeat(xmlNode *p, const strmap &attr) {
+IActivityRepeatStmt *XML2PSI::elaborate_repeat(xmlNode *p, const strmap &attr) {
 	std::string type = attr.find("type")->second;
 	IExpr *expr = 0;
-	IGraphStmt *body = 0;
+	IActivityStmt *body = 0;
 
 	xmlNode *e = 0;
 	for (xmlNode *n=p->children; n; n=n->next) {
@@ -274,38 +274,38 @@ IGraphRepeatStmt *XML2PSI::elaborate_repeat(xmlNode *p, const strmap &attr) {
 		}
 	}
 
-	IGraphRepeatStmt::RepeatType r_type;
+	IActivityRepeatStmt::RepeatType r_type;
 
 	if (type == "count") {
-		r_type = IGraphRepeatStmt::RepeatType_Count;
+		r_type = IActivityRepeatStmt::RepeatType_Count;
 	} else if (type == "forever") {
-		r_type = IGraphRepeatStmt::RepeatType_Forever;
+		r_type = IActivityRepeatStmt::RepeatType_Forever;
 	} else {
 		fprintf(stdout, "Error: Unknown repeat type %s\n", type.c_str());
 	}
 
-	return m_model->mkGraphRepeatStmt(r_type, expr, body);
+	return m_model->mkActivityRepeatStmt(r_type, expr, body);
 }
 
-IGraphBlockStmt *XML2PSI::elaborate_parallel(xmlNode *p, const strmap &attr) {
+IActivityBlockStmt *XML2PSI::elaborate_parallel(xmlNode *p, const strmap &attr) {
 	return elaborate_block(
-			m_model->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Parallel),
+			m_model->mkActivityBlockStmt(IActivityBlockStmt::ActivityStmt_Parallel),
 			p, attr);
 }
 
-IGraphBlockStmt *XML2PSI::elaborate_select(xmlNode *p, const strmap &attr) {
+IActivityBlockStmt *XML2PSI::elaborate_select(xmlNode *p, const strmap &attr) {
 	return elaborate_block(
-			m_model->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Select),
+			m_model->mkActivityBlockStmt(IActivityBlockStmt::ActivityStmt_Select),
 			p, attr);
 }
 
-IGraphBlockStmt *XML2PSI::elaborate_sequential(xmlNode *p, const strmap &attr) {
+IActivityBlockStmt *XML2PSI::elaborate_sequential(xmlNode *p, const strmap &attr) {
 	return elaborate_block(p, attr);
 }
 
-IGraphBlockStmt *XML2PSI::elaborate_schedule(xmlNode *p, const strmap &attr) {
+IActivityBlockStmt *XML2PSI::elaborate_schedule(xmlNode *p, const strmap &attr) {
 	return elaborate_block(
-			m_model->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Schedule),
+			m_model->mkActivityBlockStmt(IActivityBlockStmt::ActivityStmt_Schedule),
 			p, attr);
 }
 

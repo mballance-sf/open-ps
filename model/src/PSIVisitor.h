@@ -97,19 +97,19 @@ protected:
 
 	virtual void visit_field(IField *f);
 
-	virtual void visit_graph(IGraphStmt *activity);
+	virtual void visit_graph(IActivityStmt *activity);
 
-	virtual void visit_graph_stmt(IGraphStmt *stmt);
+	virtual void visit_graph_stmt(IActivityStmt *stmt);
 
-	virtual void visit_graph_block_stmt(IGraphBlockStmt *block);
+	virtual void visit_graph_block_stmt(IActivityBlockStmt *block);
 
-	virtual void visit_graph_parallel_block_stmt(IGraphBlockStmt *block);
+	virtual void visit_graph_parallel_block_stmt(IActivityBlockStmt *block);
 
-	virtual void visit_graph_repeat_stmt(IGraphRepeatStmt *repeat);
+	virtual void visit_graph_repeat_stmt(IActivityRepeatStmt *repeat);
 
-	virtual void visit_graph_schedule_block_stmt(IGraphBlockStmt *s);
+	virtual void visit_graph_schedule_block_stmt(IActivityBlockStmt *s);
 
-	virtual void visit_graph_select_stmt(IGraphBlockStmt *s);
+	virtual void visit_graph_select_stmt(IActivityBlockStmt *s);
 
 	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t);
 
@@ -149,11 +149,11 @@ protected:
 
 	static std::string path2string(const std::vector<IField *> &path);
 
-	void push_graph(IGraphStmt *it);
+	void push_graph(IActivityStmt *it);
 
 	void pop_graph();
 
-	IGraphStmt *graph_parent(IGraphStmt *it=0);
+	IActivityStmt *graph_parent(IActivityStmt *it=0);
 
 private:
 	void enter(const char *fmt, ...);
@@ -165,7 +165,7 @@ private:
 	bool						m_removed;
 	std::vector<IBaseItem *>	m_scope_stack;
 	std::vector<IScopeItem *>	m_decl_scopes;
-	std::vector<IGraphStmt *>	m_graph_stack;
+	std::vector<IActivityStmt *>	m_graph_stack;
 
 };
 

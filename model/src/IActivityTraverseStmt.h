@@ -24,13 +24,13 @@
 
 #ifndef SRC_PSI_API_IGRAPHTRAVERSESTMT_H_
 #define SRC_PSI_API_IGRAPHTRAVERSESTMT_H_
-#include "IGraphStmt.h"
+#include "IActivityStmt.h"
 #include "IVariableRef.h"
 #include "IConstraint.h"
 
 namespace psi_api {
 
-class IActivityTraverseStmt : public IGraphStmt {
+class IActivityTraverseStmt : public IActivityStmt {
 public:
 
 	virtual ~IActivityTraverseStmt() { }

@@ -7,10 +7,12 @@
 
 #ifndef MODEL_SRC_ACTIVITYDOACTIONSTMTIMPL_H_
 #define MODEL_SRC_ACTIVITYDOACTIONSTMTIMPL_H_
-
+#include "BaseItemImpl.h"
 #include "IActivityDoActionStmt.h"
 
-class ActivityDoActionStmtImpl: public IActivityDoActionStmt {
+using namespace psi;
+
+class ActivityDoActionStmtImpl: public virtual BaseItemImpl, public virtual IActivityDoActionStmt {
 public:
 	ActivityDoActionStmtImpl(
 			IBaseItem			*target,
@@ -24,11 +26,11 @@ public:
 		return m_constraint;
 	}
 
-	virtual GraphStmtType getStmtType() const {
-		return GraphStmt_DoAction;
+	virtual ActivityStmtType getStmtType() const {
+		return ActivityStmt_DoAction;
 	}
 
-	virtual IGraphStmt *clone() const;
+	virtual IActivityStmt *clone() const;
 
 private:
 	IBaseItem					*m_target;

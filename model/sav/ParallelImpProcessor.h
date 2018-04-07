@@ -27,7 +27,7 @@ public:
 
 	virtual void visit_action(IAction *a);
 
-	virtual void visit_graph_parallel_block_stmt(IGraphBlockStmt *s);
+	virtual void visit_graph_parallel_block_stmt(IActivityBlockStmt *s);
 
 private:
 
@@ -41,8 +41,8 @@ private:
 	RulesExecActionItem		*m_thread_begin_a;
 	RulesExecActionItem		*m_thread_end_a;
 
-	std::vector<IGraphBlockStmt *>						m_parallel_ins_p;
-	std::vector<std::vector<IGraphStmt *>::iterator>	m_parallel_ins;
+	std::vector<IActivityBlockStmt *>						m_parallel_ins_p;
+	std::vector<std::vector<IActivityStmt *>::iterator>	m_parallel_ins;
 };
 
 } /* namespace qpssc */

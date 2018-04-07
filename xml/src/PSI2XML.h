@@ -82,11 +82,11 @@ private:
 
 	void process_field(IField *f);
 
-	void process_graph(IGraphStmt *activity);
+	void process_graph(IActivityStmt *activity);
 
-	void process_graph_stmt(IGraphStmt *stmt, const char *tag=0);
+	void process_graph_stmt(IActivityStmt *stmt, const char *tag=0);
 
-	void process_graph_block_stmt(IGraphBlockStmt *block, const char *tag=0);
+	void process_graph_block_stmt(IActivityBlockStmt *block, const char *tag=0);
 
 	void process_import_func(IImportFunc *f, const std::string &tag="import_function");
 

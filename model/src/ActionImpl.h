@@ -54,16 +54,16 @@ namespace psi {
 
 			virtual IBaseItem *getSuperType() const { return m_super_type; }
 
-			virtual IGraphStmt *getGraph() const { return m_graph; }
+			virtual IActivityStmt *getGraph() const { return m_graph; }
 
-			virtual void setGraph(IGraphStmt *activity);
+			virtual void setGraph(IActivityStmt *activity);
 
 			virtual IBaseItem *clone() const;
 
 
 		private:
 			IBaseItem					*m_super_type;
-			IGraphStmt					*m_graph;
+			IActivityStmt					*m_graph;
 
 };
 

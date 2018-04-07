@@ -1,5 +1,5 @@
 /*
- * IGraphRepeatStmt.h
+ * IActivityRepeatStmt.h
  *
  * Copyright 2016 Mentor Graphics Corporation
  * All Rights Reserved Worldwide
@@ -22,15 +22,13 @@
  *  Created on: May 8, 2016
  *      Author: ballance
  */
-
-#ifndef SRC_PSI_API_IGRAPHREPEATSTMT_H_
-#define SRC_PSI_API_IGRAPHREPEATSTMT_H_
+#pragma once
 #include "IExpr.h"
-#include "IGraphStmt.h"
+#include "IActivityStmt.h"
 
 namespace psi_api {
 
-class IGraphRepeatStmt : public IGraphStmt {
+class IActivityRepeatStmt : public IActivityStmt {
 public:
 
 	enum RepeatType {
@@ -42,18 +40,14 @@ public:
 public:
 
 
-	virtual ~IGraphRepeatStmt() { }
+	virtual ~IActivityRepeatStmt() { }
 
 	virtual RepeatType getRepeatType() const = 0;
 
 	virtual IExpr *getCond() const = 0;
 
-	virtual IGraphStmt *getBody() const = 0;
+	virtual IActivityStmt *getBody() const = 0;
 
 };
 }
 
-
-
-
-#endif /* SRC_PSI_API_IGRAPHREPEATSTMT_H_ */

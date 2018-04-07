@@ -284,11 +284,11 @@ void PSIVisitor::visit_field(IField *f) {
 	visit_item(f->getDataType());
 }
 
-void PSIVisitor::visit_graph(IGraphStmt *activity) {
-	if (activity->getStmtType() == IGraphStmt::GraphStmt_Block) {
-		IGraphBlockStmt *b = dynamic_cast<IGraphBlockStmt *>(activity);
+void PSIVisitor::visit_graph(IActivityStmt *activity) {
+	if (activity->getStmtType() == IActivityStmt::ActivityStmt_Block) {
+		IActivityBlockStmt *b = dynamic_cast<IActivityBlockStmt *>(activity);
 		push_graph(b);
-		for (std::vector<IGraphStmt *>::const_iterator it=b->getStmts().begin();
+		for (std::vector<IActivityStmt *>::const_iterator it=b->getStmts().begin();
 				it!=b->getStmts().end(); it++) {
 			visit_graph_stmt(*it);
 		}
@@ -298,39 +298,39 @@ void PSIVisitor::visit_graph(IGraphStmt *activity) {
 	}
 }
 
-void PSIVisitor::visit_graph_stmt(IGraphStmt *stmt) {
+void PSIVisitor::visit_graph_stmt(IActivityStmt *stmt) {
 	push_graph(stmt);
 
 	switch (stmt->getStmtType()) {
-	case IGraphStmt::GraphStmt_Block: {
-		visit_graph_block_stmt(dynamic_cast<IGraphBlockStmt *>(stmt));
+	case IActivityStmt::ActivityStmt_Block: {
+		visit_graph_block_stmt(dynamic_cast<IActivityBlockStmt *>(stmt));
 	} break;
 
-	case IGraphStmt::GraphStmt_IfElse: {
-		fprintf(stdout, "TODO: GraphStmt_IfElse\n");
+	case IActivityStmt::ActivityStmt_IfElse: {
+		fprintf(stdout, "TODO: ActivityStmt_IfElse\n");
 	} break;
 
-	case IGraphStmt::GraphStmt_Parallel: {
-		visit_graph_parallel_block_stmt(dynamic_cast<IGraphBlockStmt *>(stmt));
+	case IActivityStmt::ActivityStmt_Parallel: {
+		visit_graph_parallel_block_stmt(dynamic_cast<IActivityBlockStmt *>(stmt));
 	} break;
 
-	case IGraphStmt::GraphStmt_Schedule: {
-		visit_graph_schedule_block_stmt(dynamic_cast<IGraphBlockStmt *>(stmt));
+	case IActivityStmt::ActivityStmt_Schedule: {
+		visit_graph_schedule_block_stmt(dynamic_cast<IActivityBlockStmt *>(stmt));
 	} break;
 
-	case IGraphStmt::GraphStmt_Select: {
-		visit_graph_select_stmt(dynamic_cast<IGraphBlockStmt *>(stmt));
+	case IActivityStmt::ActivityStmt_Select: {
+		visit_graph_select_stmt(dynamic_cast<IActivityBlockStmt *>(stmt));
 	} break;
 
-	case IGraphStmt::GraphStmt_Repeat: {
-		visit_graph_repeat_stmt(dynamic_cast<IGraphRepeatStmt *>(stmt));
+	case IActivityStmt::ActivityStmt_Repeat: {
+		visit_graph_repeat_stmt(dynamic_cast<IActivityRepeatStmt *>(stmt));
 	} break;
 
-	case IGraphStmt::GraphStmt_Traverse: {
+	case IActivityStmt::ActivityStmt_Traverse: {
 		visit_activity_traverse_stmt(dynamic_cast<IActivityTraverseStmt *>(stmt));
 	} break;
 
-	case IGraphStmt::GraphStmt_DoAction: {
+	case IActivityStmt::ActivityStmt_DoAction: {
 		visit_activity_do_action_stmt(dynamic_cast<IActivityDoActionStmt *>(stmt));
 	} break;
 
@@ -341,27 +341,27 @@ void PSIVisitor::visit_graph_stmt(IGraphStmt *stmt) {
 	pop_graph();
 }
 
-void PSIVisitor::visit_graph_parallel_block_stmt(IGraphBlockStmt *block) {
-	std::vector<IGraphStmt *>::const_iterator it;
+void PSIVisitor::visit_graph_parallel_block_stmt(IActivityBlockStmt *block) {
+	std::vector<IActivityStmt *>::const_iterator it;
 
 	for (it=block->getStmts().begin(); it!=block->getStmts().end(); it++) {
 		visit_graph_stmt(*it);
 	}
 }
 
-void PSIVisitor::visit_graph_repeat_stmt(IGraphRepeatStmt *repeat) {
+void PSIVisitor::visit_graph_repeat_stmt(IActivityRepeatStmt *repeat) {
 	visit_graph_stmt(repeat->getBody());
 }
 
-void PSIVisitor::visit_graph_schedule_block_stmt(IGraphBlockStmt *block) {
-	std::vector<IGraphStmt *>::const_iterator it;
+void PSIVisitor::visit_graph_schedule_block_stmt(IActivityBlockStmt *block) {
+	std::vector<IActivityStmt *>::const_iterator it;
 
 	for (it=block->getStmts().begin(); it!=block->getStmts().end(); it++) {
 		visit_graph_stmt(*it);
 	}
 }
 
-void PSIVisitor::visit_graph_select_stmt(IGraphBlockStmt *s) {
+void PSIVisitor::visit_graph_select_stmt(IActivityBlockStmt *s) {
 	visit_graph_block_stmt(s);
 }
 
@@ -393,8 +393,8 @@ void PSIVisitor::visit_vendor_item(IBaseItem *it) {
 
 }
 
-void PSIVisitor::visit_graph_block_stmt(IGraphBlockStmt *block) {
-	std::vector<IGraphStmt *>::const_iterator it;
+void PSIVisitor::visit_graph_block_stmt(IActivityBlockStmt *block) {
+	std::vector<IActivityStmt *>::const_iterator it;
 
 	for (it=block->getStmts().begin(); it!=block->getStmts().end(); it++) {
 		visit_graph_stmt(*it);
@@ -611,7 +611,7 @@ IBaseItem *PSIVisitor::pop_scope() {
 	return ret;
 }
 
-void PSIVisitor::push_graph(IGraphStmt *it) {
+void PSIVisitor::push_graph(IActivityStmt *it) {
 	m_graph_stack.push_back(it);
 }
 
@@ -621,7 +621,7 @@ void PSIVisitor::pop_graph() {
 	}
 }
 
-IGraphStmt *PSIVisitor::graph_parent(IGraphStmt *it) {
+IActivityStmt *PSIVisitor::graph_parent(IActivityStmt *it) {
 	if (it) {
 		for (int32_t i=m_graph_stack.size()-1; i>=0; i--) {
 			if (m_graph_stack.at(i) == it && i>0) {

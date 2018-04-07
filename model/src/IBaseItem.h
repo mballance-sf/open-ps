@@ -46,6 +46,7 @@ namespace psi_api {
 
 		enum ItemType {
 			TypeAction, // 0
+			TypeActivityStmt,
 			TypeArray,
 			TypeBind,
 			TypeComponent,

@@ -28,7 +28,7 @@ namespace psi {
 
 ActivityTraverseStmtImpl::ActivityTraverseStmtImpl(
 		IVariableRef		*action,
-		IConstraint			*c) {
+		IConstraint			*c) : BaseItemImpl(IBaseItem::TypeActivityStmt) {
 	m_action = action;
 	m_constraint = c;
 }
@@ -37,7 +37,7 @@ ActivityTraverseStmtImpl::~ActivityTraverseStmtImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-IGraphStmt *ActivityTraverseStmtImpl::clone() const {
+IActivityStmt *ActivityTraverseStmtImpl::clone() const {
 	return new ActivityTraverseStmtImpl(
 			dynamic_cast<IVariableRef *>(m_action->clone()),
 			(getWith())?dynamic_cast<IConstraint *>(getWith()->clone()):0);

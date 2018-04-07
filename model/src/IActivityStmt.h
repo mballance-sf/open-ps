@@ -1,5 +1,5 @@
 /*
- * IGraphStmt.h
+ * IActivityStmt.h
  *
  * Copyright 2016 Mentor Graphics Corporation
  * All Rights Reserved Worldwide
@@ -22,46 +22,42 @@
  *  Created on: May 8, 2016
  *      Author: ballance
  */
-
-#ifndef SRC_PSI_API_IGRAPHSTMT_H_
-#define SRC_PSI_API_IGRAPHSTMT_H_
+#pragma once
+#include "IBaseItem.h"
 
 namespace psi_api {
 
-class IGraphStmt {
+class IActivityStmt : public virtual IBaseItem {
 public:
-	enum GraphStmtType {
-		/*! activity block statement. Object is of type IGraphBlockStmt. */
-		GraphStmt_Block,
-		/*! activity if/else statement. Object is of type IGraphIfElseStmt.
+	enum ActivityStmtType {
+		/*! activity block statement. Object is of type IActivityBlockStmt. */
+		ActivityStmt_Block,
+		/*! activity if/else statement. Object is of type IActivityIfElseStmt.
 		 * Used for both top-level if/else and for if-gated pss_select statement */
-		GraphStmt_IfElse,
-		/*! activity parallel statement. Object is of type IGraphBlockStmt */
-		GraphStmt_Parallel,
-		/*! activity schedule statement. Object is of type IGraphBlockStmt */
-		GraphStmt_Schedule,
-		//! activity pss_select statement. Object is of type IGraphBlockStmt
-		GraphStmt_Select,
+		ActivityStmt_IfElse,
+		/*! activity parallel statement. Object is of type IActivityBlockStmt */
+		ActivityStmt_Parallel,
+		/*! activity schedule statement. Object is of type IActivityBlockStmt */
+		ActivityStmt_Schedule,
+		//! activity pss_select statement. Object is of type IActivityBlockStmt
+		ActivityStmt_Select,
 		//! activity repeat, repeat while, or repeat ... while statement.
-		//! Object is of type IGraphRepeatStmt
-		GraphStmt_Repeat,
+		//! Object is of type IActivityRepeatStmt
+		ActivityStmt_Repeat,
 
 		/*! activity action-traversal statement */
-		GraphStmt_Traverse,
-		GraphStmt_DoAction
+		ActivityStmt_Traverse,
+		ActivityStmt_DoAction
 	};
 
 public:
-	virtual ~IGraphStmt() { }
+	virtual ~IActivityStmt() { }
 
-	virtual GraphStmtType getStmtType() const = 0;
+	virtual ActivityStmtType getStmtType() const = 0;
 
-	virtual IGraphStmt *clone() const = 0;
+	virtual IActivityStmt *clone() const = 0;
 
 };
 }
 
 
-
-
-#endif /* SRC_PSI_API_IGRAPHSTMT_H_ */

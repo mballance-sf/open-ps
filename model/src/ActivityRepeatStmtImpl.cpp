@@ -26,19 +26,22 @@
 
 namespace psi {
 
-ActivityRepeatStmtImpl::ActivityRepeatStmtImpl(RepeatType type, IExpr *cond, IGraphStmt *stmt) :
-	m_type(type), m_cond(cond), m_body(stmt) {
+ActivityRepeatStmtImpl::ActivityRepeatStmtImpl(
+		RepeatType 		type,
+		IExpr 			*cond,
+		IActivityStmt 		*stmt) :
+	BaseItemImpl(IBaseItem::TypeActivityStmt), m_type(type), m_cond(cond), m_body(stmt) {
 }
 
 ActivityRepeatStmtImpl::~ActivityRepeatStmtImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-void ActivityRepeatStmtImpl::setBody(IGraphStmt *s) {
+void ActivityRepeatStmtImpl::setBody(IActivityStmt *s) {
 	m_body = s;
 }
 
-IGraphStmt *ActivityRepeatStmtImpl::clone() const {
+IActivityStmt *ActivityRepeatStmtImpl::clone() const {
 	return new ActivityRepeatStmtImpl(getRepeatType(),
 			(getCond())?getCond()->clone():0,
 			getBody()->clone());

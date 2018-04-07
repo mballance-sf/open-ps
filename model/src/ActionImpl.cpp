@@ -39,7 +39,7 @@ ActionImpl::~ActionImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-void ActionImpl::setGraph(IGraphStmt *activity) {
+void ActionImpl::setGraph(IActivityStmt *activity) {
 	m_graph = activity;
 }
 

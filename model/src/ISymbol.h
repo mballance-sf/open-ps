@@ -29,7 +29,7 @@
 #include "IField.h"
 #include "INamedItem.h"
 #include "IScopeItem.h"
-#include "IGraphBlockStmt.h"
+#include "IActivityBlockStmt.h"
 
 namespace psi_api {
 
@@ -42,7 +42,7 @@ public:
 
 	virtual const std::vector<IField *> &getParameters() const = 0;
 
-	virtual IGraphBlockStmt *getBody() const = 0;
+	virtual IActivityBlockStmt *getBody() const = 0;
 
 };
 }

@@ -1,5 +1,5 @@
 /*
- * IGraphIfElseStmt.h
+ * IActivityBlockStmt.h
  *
  * Copyright 2016 Mentor Graphics Corporation
  * All Rights Reserved Worldwide
@@ -23,29 +23,26 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IGRAPHIFELSESTMT_H_
-#define SRC_PSI_API_IGRAPHIFELSESTMT_H_
-#include "IExpr.h"
-#include "IGraphStmt.h"
+#ifndef INCLUDED_ACTIVITY_BLOCK_STMT_H
+#define INCLUDED_ACTIVITY_BLOCK_STMT_H
+#include <vector>
+#include "IActivityStmt.h"
 
 namespace psi_api {
 
-class IGraphIfElseStmt : public IGraphStmt {
-
+class IActivityBlockStmt : public virtual IActivityStmt {
 public:
+	virtual ~IActivityBlockStmt() { }
 
-	virtual ~IGraphIfElseStmt() { }
+	virtual const std::vector<IActivityStmt *> &getStmts() const = 0;
 
-	virtual IExpr *getCond() = 0;
-
-	virtual IGraphStmt *getTrue() = 0;
-
-	virtual IGraphStmt *getFalse() = 0;
+	virtual void add(IActivityStmt *stmt) = 0;
 
 };
+
 }
 
 
 
 
-#endif /* SRC_PSI_API_IGRAPHIFELSESTMT_H_ */
+#endif /* INCLUDED_ACTIVITY_BLOCK_STMT_H */

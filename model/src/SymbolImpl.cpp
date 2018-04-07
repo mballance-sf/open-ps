@@ -10,7 +10,7 @@
 SymbolImpl::SymbolImpl(
 		const std::string			&name,
 		const std::vector<IField *>	&params,
-		IGraphBlockStmt				*body) :
+		IActivityBlockStmt				*body) :
 		BaseItemImpl(IBaseItem::TypeSymbol), m_name(name),
 		m_params(params), m_body(body){
 

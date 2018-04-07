@@ -66,7 +66,7 @@ void RepeatImpProcessor::visit_action(IAction *a) {
 	RulesPSIVisitor::visit_action(a);
 }
 
-void RepeatImpProcessor::visit_graph_repeat_stmt(IGraphRepeatStmt *r) {
+void RepeatImpProcessor::visit_graph_repeat_stmt(IActivityRepeatStmt *r) {
 	char tmp[128];
 	ActivityBlockStmtImpl *p;
 
@@ -77,15 +77,15 @@ void RepeatImpProcessor::visit_graph_repeat_stmt(IGraphRepeatStmt *r) {
 		p = dynamic_cast<ActivityBlockStmtImpl *>(graph_parent(r));
 	} else {
 		// Need to convert this to a block
-		p = new ActivityBlockStmtImpl(IGraphStmt::GraphStmt_Block);
+		p = new ActivityBlockStmtImpl(IActivityStmt::ActivityStmt_Block);
 		p->add(r);
 
 		a->setGraph(p);
 	}
 
 	// Need to ensure that the repeat body is a block
-	if (r->getBody()->getStmtType() != IGraphStmt::GraphStmt_Block) {
-		ActivityBlockStmtImpl *b = new ActivityBlockStmtImpl(IGraphStmt::GraphStmt_Block);
+	if (r->getBody()->getStmtType() != IActivityStmt::ActivityStmt_Block) {
+		ActivityBlockStmtImpl *b = new ActivityBlockStmtImpl(IActivityStmt::ActivityStmt_Block);
 		b->add(r->getBody());
 		dynamic_cast<ActivityRepeatStmtImpl *>(r)->setBody(b);
 	}

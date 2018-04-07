@@ -24,34 +24,35 @@
 
 #ifndef IMPL_GRAPHREPEATSTMTIMPL_H_
 #define IMPL_GRAPHREPEATSTMTIMPL_H_
-#include "IGraphRepeatStmt.h"
+#include "BaseItemImpl.h"
+#include "IActivityRepeatStmt.h"
 
 using namespace psi_api;
 
 namespace psi {
 
-class ActivityRepeatStmtImpl: public IGraphRepeatStmt {
+class ActivityRepeatStmtImpl: public virtual BaseItemImpl, public virtual IActivityRepeatStmt {
 public:
-	ActivityRepeatStmtImpl(RepeatType type, IExpr *expr, IGraphStmt *body);
+	ActivityRepeatStmtImpl(RepeatType type, IExpr *expr, IActivityStmt *body);
 
 	virtual ~ActivityRepeatStmtImpl();
 
-	virtual GraphStmtType getStmtType() const { return GraphStmt_Repeat; }
+	virtual ActivityStmtType getStmtType() const { return ActivityStmt_Repeat; }
 
 	virtual RepeatType getRepeatType() const { return m_type; }
 
 	virtual IExpr *getCond() const { return m_cond; }
 
-	virtual IGraphStmt *getBody() const { return m_body; }
+	virtual IActivityStmt *getBody() const { return m_body; }
 
-	virtual void setBody(IGraphStmt *s);
+	virtual void setBody(IActivityStmt *s);
 
-	virtual IGraphStmt *clone() const;
+	virtual IActivityStmt *clone() const;
 
 private:
 	RepeatType				m_type;
 	IExpr					*m_cond;
-	IGraphStmt				*m_body;
+	IActivityStmt				*m_body;
 };
 
 

@@ -397,7 +397,7 @@ void PSI2Rules::visit_field(IField *f) {
 
 }
 
-void PSI2Rules::visit_graph(IGraphStmt *graph) {
+void PSI2Rules::visit_graph(IActivityStmt *graph) {
 //	m_out->println("%s = ", m_active_a->getName().c_str());
 //	m_out->inc_indent();
 //	RulesPSIVisitor::visit_graph(graph);
@@ -405,14 +405,14 @@ void PSI2Rules::visit_graph(IGraphStmt *graph) {
 //	m_out->println(";");
 }
 
-void PSI2Rules::visit_graph_parallel_block_stmt(IGraphBlockStmt *block) {
-	for (std::vector<IGraphStmt *>::const_iterator it=block->getStmts().begin();
+void PSI2Rules::visit_graph_parallel_block_stmt(IActivityBlockStmt *block) {
+	for (std::vector<IActivityStmt *>::const_iterator it=block->getStmts().begin();
 			it!=block->getStmts().end(); it++) {
 		RulesPSIVisitor::visit_graph_stmt(*it);
 	}
 }
 
-void PSI2Rules::visit_graph_select_stmt(IGraphBlockStmt *s) {
+void PSI2Rules::visit_graph_select_stmt(IActivityBlockStmt *s) {
 	m_out->println("(");
 	m_out->inc_indent();
 	for (uint32_t i=0; i<s->getStmts().size(); i++) {
@@ -430,7 +430,7 @@ void PSI2Rules::visit_graph_select_stmt(IGraphBlockStmt *s) {
 	m_out->println(")");
 }
 
-void PSI2Rules::visit_graph_repeat_stmt(IGraphRepeatStmt *r) {
+void PSI2Rules::visit_graph_repeat_stmt(IActivityRepeatStmt *r) {
 	m_out->println("repeat {");
 	m_out->inc_indent();
 	RulesPSIVisitor::visit_graph_repeat_stmt(r);
