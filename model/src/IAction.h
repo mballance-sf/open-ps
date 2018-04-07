@@ -55,7 +55,7 @@ namespace psi_api {
 			/**
 			 * Sets the activity body
 			 */
-			virtual void setGraph(IActivityStmt *activity) = 0;
+			virtual void setActivity(IActivityStmt *activity) = 0;
 
 	};
 }

@@ -110,7 +110,7 @@ void ParallelImpProcessor::visit_action(IAction *a) {
 	m_parallel_ins.clear();
 }
 
-void ParallelImpProcessor::visit_graph_parallel_block_stmt(IActivityBlockStmt *s) {
+void ParallelImpProcessor::visit_activity_parallel_block_stmt(IActivityBlockStmt *s) {
 
 	ActionImpl *a = dynamic_cast<ActionImpl *>(scope_parent());
 
@@ -189,7 +189,7 @@ void ParallelImpProcessor::visit_graph_parallel_block_stmt(IActivityBlockStmt *s
 
 
 	// Handle nested parallel blocks
-	RulesPSIVisitor::visit_graph_parallel_block_stmt(s);
+	RulesPSIVisitor::visit_activity_parallel_block_stmt(s);
 }
 
 } /* namespace qpssc */

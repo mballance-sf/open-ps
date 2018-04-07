@@ -39,7 +39,7 @@ ActionImpl::~ActionImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-void ActionImpl::setGraph(IActivityStmt *activity) {
+void ActionImpl::setActivity(IActivityStmt *activity) {
 	m_graph = activity;
 }
 
@@ -52,7 +52,7 @@ IBaseItem *ActionImpl::clone() const {
 	}
 
 	if (getGraph()) {
-		ret->setGraph(getGraph()->clone());
+		ret->setActivity(getGraph()->clone());
 	}
 
 	return ret;

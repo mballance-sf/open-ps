@@ -22,8 +22,7 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_ACTIVITY_TRAVSERSE_STMT_H
-#define INCLUDED_ACTIVITY_TRAVSERSE_STMT_H
+#pragma once
 #include "BaseItemImpl.h"
 #include "IActivityTraverseStmt.h"
 
@@ -62,4 +61,3 @@ private:
 
 } /* namespace psi */
 
-#endif /* INCLUDED_ACTIVITY_TRAVSERSE_STMT_H */

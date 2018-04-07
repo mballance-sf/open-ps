@@ -162,7 +162,7 @@ IAction *XML2PSI::elaborate_action(xmlNode *p, const strmap &attr) {
 		get_attributes(n, attr_m);
 		if (p_n == "activity") {
 			IActivityStmt *activity = elaborate_activity(n, attr_m);
-			a->setGraph(activity);
+			a->setActivity(activity);
 		} else {
 			a->add(elaborate_action_struct_component_item(n, attr_m));
 		}

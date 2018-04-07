@@ -24,7 +24,7 @@ bool FlattenParallelProcessor::process(IModel *model) {
 	return true;
 }
 
-void FlattenParallelProcessor::visit_graph_block_stmt(IActivityBlockStmt *block) {
+void FlattenParallelProcessor::visit_activity_block_stmt(IActivityBlockStmt *block) {
 
 }
 

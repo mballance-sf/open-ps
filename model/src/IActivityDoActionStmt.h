@@ -13,7 +13,7 @@
 
 using namespace psi_api;
 
-class IActivityDoActionStmt : public virtual IActivityStmt {
+class IActivityDoActionStmt : public virtual IBaseItem, public virtual IActivityStmt {
 public:
 
 	virtual IBaseItem *getTargetType() const = 0;

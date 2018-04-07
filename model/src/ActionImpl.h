@@ -56,7 +56,7 @@ namespace psi {
 
 			virtual IActivityStmt *getGraph() const { return m_graph; }
 
-			virtual void setGraph(IActivityStmt *activity);
+			virtual void setActivity(IActivityStmt *activity);
 
 			virtual IBaseItem *clone() const;
 

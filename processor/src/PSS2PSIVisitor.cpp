@@ -122,7 +122,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 			error("null activity stmt");
 		}
 	}
-	action->setGraph(block);
+	action->setActivity(block);
 
 	leave("visitActivity_declaration");
 

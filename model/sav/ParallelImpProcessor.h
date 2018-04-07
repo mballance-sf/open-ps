@@ -27,7 +27,7 @@ public:
 
 	virtual void visit_action(IAction *a);
 
-	virtual void visit_graph_parallel_block_stmt(IActivityBlockStmt *s);
+	virtual void visit_activity_parallel_block_stmt(IActivityBlockStmt *s);
 
 private:
 

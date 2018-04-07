@@ -66,7 +66,7 @@ void RepeatImpProcessor::visit_action(IAction *a) {
 	RulesPSIVisitor::visit_action(a);
 }
 
-void RepeatImpProcessor::visit_graph_repeat_stmt(IActivityRepeatStmt *r) {
+void RepeatImpProcessor::visit_activity_repeat_stmt(IActivityRepeatStmt *r) {
 	char tmp[128];
 	ActivityBlockStmtImpl *p;
 
@@ -80,7 +80,7 @@ void RepeatImpProcessor::visit_graph_repeat_stmt(IActivityRepeatStmt *r) {
 		p = new ActivityBlockStmtImpl(IActivityStmt::ActivityStmt_Block);
 		p->add(r);
 
-		a->setGraph(p);
+		a->setActivity(p);
 	}
 
 	// Need to ensure that the repeat body is a block
@@ -184,7 +184,7 @@ void RepeatImpProcessor::visit_graph_repeat_stmt(IActivityRepeatStmt *r) {
 	m_repeat_id++;
 
 	// Handles nested repeats
-	RulesPSIVisitor::visit_graph_repeat_stmt(r);
+	RulesPSIVisitor::visit_activity_repeat_stmt(r);
 }
 
 } /* namespace qpssc */

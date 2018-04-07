@@ -38,7 +38,7 @@ $(DLIBPREF)pss_processor$(DLIBEXT) : \
 	$(PSS_PARSER_DEPS) \
 	$(MODEL_DEPS) \
 	$(ANTLR4_DEPS) 
-	$(Q)$(LINK_DLIB) $(PROCESSOR_SRC:.cpp=.o) $(PSS_PARSER_LINK) $(ANTLR4_LINK) $(MODEL_LINK)
+	$(Q)$(LINK_DLIB) $(Z3_LINK)
 	
 $(BUILD_DIR)/z3.unpack : $(PACKAGES_DIR)/$(Z3_ZIP)
 	$(Q)if test ! -d $(BUILD_DIR); then mkdir -p $(BUILD_DIR); fi

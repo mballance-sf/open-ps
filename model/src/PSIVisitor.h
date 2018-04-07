@@ -97,19 +97,19 @@ protected:
 
 	virtual void visit_field(IField *f);
 
-	virtual void visit_graph(IActivityStmt *activity);
+	virtual void visit_activity(IActivityStmt *activity);
 
-	virtual void visit_graph_stmt(IActivityStmt *stmt);
+	virtual void visit_activity_stmt(IActivityStmt *stmt);
 
-	virtual void visit_graph_block_stmt(IActivityBlockStmt *block);
+	virtual void visit_activity_block_stmt(IActivityBlockStmt *block);
 
-	virtual void visit_graph_parallel_block_stmt(IActivityBlockStmt *block);
+	virtual void visit_activity_parallel_block_stmt(IActivityBlockStmt *block);
 
-	virtual void visit_graph_repeat_stmt(IActivityRepeatStmt *repeat);
+	virtual void visit_activity_repeat_stmt(IActivityRepeatStmt *repeat);
 
-	virtual void visit_graph_schedule_block_stmt(IActivityBlockStmt *s);
+	virtual void visit_activity_schedule_block_stmt(IActivityBlockStmt *s);
 
-	virtual void visit_graph_select_stmt(IActivityBlockStmt *s);
+	virtual void visit_activity_select_stmt(IActivityBlockStmt *s);
 
 	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t);
 
