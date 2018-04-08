@@ -73,6 +73,7 @@ private:
 	bool									m_prefix_valid;
 	LFSR									m_lfsr;
 	Z3ExprTerm								m_expr;
+	Z3_ast									m_hash;
 
 };
 
