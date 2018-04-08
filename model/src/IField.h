@@ -47,7 +47,8 @@ public:
 		FieldAttr_Output,
 		FieldAttr_Pool,
 		FieldAttr_Share,
-		FieldAttr_Action
+		FieldAttr_Action,
+		FieldAttr_Comp
 	};
 
 public:

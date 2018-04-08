@@ -32,7 +32,8 @@ ActionImpl::ActionImpl(
 		IBaseItem 			*super_type) :
 				BaseItemImpl(IBaseItem::TypeAction),
 				NamedItemImpl(name), m_super_type(super_type), m_graph(0) {
-
+	m_comp = new FieldImpl("comp", 0, IField::FieldAttr_Comp, 0);
+	add(m_comp);
 }
 
 ActionImpl::~ActionImpl() {
@@ -43,6 +44,12 @@ void ActionImpl::setActivity(IActivityStmt *activity) {
 	m_graph = activity;
 }
 
+void ActionImpl::setParent(IBaseItem *it) {
+	BaseItemImpl::setParent(it);
+	if (dynamic_cast<IComponent *>(it)) {
+		dynamic_cast<FieldImpl *>(m_comp)->setDataType(it);
+	}
+}
 IBaseItem *ActionImpl::clone() const {
 	ActionImpl *ret = new ActionImpl(getName(), getSuperType());
 

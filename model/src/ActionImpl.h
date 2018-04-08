@@ -58,12 +58,15 @@ namespace psi {
 
 			virtual void setActivity(IActivityStmt *activity);
 
+			virtual void setParent(IBaseItem *it);
+
 			virtual IBaseItem *clone() const;
 
 
 		private:
 			IBaseItem					*m_super_type;
-			IActivityStmt					*m_graph;
+			IActivityStmt				*m_graph;
+			IField						*m_comp;
 
 };
 

@@ -281,7 +281,11 @@ void PSIVisitor::visit_method_call(IMethodCallExpr *c) {
 }
 
 void PSIVisitor::visit_field(IField *f) {
-	visit_item(f->getDataType());
+	// Visiting the component type of a 'comp'
+	// field results in recursion
+	if (f->getName() != "comp") {
+		visit_item(f->getDataType());
+	}
 }
 
 void PSIVisitor::visit_activity(IActivityStmt *activity) {
