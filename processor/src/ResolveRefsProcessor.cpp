@@ -13,7 +13,7 @@
 #include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	m_debug = false;
+	m_debug = true;
 	m_phase = 0;
 }
 

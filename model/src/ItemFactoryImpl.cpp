@@ -44,8 +44,10 @@
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
 #include "ActivityDoActionStmtImpl.h"
+#include "ActivityIfElseStmtImpl.h"
 #include "ActivityTraverseStmtImpl.h"
 #include "BinaryExprImpl.h"
+#include "InExprImpl.h"
 #include "FieldRefImpl.h"
 #include "LiteralImpl.h"
 #include "ConstraintBlockImpl.h"
@@ -235,6 +237,13 @@ IActivityDoActionStmt *ItemFactoryImpl::mkActivityDoActionStmt(
 	return new ActivityDoActionStmtImpl(target, with_c);
 }
 
+IActivityIfElseStmt *ItemFactoryImpl::mkActivityIfElseStmt(
+			IExpr			*cond,
+			IActivityStmt	*true_stmt,
+			IActivityStmt	*false_stmt) {
+	return new ActivityIfElseStmtImpl(cond, true_stmt, false_stmt);
+}
+
 IActivityTraverseStmt *ItemFactoryImpl::mkActivityTraverseStmt(
 		IVariableRef *action, IConstraint *with_c) {
 	return new ActivityTraverseStmtImpl(action, with_c);
@@ -257,6 +266,12 @@ IBinaryExpr *ItemFactoryImpl::mkBinExpr(
 		IBinaryExpr::BinOpType	op,
 		IExpr 					*rhs) {
 	return new BinaryExprImpl(lhs, op, rhs);
+}
+
+IInExpr *ItemFactoryImpl::mkInExpr(
+			IExpr					*lhs,
+			IOpenRangeList			*rhs) {
+	return new InExprImpl(lhs, rhs);
 }
 
 IFieldRef *ItemFactoryImpl::mkFieldRef(

@@ -207,6 +207,7 @@ void PSIVisitor::visit_exec_vendor_stmt(IExecStmt *s) {
 void PSIVisitor::visit_expr(IExpr *e) {
 	if (!e) {
 		fprintf(stdout, "Error: null expression\n");
+		e->getType();
 		return;
 	}
 	switch (e->getType()) {
@@ -224,6 +225,9 @@ void PSIVisitor::visit_expr(IExpr *e) {
 			break;
 		case IExpr::ExprType_MethodCall:
 			visit_method_call(dynamic_cast<IMethodCallExpr *>(e));
+			break;
+		case IExpr::ExprType_In:
+			visit_in_expr(dynamic_cast<IInExpr *>(e));
 			break;
 		default:
 			fprintf(stdout, "Error: unhandled expr type %d\n", e->getType());
@@ -268,6 +272,11 @@ void PSIVisitor::visit_fieldref_expr(IFieldRef *ref) {
 
 }
 
+void PSIVisitor::visit_in_expr(IInExpr *in) {
+	visit_expr(in->getLhs());
+	visit_open_range_list(in->getRhs());
+}
+
 void PSIVisitor::visit_enum_type(IEnumType *e) {
 
 }
@@ -278,6 +287,22 @@ void PSIVisitor::visit_literal_expr(ILiteral *l) {
 
 void PSIVisitor::visit_method_call(IMethodCallExpr *c) {
 
+}
+
+void PSIVisitor::visit_open_range_list(IOpenRangeList *range_l) {
+	for (std::vector<IOpenRangeValue *>::const_iterator it=range_l->ranges().begin();
+			it!=range_l->ranges().end(); it++) {
+		visit_open_range_value(*it);
+	}
+}
+
+void PSIVisitor::visit_open_range_value(IOpenRangeValue *range_v) {
+	if (range_v->getLHS()) {
+		visit_expr(range_v->getLHS());
+	}
+	if (range_v->getRHS()) {
+		visit_expr(range_v->getRHS());
+	}
 }
 
 void PSIVisitor::visit_field(IField *f) {
@@ -311,7 +336,7 @@ void PSIVisitor::visit_activity_stmt(IActivityStmt *stmt) {
 	} break;
 
 	case IActivityStmt::ActivityStmt_IfElse: {
-		fprintf(stdout, "TODO: ActivityStmt_IfElse\n");
+		visit_activity_if_else_stmt(dynamic_cast<IActivityIfElseStmt *>(stmt));
 	} break;
 
 	case IActivityStmt::ActivityStmt_Parallel: {
@@ -362,6 +387,14 @@ void PSIVisitor::visit_activity_schedule_block_stmt(IActivityBlockStmt *block) {
 
 	for (it=block->getStmts().begin(); it!=block->getStmts().end(); it++) {
 		visit_activity_stmt(*it);
+	}
+}
+
+void PSIVisitor::visit_activity_if_else_stmt(IActivityIfElseStmt *stmt) {
+	visit_expr(stmt->getCond());
+	visit_activity_stmt(stmt->getTrue());
+	if (stmt->getFalse()) {
+		visit_activity_stmt(stmt->getFalse());
 	}
 }
 

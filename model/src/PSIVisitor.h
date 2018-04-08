@@ -89,9 +89,15 @@ protected:
 
 	virtual void visit_fieldref_expr(IFieldRef *ref);
 
+	virtual void visit_in_expr(IInExpr *in);
+
 	virtual void visit_literal_expr(ILiteral *l);
 
 	virtual void visit_method_call(IMethodCallExpr *c);
+
+	virtual void visit_open_range_list(IOpenRangeList *range_l);
+
+	virtual void visit_open_range_value(IOpenRangeValue *range_v);
 
 	virtual void visit_enum_type(IEnumType *e);
 
@@ -102,6 +108,8 @@ protected:
 	virtual void visit_activity_stmt(IActivityStmt *stmt);
 
 	virtual void visit_activity_block_stmt(IActivityBlockStmt *block);
+
+	virtual void visit_activity_if_else_stmt(IActivityIfElseStmt *stmt);
 
 	virtual void visit_activity_parallel_block_stmt(IActivityBlockStmt *block);
 

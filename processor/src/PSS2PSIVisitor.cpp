@@ -150,12 +150,20 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 
 		if (ctx->inline_with_constraint()->single_stmt_constraint()) {
 			IConstraint *c = ctx->inline_with_constraint()->single_stmt_constraint()->accept(this);
-			constraints.push_back(c);
+			if (c) {
+				constraints.push_back(c);
+			} else {
+				fprintf(stdout, "Error: null constraint in single-statement action traversal\n");
+			}
 		} else {
 			uint32_t n=ctx->inline_with_constraint()->constraint_body_item().size();
 			for (uint32_t i=0; i<n; i++) {
 				IConstraint *c = ctx->inline_with_constraint()->constraint_body_item(i)->accept(this);
-				constraints.push_back(c);
+				if (c) {
+					constraints.push_back(c);
+				} else {
+					fprintf(stdout, "Error: null constraint in action traversal\n");
+				}
 			}
 		}
 		with_c = m_factory->mkConstraintBlock("", constraints);
@@ -264,7 +272,16 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_if_else_stmt(PSSParser::Activity_if_
 	IActivityStmt *ret = 0;
 
 	enter("visitActivity_if_else_stmt");
-	todo("visitActivity_if_else_stmt");
+
+	IExpr *cond = ctx->expression()->accept(this);
+	IActivityStmt *true_stmt = ctx->activity_stmt(0)->accept(this);
+	IActivityStmt *false_stmt = 0;
+
+	if (ctx->activity_stmt().size() > 1) {
+		false_stmt = ctx->activity_stmt(1)->accept(this);
+	}
+
+	ret = m_factory->mkActivityIfElseStmt(cond, true_stmt, false_stmt);
 	leave("visitActivity_if_else_stmt");
 
 	return ret;
@@ -868,7 +885,12 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 	enter("visitConstraint_declaration");
 
 	if (ctx->single_stmt_constraint()) {
-		constraints.push_back(ctx->single_stmt_constraint()->accept(this));
+		IConstraint *c = ctx->single_stmt_constraint()->accept(this);
+		if (c) {
+			constraints.push_back(c);
+		} else {
+			fprintf(stdout, "Error: null constraint in single constraint\n");
+		}
 	} else {
 		is_dynamic = (ctx->is_dynamic != 0);
 
@@ -882,7 +904,7 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 			if (c) {
 				constraints.push_back(c);
 			} else {
-				error("null constraint");
+				error("null constraint in %s", name.c_str());
 			}
 		}
 	}
@@ -899,6 +921,12 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression_constraint_item(PSSParser::Express
 	enter("visitExpression_constraint_item");
 
 	IExpr *expr = ctx->expression()->accept(this);
+
+	if (!expr) {
+		fprintf(stdout, "Error: null constraint expression: %s\n",
+				ctx->expression()->getText().c_str());
+		return ret;
+	}
 
 	if (ctx->implicand_constraint_item()) {
 		ret = m_factory->mkConstraintImplies(expr,
@@ -968,7 +996,11 @@ antlrcpp::Any PSS2PSIVisitor::visitForeach_constraint_item(PSSParser::Foreach_co
 		body = dynamic_cast<IConstraintBlock *>(cs);
 	} else {
 		std::vector<IConstraint *> c;
-		c.push_back(cs);
+		if (cs) {
+			c.push_back(cs);
+		} else {
+			fprintf(stdout, "Error: null constraint in foreach");
+		}
 		body = m_factory->mkConstraintBlock("", c);
 	}
 
@@ -1162,7 +1194,12 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 				ctx->rhs->accept(this));
 	} else if (ctx->primary()) {
 		ret = ctx->primary()->accept(this);
+	} else if (ctx->inside_expr_term()) {
+		IExpr *lhs = ctx->lhs->accept(this);
+		IOpenRangeList *rhs = ctx->inside_expr_term()->open_range_list()->accept(this);
+		ret = m_factory->mkInExpr(lhs, rhs);
 	} else {
+		todo("unknown expression %s\n", ctx->getText().c_str());
 		enter("unknown %s\n", ctx->getText().c_str());
 		/* ret = */ visitChildren(ctx);
 		leave("unknown");

@@ -145,6 +145,11 @@ public:
 	virtual IActivityDoActionStmt *mkActivityDoActionStmt(
 			IBaseItem *target, IConstraintBlock *with_c);
 
+	virtual IActivityIfElseStmt *mkActivityIfElseStmt(
+			IExpr			*cond,
+			IActivityStmt	*true_stmt,
+			IActivityStmt	*false_stmt);
+
 	virtual IActivityRepeatStmt *mkActivityRepeatStmt(
 			IActivityRepeatStmt::RepeatType type,
 			IExpr *expr, IActivityStmt *body);
@@ -161,6 +166,10 @@ public:
 			IExpr 					*lhs,
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs);
+
+	virtual IInExpr *mkInExpr(
+			IExpr					*lhs,
+			IOpenRangeList			*rhs);
 
 	virtual IFieldRef *mkFieldRef(
 			const std::vector<IField *>		&field_path);

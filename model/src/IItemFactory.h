@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include "IAction.h"
 #include "IBinaryExpr.h"
+#include "IInExpr.h"
 #include "IBind.h"
 #include "IBindPath.h"
 #include "IComponent.h"
@@ -47,6 +48,7 @@
 #include "IExtendEnum.h"
 #include "IActivityBlockStmt.h"
 #include "IActivityDoActionStmt.h"
+#include "IActivityIfElseStmt.h"
 #include "IActivityTraverseStmt.h"
 #include "IActivityRepeatStmt.h"
 #include "ILiteral.h"
@@ -182,6 +184,10 @@ public:
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs) = 0;
 
+	virtual IInExpr *mkInExpr(
+			IExpr					*lhs,
+			IOpenRangeList			*rhs) = 0;
+
 	virtual IOpenRangeValue *mkOpenRangeValue(
 			IExpr					*lhs,
 			IExpr					*rhs,
@@ -214,6 +220,11 @@ public:
 
 	virtual IActivityDoActionStmt *mkActivityDoActionStmt(
 			IBaseItem *type, IConstraintBlock *with_c) = 0;
+
+	virtual IActivityIfElseStmt *mkActivityIfElseStmt(
+			IExpr			*cond,
+			IActivityStmt	*true_stmt,
+			IActivityStmt	*false_stmt) = 0;
 
 	virtual IActivityRepeatStmt *mkActivityRepeatStmt(
 			IActivityRepeatStmt::RepeatType type,

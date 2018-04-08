@@ -29,17 +29,17 @@
 
 namespace psi_api {
 
-class IActivityIfElseStmt : public IActivityStmt {
+class IActivityIfElseStmt : public virtual IActivityStmt {
 
 public:
 
 	virtual ~IActivityIfElseStmt() { }
 
-	virtual IExpr *getCond() = 0;
+	virtual IExpr *getCond() const = 0;
 
-	virtual IActivityStmt *getTrue() = 0;
+	virtual IActivityStmt *getTrue() const = 0;
 
-	virtual IActivityStmt *getFalse() = 0;
+	virtual IActivityStmt *getFalse() const = 0;
 
 };
 }
