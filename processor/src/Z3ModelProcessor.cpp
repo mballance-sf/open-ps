@@ -11,6 +11,7 @@
 
 Z3ModelProcessor::Z3ModelProcessor() : m_cfg(0), m_ctxt(0), m_hash(0) {
 	m_prefix_valid = false;
+	m_expr_depth = 0;
 
 }
 
@@ -25,6 +26,8 @@ bool Z3ModelProcessor::build(IComponent *comp, IAction *action) {
 
 	m_cfg = Z3_mk_config();
 	m_ctxt = Z3_mk_context(m_cfg);
+
+	Z3_set_error_handler(m_ctxt, &Z3ModelProcessor::z3_error_handler);
 
 	m_solver = Z3_mk_solver(m_ctxt);
 	Z3_solver_inc_ref(m_ctxt, m_solver);
@@ -117,7 +120,18 @@ bool Z3ModelProcessor::run() {
 	if (m) {
 //		Z3_model_eval(m_ctxt, m, t, true, v)
 		Z3_model_inc_ref(m_ctxt, m);
-		fprintf(stdout, "  Model:\n%s\n", Z3_model_to_string(m_ctxt, m));
+//		fprintf(stdout, "  Model:\n%s\n", Z3_model_to_string(m_ctxt, m));
+
+		for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
+				it!=m_variables.end(); it++) {
+			Z3ModelVar *v = it->second;
+			Z3_ast v_ast;
+			Z3_model_eval(m_ctxt, m, v->var(), true, &v_ast);
+			__uint64 val;
+			Z3_get_numeral_uint64(m_ctxt, v_ast, &val);
+			fprintf(stdout, "%s: 0x%08llx\n",
+					v->name().c_str(), val);
+		}
 		Z3_model_dec_ref(m_ctxt, m);
 	}
 
@@ -392,6 +406,31 @@ void Z3ModelProcessor::visit_binary_expr(IBinaryExpr *be) {
 				lhs.is_signed());
 	} break;
 
+	case IBinaryExpr::BinOp_NotEq: {
+		uint32_t bits;
+		if (lhs.size() != rhs.size()) {
+			if (lhs.size() < rhs.size()) {
+				// upsize lhs
+				lhs = upsize(lhs, rhs.size());
+				bits = rhs.size();
+			} else {
+				// upsize rhs
+				rhs = upsize(rhs, lhs.size());
+				bits = lhs.size();
+			}
+		} else {
+			bits = lhs.size();
+		}
+		m_expr = Z3ExprTerm(
+				Z3_mk_not(m_ctxt,
+						Z3_mk_eq(m_ctxt,
+								lhs.expr(),
+								rhs.expr())
+				),
+				lhs.size(),
+				lhs.is_signed());
+	} break;
+
 	case IBinaryExpr::BinOp_GE: {
 		uint32_t bits;
 		if (lhs.size() != rhs.size()) {
@@ -518,6 +557,13 @@ void Z3ModelProcessor::visit_binary_expr(IBinaryExpr *be) {
 							lhs.is_signed());
 		}
 	} break;
+	case IBinaryExpr::BinOp_OrOr: {
+		Z3_ast args[] = {lhs.expr(), rhs.expr()};
+		m_expr = Z3ExprTerm(
+				Z3_mk_or(m_ctxt, 2, args),
+				1,
+				lhs.is_signed());
+	} break;
 	default:
 		fprintf(stdout, "Error: unhandled binary expr %d\n",
 				be->getBinOpType());
@@ -527,40 +573,57 @@ void Z3ModelProcessor::visit_binary_expr(IBinaryExpr *be) {
 void Z3ModelProcessor::visit_constraint_expr_stmt(IConstraintExpr *c) {
 	m_expr = Z3ExprTerm();
 	visit_expr(c->getExpr());
+	if (m_expr_depth == 0) {
 	if (m_expr.expr()) {
+		fprintf(stdout, "AST:\n%s\n",
+				Z3_ast_to_string(m_ctxt, m_expr.expr()));
 		Z3_solver_assert(m_ctxt, m_solver,
 				m_expr.expr());
 	} else {
 		fprintf(stdout, "Error: expr resulted in null term\n");
+	}
 	}
 
 //	fprintf(stdout, "constraint statement: %p\n", m_expr);
 }
 
 void Z3ModelProcessor::visit_constraint_if_stmt(IConstraintIf *c) {
-//	visit_expr(c->getCond());
-//	Z3ExprTerm iff = m_expr;
-//	visit_constraint(c->getTrue());
-//	Z3ExprTerm case_true = m_expr;
-//
-//	Z3_solver_assert(
-//			m_ctxt,
-//			m_solver,
-//			Z3_mk_implies(m_ctxt,
-//					iff.expr(),
-//					t2)
-//			);
-//
-//	// Add the 'else' case
-//	Z3_solver_assert(
-//			m_ctxt,
-//			m_solver,
-//			Z3_mk_implies(m_ctxt,
-//					Z3_mk_not(
-//							m_ctxt,
-//							iff.expr()),
-//					t2)
-//			);
+	m_expr_depth++;
+	visit_expr(c->getCond());
+	Z3ExprTerm iff = m_expr;
+	visit_constraint_stmt(c->getTrue());
+	Z3ExprTerm case_true = m_expr;
+
+	Z3_ast iff_ast = iff.expr();
+
+	if (c->getFalse()) {
+		m_if_else_conds.push_back(iff_ast);
+
+		// Create a NOT of
+		visit_constraint_stmt(c->getFalse());
+		Z3ExprTerm case_false = m_expr;
+
+		m_expr = Z3ExprTerm(
+				Z3_mk_ite(m_ctxt,
+						iff.expr(),
+						case_true.expr(),
+						case_false.expr()),
+						case_true.size(),
+						case_true.is_signed()
+				);
+		m_if_else_conds.pop_back();
+	} else {
+		Z3_ast ast = Z3_mk_implies(m_ctxt,
+						iff.expr(),
+						case_true.expr());
+		fprintf(stdout, "if AST:\n%s\n",
+				Z3_ast_to_string(m_ctxt, ast));
+		Z3_solver_assert(m_ctxt, m_solver, ast);
+	}
+
+	m_expr_depth--;
+
+	m_expr = Z3ExprTerm();
 }
 
 void Z3ModelProcessor::visit_literal_expr(ILiteral *l) {
@@ -684,5 +747,9 @@ void Z3ModelProcessor::compute_domain(Z3ModelVar &var) {
 	} else {
 
 	}
+}
+
+void Z3ModelProcessor::z3_error_handler(Z3_context c, Z3_error_code e) {
+	throw SolverErrorException(Z3_get_error_msg(c, e));
 }
 

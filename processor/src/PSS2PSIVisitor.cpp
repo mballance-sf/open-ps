@@ -225,7 +225,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 	enter("visitActivity_repeat_stmt");
 
 	IActivityRepeatStmt::RepeatType type = IActivityRepeatStmt::RepeatType_Forever;
-	IActivityBlockStmt *body = m_factory->mkActivityBlockStmt();
+	IActivityBlockStmt *body = 0;
 
 	if (ctx->expression()) {
 		expr = ctx->expression()->accept(this);
@@ -242,13 +242,12 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 		type = IActivityRepeatStmt::RepeatType_Count;
 	}
 
-	for (uint32_t i=0; i<ctx->activity_sequence_block_stmt()->activity_stmt().size(); i++) {
-		IActivityStmt *stmt = ctx->activity_sequence_block_stmt()->activity_stmt(i)->accept(this);
-		if (stmt) {
-			body->add(stmt);
-		} else {
-			error("null repeat-body statement");
-		}
+	IActivityStmt *stmt = ctx->activity_stmt()->accept(this);
+	if (dynamic_cast<IActivityBlockStmt *>(stmt)) {
+		body = dynamic_cast<IActivityBlockStmt *>(stmt);
+	} else {
+		body = m_factory->mkActivityBlockStmt();
+		body->add(stmt);
 	}
 
 	ret = m_factory->mkActivityRepeatStmt(type, expr, body);

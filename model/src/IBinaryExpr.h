@@ -35,12 +35,12 @@ class IBinaryExpr : public IExpr {
 public:
 
 	enum BinOpType {
-		BinOp_Eq,
+		BinOp_Eq, 		// 0
 		BinOp_EqEq,
 		BinOp_NotEq,
 		BinOp_GE,
 		BinOp_GT,
-		BinOp_LE,
+		BinOp_LE,		// 5
 		BinOp_LT,
 		BinOp_And,
 		BinOp_AndAnd,

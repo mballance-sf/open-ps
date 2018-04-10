@@ -169,10 +169,10 @@ private:
 	void leave(const char *fmt, ...);
 
 private:
-	bool						m_debug;
-	bool						m_removed;
-	std::vector<IBaseItem *>	m_scope_stack;
-	std::vector<IScopeItem *>	m_decl_scopes;
+	bool							m_debug;
+	bool							m_removed;
+	std::vector<IBaseItem *>		m_scope_stack;
+	std::vector<IScopeItem *>		m_decl_scopes;
 	std::vector<IActivityStmt *>	m_graph_stack;
 
 };

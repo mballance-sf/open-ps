@@ -31,6 +31,13 @@ TEST(z3_model,smoke) {
 				constraint c {
 					a < 4;
 					a > 0;
+					if (a==1) {
+						b==1;
+					}
+					if (a!=1) {
+						b==2;
+					}
+//					(b==1 || b==2 || b==4 || b==8);
 				}
 			}
 		}

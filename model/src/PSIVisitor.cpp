@@ -110,7 +110,6 @@ void PSIVisitor::visit_constraint(IConstraintBlock *c) {
 void PSIVisitor::visit_constraint_stmt(IConstraint *c) {
 	switch (c->getConstraintType()) {
 	case IConstraint::ConstraintType_Block: {
-
 		visit_constraint_block(dynamic_cast<IConstraintBlock *>(c));
 	} break;
 
