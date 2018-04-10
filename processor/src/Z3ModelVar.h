@@ -34,11 +34,17 @@ public:
 
 	bool is_signed() const { return m_is_signed; }
 
+	uint64_t get_val(Z3_context c, Z3_model m);
+
+	void reset() { m_val_valid = false; }
+
 private:
 	std::string			m_name;
 	Z3_ast				m_var;
 	uint32_t			m_bits;
 	bool				m_is_signed;
+	uint64_t			m_val;
+	bool				m_val_valid;
 };
 
 #endif /* PROCESSOR_SRC_Z3MODELVAR_H_ */

@@ -28,7 +28,7 @@
 
 namespace psi_api {
 
-class IActivityRepeatStmt : public IActivityStmt {
+class IActivityRepeatStmt : public virtual IActivityStmt, public virtual IScopeItem {
 public:
 
 	enum RepeatType {

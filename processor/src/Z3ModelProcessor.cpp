@@ -111,6 +111,7 @@ bool Z3ModelProcessor::run() {
 	std::vector<Z3ModelVar *> vars;
 	for (std::map<std::string,Z3ModelVar *>::iterator it=m_variables.begin();
 			it!=m_variables.end(); it++) {
+		it->second->reset();
 		vars.push_back(it->second);
 	}
 
@@ -125,12 +126,8 @@ bool Z3ModelProcessor::run() {
 		for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
 				it!=m_variables.end(); it++) {
 			Z3ModelVar *v = it->second;
-			Z3_ast v_ast;
-			Z3_model_eval(m_ctxt, m, v->var(), true, &v_ast);
-			__uint64 val;
-			Z3_get_numeral_uint64(m_ctxt, v_ast, &val);
 			fprintf(stdout, "%s: 0x%08llx\n",
-					v->name().c_str(), val);
+					v->name().c_str(), v->get_val(m_ctxt, m));
 		}
 		Z3_model_dec_ref(m_ctxt, m);
 	}
@@ -198,8 +195,8 @@ void Z3ModelProcessor::apply_bias(const std::vector<Z3ModelVar *> &vars) {
 		for (uint32_t j=0; j<n_vars; j++) {
 			uint32_t var_idx = 0; // (m_lfsr.value() % vars_t.size());
 			uint64_t coeff = m_lfsr.next();
-			fprintf(stdout, "Force idx %d (%s) %llx\n",
-					var_idx, vars_t.at(var_idx)->name().c_str(), coeff);
+//			fprintf(stdout, "Force idx %d (%s) %llx\n",
+//					var_idx, vars_t.at(var_idx)->name().c_str(), coeff);
 			Z3ModelVar *var = vars_t.at(var_idx);
 			Z3_ast var_ast = var->var();
 			if (var->bits() < 64) {
@@ -223,7 +220,7 @@ void Z3ModelProcessor::apply_bias(const std::vector<Z3ModelVar *> &vars) {
 		uint32_t hash_bits = 20;
 		Z3_ast sum = Z3_mk_extract(m_ctxt, (hash_bits-1), 0, term);
 		uint64_t hash = m_lfsr.next();
-		fprintf(stdout, "Hash[7:0]=0x%08x\n", (uint32_t)(hash & ((1 << hash_bits)-1)));
+//		fprintf(stdout, "Hash[7:0]=0x%08x\n", (uint32_t)(hash & ((1 << hash_bits)-1)));
 		Z3_ast eq = Z3_mk_eq(m_ctxt, sum,
 				Z3_mk_unsigned_int64(m_ctxt, hash, Z3_mk_bv_sort(m_ctxt, hash_bits)));
 
@@ -575,8 +572,8 @@ void Z3ModelProcessor::visit_constraint_expr_stmt(IConstraintExpr *c) {
 	visit_expr(c->getExpr());
 	if (m_expr_depth == 0) {
 	if (m_expr.expr()) {
-		fprintf(stdout, "AST:\n%s\n",
-				Z3_ast_to_string(m_ctxt, m_expr.expr()));
+//		fprintf(stdout, "AST:\n%s\n",
+//				Z3_ast_to_string(m_ctxt, m_expr.expr()));
 		Z3_solver_assert(m_ctxt, m_solver,
 				m_expr.expr());
 	} else {
@@ -616,8 +613,8 @@ void Z3ModelProcessor::visit_constraint_if_stmt(IConstraintIf *c) {
 		Z3_ast ast = Z3_mk_implies(m_ctxt,
 						iff.expr(),
 						case_true.expr());
-		fprintf(stdout, "if AST:\n%s\n",
-				Z3_ast_to_string(m_ctxt, ast));
+//		fprintf(stdout, "if AST:\n%s\n",
+//				Z3_ast_to_string(m_ctxt, ast));
 		Z3_solver_assert(m_ctxt, m_solver, ast);
 	}
 

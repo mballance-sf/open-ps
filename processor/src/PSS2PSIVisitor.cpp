@@ -250,7 +250,19 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 		body->add(stmt);
 	}
 
-	ret = m_factory->mkActivityRepeatStmt(type, expr, body);
+	IActivityRepeatStmt *rep = m_factory->mkActivityRepeatStmt(type, expr, body);
+
+	if (ctx->loop_var) {
+		IField *loop_var = m_factory->mkField(
+				ctx->loop_var->getText(),
+				m_factory->mkScalarType(IScalarType::ScalarType_Bit,
+						m_factory->mkBitLiteral(32), 0, 0),
+				IField::FieldAttr_None,
+				0);
+		rep->add(loop_var);
+	}
+
+	ret = rep;
 
 	leave("visitActivity_repeat_stmt");
 

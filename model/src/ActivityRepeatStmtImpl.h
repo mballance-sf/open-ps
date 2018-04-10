@@ -22,16 +22,19 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_GRAPHREPEATSTMTIMPL_H_
-#define IMPL_GRAPHREPEATSTMTIMPL_H_
+#pragma once
 #include "BaseItemImpl.h"
+#include "ScopeItemImpl.h"
 #include "IActivityRepeatStmt.h"
 
 using namespace psi_api;
 
 namespace psi {
 
-class ActivityRepeatStmtImpl: public virtual BaseItemImpl, public virtual IActivityRepeatStmt {
+class ActivityRepeatStmtImpl:
+		public virtual BaseItemImpl,
+		public virtual ScopeItemImpl,
+		public virtual IActivityRepeatStmt {
 public:
 	ActivityRepeatStmtImpl(RepeatType type, IExpr *expr, IActivityStmt *body);
 
@@ -52,10 +55,9 @@ public:
 private:
 	RepeatType				m_type;
 	IExpr					*m_cond;
-	IActivityStmt				*m_body;
+	IActivityStmt			*m_body;
 };
 
 
 } /* namespace psi */
 
-#endif /* IMPL_GRAPHREPEATSTMTIMPL_H_ */
