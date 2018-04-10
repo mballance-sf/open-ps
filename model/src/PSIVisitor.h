@@ -89,27 +89,35 @@ protected:
 
 	virtual void visit_fieldref_expr(IFieldRef *ref);
 
+	virtual void visit_in_expr(IInExpr *in);
+
 	virtual void visit_literal_expr(ILiteral *l);
 
 	virtual void visit_method_call(IMethodCallExpr *c);
+
+	virtual void visit_open_range_list(IOpenRangeList *range_l);
+
+	virtual void visit_open_range_value(IOpenRangeValue *range_v);
 
 	virtual void visit_enum_type(IEnumType *e);
 
 	virtual void visit_field(IField *f);
 
-	virtual void visit_graph(IGraphStmt *activity);
+	virtual void visit_activity(IActivityStmt *activity);
 
-	virtual void visit_graph_stmt(IGraphStmt *stmt);
+	virtual void visit_activity_stmt(IActivityStmt *stmt);
 
-	virtual void visit_graph_block_stmt(IGraphBlockStmt *block);
+	virtual void visit_activity_block_stmt(IActivityBlockStmt *block);
 
-	virtual void visit_graph_parallel_block_stmt(IGraphBlockStmt *block);
+	virtual void visit_activity_if_else_stmt(IActivityIfElseStmt *stmt);
 
-	virtual void visit_graph_repeat_stmt(IGraphRepeatStmt *repeat);
+	virtual void visit_activity_parallel_block_stmt(IActivityBlockStmt *block);
 
-	virtual void visit_graph_schedule_block_stmt(IGraphBlockStmt *s);
+	virtual void visit_activity_repeat_stmt(IActivityRepeatStmt *repeat);
 
-	virtual void visit_graph_select_stmt(IGraphBlockStmt *s);
+	virtual void visit_activity_schedule_block_stmt(IActivityBlockStmt *s);
+
+	virtual void visit_activity_select_stmt(IActivityBlockStmt *s);
 
 	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t);
 
@@ -149,11 +157,11 @@ protected:
 
 	static std::string path2string(const std::vector<IField *> &path);
 
-	void push_graph(IGraphStmt *it);
+	void push_graph(IActivityStmt *it);
 
 	void pop_graph();
 
-	IGraphStmt *graph_parent(IGraphStmt *it=0);
+	IActivityStmt *graph_parent(IActivityStmt *it=0);
 
 private:
 	void enter(const char *fmt, ...);
@@ -161,11 +169,11 @@ private:
 	void leave(const char *fmt, ...);
 
 private:
-	bool						m_debug;
-	bool						m_removed;
-	std::vector<IBaseItem *>	m_scope_stack;
-	std::vector<IScopeItem *>	m_decl_scopes;
-	std::vector<IGraphStmt *>	m_graph_stack;
+	bool							m_debug;
+	bool							m_removed;
+	std::vector<IBaseItem *>		m_scope_stack;
+	std::vector<IScopeItem *>		m_decl_scopes;
+	std::vector<IActivityStmt *>	m_graph_stack;
 
 };
 

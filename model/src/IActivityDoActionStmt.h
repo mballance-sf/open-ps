@@ -7,13 +7,13 @@
 
 #ifndef MODEL_SRC_IACTIVITYDOACTIONSTMT_H_
 #define MODEL_SRC_IACTIVITYDOACTIONSTMT_H_
-#include "IGraphStmt.h"
+#include "IActivityStmt.h"
 #include "IBaseItem.h"
 #include "IConstraintBlock.h"
 
 using namespace psi_api;
 
-class IActivityDoActionStmt : public virtual IGraphStmt {
+class IActivityDoActionStmt : public virtual IBaseItem, public virtual IActivityStmt {
 public:
 
 	virtual IBaseItem *getTargetType() const = 0;

@@ -61,7 +61,14 @@ endif
 	DLIBPREF := lib
 	CXXFLAGS += -std=c++11 -fPIC -g
 	LINK_EXE=$(CXX) -o $@
-	LINK_DLIB=$(CXX) -shared -o $@
+define LINK_DLIB
+	$(Q)$(CXX) -shared -o $@ $(filter %.o,$(^)) \
+		$(foreach lib,$(filter %$(DLIBEXT),$(^)),-L$(dir $(lib)) -l$(subst $(DLIBPREF),,$(subst $(DLIBEXT),,$(notdir $(lib)))))
+endef
+define LINK_EXE
+	$(Q)$(CXX) -o $@ $(filter %.o,$(^)) \
+		$(foreach lib,$(filter %$(DLIBEXT),$(^)),-L$(dir $(lib)) -l$(subst $(DLIBPREF),,$(subst $(DLIBEXT),,$(notdir $(lib)))))
+endef
 endif
 
 ifeq (true,$(VERBOSE))

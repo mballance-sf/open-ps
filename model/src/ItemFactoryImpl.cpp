@@ -44,8 +44,10 @@
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
 #include "ActivityDoActionStmtImpl.h"
+#include "ActivityIfElseStmtImpl.h"
 #include "ActivityTraverseStmtImpl.h"
 #include "BinaryExprImpl.h"
+#include "InExprImpl.h"
 #include "FieldRefImpl.h"
 #include "LiteralImpl.h"
 #include "ConstraintBlockImpl.h"
@@ -184,7 +186,7 @@ IStruct *ItemFactoryImpl::mkStruct(
 ISymbol *ItemFactoryImpl::mkSymbol(
 		const std::string				&name,
 		const std::vector<IField *>		&params,
-		IGraphBlockStmt					*body) {
+		IActivityBlockStmt					*body) {
 	return new SymbolImpl(name, params, body);
 }
 
@@ -219,13 +221,13 @@ IPool *ItemFactoryImpl::mkPool(
 	return new PoolImpl(name, pool_type, pool_size);
 }
 
-IGraphBlockStmt *ItemFactoryImpl::mkGraphBlockStmt(IGraphStmt::GraphStmtType type) {
+IActivityBlockStmt *ItemFactoryImpl::mkActivityBlockStmt(IActivityStmt::ActivityStmtType type) {
 	return new ActivityBlockStmtImpl(type);
 }
 
-IGraphRepeatStmt *ItemFactoryImpl::mkGraphRepeatStmt(
-		IGraphRepeatStmt::RepeatType type,
-		IExpr *expr, IGraphStmt *body) {
+IActivityRepeatStmt *ItemFactoryImpl::mkActivityRepeatStmt(
+		IActivityRepeatStmt::RepeatType type,
+		IExpr *expr, IActivityStmt *body) {
 	return new ActivityRepeatStmtImpl(type, expr, body);
 }
 
@@ -233,6 +235,13 @@ IActivityDoActionStmt *ItemFactoryImpl::mkActivityDoActionStmt(
 		IBaseItem *target,
 		IConstraintBlock *with_c) {
 	return new ActivityDoActionStmtImpl(target, with_c);
+}
+
+IActivityIfElseStmt *ItemFactoryImpl::mkActivityIfElseStmt(
+			IExpr			*cond,
+			IActivityStmt	*true_stmt,
+			IActivityStmt	*false_stmt) {
+	return new ActivityIfElseStmtImpl(cond, true_stmt, false_stmt);
 }
 
 IActivityTraverseStmt *ItemFactoryImpl::mkActivityTraverseStmt(
@@ -257,6 +266,12 @@ IBinaryExpr *ItemFactoryImpl::mkBinExpr(
 		IBinaryExpr::BinOpType	op,
 		IExpr 					*rhs) {
 	return new BinaryExprImpl(lhs, op, rhs);
+}
+
+IInExpr *ItemFactoryImpl::mkInExpr(
+			IExpr					*lhs,
+			IOpenRangeList			*rhs) {
+	return new InExprImpl(lhs, rhs);
 }
 
 IFieldRef *ItemFactoryImpl::mkFieldRef(

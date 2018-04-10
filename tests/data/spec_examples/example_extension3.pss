@@ -1,7 +1,4 @@
 
-component dma_c {
-	action mem2mem_xfer { }
-}
 
 // Example: 14.1.5
 
@@ -10,6 +7,15 @@ package mem_defs_pkg { // reusable definitions
 	
 	buffer mem_buff_s {
 		rand mem_block_tag_e mem_block;
+	}
+}
+
+component dma_c {
+	import mem_defs_pkg::*;
+
+	action mem2mem_xfer { 
+		input mem_buff_s	src_buff;
+		output mem_buff_s	dst_buff;
 	}
 }
 

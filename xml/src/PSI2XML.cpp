@@ -627,8 +627,8 @@ void PSI2XML::process_field(IField *f) {
 	exit("field");
 }
 
-void PSI2XML::process_graph(IGraphStmt *activity) {
-	std::vector<IGraphStmt *>::const_iterator it;
+void PSI2XML::process_graph(IActivityStmt *activity) {
+	std::vector<IActivityStmt *>::const_iterator it;
 
 	enter("activity");
 
@@ -637,26 +637,26 @@ void PSI2XML::process_graph(IGraphStmt *activity) {
 	exit("activity");
 }
 
-void PSI2XML::process_graph_stmt(IGraphStmt *stmt, const char *tag) {
+void PSI2XML::process_graph_stmt(IActivityStmt *stmt, const char *tag) {
 
 	if (tag) {
 		enter(tag);
 	}
 
 	switch (stmt->getStmtType()) {
-	case IGraphStmt::GraphStmt_Block: {
-		process_graph_block_stmt(dynamic_cast<IGraphBlockStmt *>(stmt));
+	case IActivityStmt::ActivityStmt_Block: {
+		process_graph_block_stmt(dynamic_cast<IActivityBlockStmt *>(stmt));
 	} break;
 
-	case IGraphStmt::GraphStmt_IfElse: {
-		fprintf(stdout, "TODO: GraphStmt_IfElse\n");
+	case IActivityStmt::ActivityStmt_IfElse: {
+		fprintf(stdout, "TODO: ActivityStmt_IfElse\n");
 	} break;
 
-	case IGraphStmt::GraphStmt_Parallel: {
-		IGraphBlockStmt *block = dynamic_cast<IGraphBlockStmt *>(stmt);
+	case IActivityStmt::ActivityStmt_Parallel: {
+		IActivityBlockStmt *block = dynamic_cast<IActivityBlockStmt *>(stmt);
 		enter("parallel");
 
-		for (std::vector<IGraphStmt *>::const_iterator it=block->getStmts().begin();
+		for (std::vector<IActivityStmt *>::const_iterator it=block->getStmts().begin();
 				it!=block->getStmts().end(); it++) {
 			process_graph_stmt(*it, "production");
 		}
@@ -664,15 +664,15 @@ void PSI2XML::process_graph_stmt(IGraphStmt *stmt, const char *tag) {
 		exit("parallel");
 	} break;
 
-	case IGraphStmt::GraphStmt_Schedule: {
-		process_graph_block_stmt(dynamic_cast<IGraphBlockStmt *>(stmt), "schedule");
+	case IActivityStmt::ActivityStmt_Schedule: {
+		process_graph_block_stmt(dynamic_cast<IActivityBlockStmt *>(stmt), "schedule");
 	} break;
 
-	case IGraphStmt::GraphStmt_Select: {
-		IGraphBlockStmt *block = dynamic_cast<IGraphBlockStmt *>(stmt);
+	case IActivityStmt::ActivityStmt_Select: {
+		IActivityBlockStmt *block = dynamic_cast<IActivityBlockStmt *>(stmt);
 		enter("select");
 
-		for (std::vector<IGraphStmt *>::const_iterator it=block->getStmts().begin();
+		for (std::vector<IActivityStmt *>::const_iterator it=block->getStmts().begin();
 				it!=block->getStmts().end(); it++) {
 			process_graph_stmt(*it, "choice");
 		}
@@ -680,20 +680,20 @@ void PSI2XML::process_graph_stmt(IGraphStmt *stmt, const char *tag) {
 		exit("select");
 	} break;
 
-	case IGraphStmt::GraphStmt_Repeat: {
-		IGraphRepeatStmt *r = dynamic_cast<IGraphRepeatStmt *>(stmt);
+	case IActivityStmt::ActivityStmt_Repeat: {
+		IActivityRepeatStmt *r = dynamic_cast<IActivityRepeatStmt *>(stmt);
 
 		std::string tag = "repeat type=\"";
 		switch (r->getRepeatType()) {
-			case IGraphRepeatStmt::RepeatType_Count: tag += "count"; break;
-			case IGraphRepeatStmt::RepeatType_Forever: tag += "forever"; break;
-			case IGraphRepeatStmt::RepeatType_While: tag += "while"; break;
-			case IGraphRepeatStmt::RepeatType_Until: tag += "until"; break;
+			case IActivityRepeatStmt::RepeatType_Count: tag += "count"; break;
+			case IActivityRepeatStmt::RepeatType_Forever: tag += "forever"; break;
+			case IActivityRepeatStmt::RepeatType_While: tag += "while"; break;
+			case IActivityRepeatStmt::RepeatType_Until: tag += "until"; break;
 		}
 		tag += "\"";
 		enter(tag);
 
-		if (r->getRepeatType() != IGraphRepeatStmt::RepeatType_Forever) {
+		if (r->getRepeatType() != IActivityRepeatStmt::RepeatType_Forever) {
 			process_expr(r->getCond(), "expr");
 		}
 
@@ -702,7 +702,7 @@ void PSI2XML::process_graph_stmt(IGraphStmt *stmt, const char *tag) {
 		exit("repeat");
 	} break;
 
-	case IGraphStmt::GraphStmt_Traverse: {
+	case IActivityStmt::ActivityStmt_Traverse: {
 		IActivityTraverseStmt *t = dynamic_cast<IActivityTraverseStmt *>(stmt);
 
 		std::string tag = "traverse name=\"";
@@ -729,8 +729,8 @@ void PSI2XML::process_graph_stmt(IGraphStmt *stmt, const char *tag) {
 	}
 }
 
-void PSI2XML::process_graph_block_stmt(IGraphBlockStmt *block, const char *tag) {
-	std::vector<IGraphStmt *>::const_iterator it;
+void PSI2XML::process_graph_block_stmt(IActivityBlockStmt *block, const char *tag) {
+	std::vector<IActivityStmt *>::const_iterator it;
 
 	if (tag) {
 		enter(tag);

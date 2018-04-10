@@ -22,7 +22,7 @@ public:
 	SymbolImpl(
 			const std::string				&name,
 			const std::vector<IField *>		&params,
-			IGraphBlockStmt					*body
+			IActivityBlockStmt					*body
 			);
 
 	virtual ~SymbolImpl();
@@ -31,14 +31,14 @@ public:
 
 	virtual const std::vector<IField *> &getParameters() const { return m_params; }
 
-	virtual IGraphBlockStmt *getBody() const { return m_body; }
+	virtual IActivityBlockStmt *getBody() const { return m_body; }
 
 	virtual IBaseItem *clone() const;
 
 private:
 	std::string						m_name;
 	std::vector<IField *>			m_params;
-	IGraphBlockStmt					*m_body;
+	IActivityBlockStmt					*m_body;
 
 };
 

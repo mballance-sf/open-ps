@@ -22,15 +22,16 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IGRAPHTRAVERSESTMT_H_
-#define SRC_PSI_API_IGRAPHTRAVERSESTMT_H_
-#include "IGraphStmt.h"
+#pragma once
+
+#include "IBaseItem.h"
+#include "IActivityStmt.h"
 #include "IVariableRef.h"
 #include "IConstraint.h"
 
 namespace psi_api {
 
-class IActivityTraverseStmt : public IGraphStmt {
+class IActivityTraverseStmt : public virtual IActivityStmt {
 public:
 
 	virtual ~IActivityTraverseStmt() { }
@@ -43,7 +44,3 @@ public:
 
 }
 
-
-
-
-#endif /* SRC_PSI_API_IGRAPHTRAVERSESTMT_H_ */

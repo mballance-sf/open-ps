@@ -54,11 +54,11 @@ endif
 
 else # Rules
 
-$(DLIBPREF)pss_parser$(DLIBEXT) : $(PSS_GRAMMAR_SRC:.cpp=.o) 
-	$(Q)$(LINK_DLIB) $(filter-out build-%,$^)
+$(DLIBPREF)pss_parser$(DLIBEXT) : $(PSS_GRAMMAR_SRC:.cpp=.o) $(ANTLR4_DEPS)
+	$(Q)$(LINK_DLIB)
 
 antlr/$(DLIBPREF)antlr_runtime$(DLIBEXT) : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),antlr/$(o))
-	$(Q)$(LINK_DLIB) $(filter-out build-%,$^)
+	$(Q)$(LINK_DLIB) 
 
 ifeq (cl,$(COMPILER))
 antlr/%.o : %.cpp

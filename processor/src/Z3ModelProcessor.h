@@ -14,6 +14,7 @@
 #include "Z3ExprTerm.h"
 #include "PSIVisitor.h"
 #include "StringTableBuilder.h"
+#include "SolverErrorException.h"
 #include "LFSR.h"
 #include "z3.h"
 
@@ -63,6 +64,9 @@ protected:
 	void compute_domain(Z3ModelVar &var);
 
 private:
+	static void z3_error_handler(Z3_context c, Z3_error_code e);
+
+private:
 	StringTableBuilder						m_strtab;
 	Z3_config								m_cfg;
 	Z3_context								m_ctxt;
@@ -73,6 +77,9 @@ private:
 	bool									m_prefix_valid;
 	LFSR									m_lfsr;
 	Z3ExprTerm								m_expr;
+	Z3_ast									m_hash;
+	std::vector<Z3_ast>						m_if_else_conds;
+	uint32_t								m_expr_depth;
 
 };
 

@@ -29,7 +29,7 @@
 
 #include "IBaseItem.h"
 #include "IScopeItem.h"
-#include "IGraphStmt.h"
+#include "IActivityStmt.h"
 #include "INamedItem.h"
 
 namespace psi_api {
@@ -50,12 +50,12 @@ namespace psi_api {
 			/**
 			 * Returns the activity body, or null if there is none
 			 */
-			virtual IGraphStmt *getGraph() const = 0;
+			virtual IActivityStmt *getGraph() const = 0;
 
 			/**
 			 * Sets the activity body
 			 */
-			virtual void setGraph(IGraphStmt *activity) = 0;
+			virtual void setActivity(IActivityStmt *activity) = 0;
 
 	};
 }

@@ -111,7 +111,7 @@ public:
 	virtual ISymbol *mkSymbol(
 			const std::string			&name,
 			const std::vector<IField *>	&params,
-			IGraphBlockStmt				*body);
+			IActivityBlockStmt				*body);
 
 	virtual IExtendComposite *mkExtendComposite(
 			IExtend::ExtendType		type,
@@ -136,8 +136,8 @@ public:
 			IBaseItem				*pool_type,
 			IExpr					*pool_size);
 
-	virtual IGraphBlockStmt *mkGraphBlockStmt(
-			IGraphStmt::GraphStmtType type=IGraphStmt::GraphStmt_Block);
+	virtual IActivityBlockStmt *mkActivityBlockStmt(
+			IActivityStmt::ActivityStmtType type=IActivityStmt::ActivityStmt_Block);
 
 	virtual IActivityTraverseStmt *mkActivityTraverseStmt(
 			IVariableRef *action, IConstraint *with_c=0);
@@ -145,9 +145,14 @@ public:
 	virtual IActivityDoActionStmt *mkActivityDoActionStmt(
 			IBaseItem *target, IConstraintBlock *with_c);
 
-	virtual IGraphRepeatStmt *mkGraphRepeatStmt(
-			IGraphRepeatStmt::RepeatType type,
-			IExpr *expr, IGraphStmt *body);
+	virtual IActivityIfElseStmt *mkActivityIfElseStmt(
+			IExpr			*cond,
+			IActivityStmt	*true_stmt,
+			IActivityStmt	*false_stmt);
+
+	virtual IActivityRepeatStmt *mkActivityRepeatStmt(
+			IActivityRepeatStmt::RepeatType type,
+			IExpr *expr, IActivityStmt *body);
 
 	virtual IOpenRangeValue *mkOpenRangeValue(
 			IExpr 					*lhs,
@@ -161,6 +166,10 @@ public:
 			IExpr 					*lhs,
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs);
+
+	virtual IInExpr *mkInExpr(
+			IExpr					*lhs,
+			IOpenRangeList			*rhs);
 
 	virtual IFieldRef *mkFieldRef(
 			const std::vector<IField *>		&field_path);

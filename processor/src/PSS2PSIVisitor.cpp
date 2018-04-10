@@ -113,16 +113,16 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 	enter("visitActivity_declaration");
 
 	IAction *action = dynamic_cast<IAction *>(scope());
-	IGraphBlockStmt *block = m_factory->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
+	IActivityBlockStmt *block = m_factory->mkActivityBlockStmt(IActivityBlockStmt::ActivityStmt_Block);
 	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
-		IGraphStmt *stmt = ctx->activity_stmt(i)->accept(this);
+		IActivityStmt *stmt = ctx->activity_stmt(i)->accept(this);
 		if (stmt) {
 			block->add(stmt);
 		} else {
 			error("null activity stmt");
 		}
 	}
-	action->setGraph(block);
+	action->setActivity(block);
 
 	leave("visitActivity_declaration");
 
@@ -130,7 +130,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_bind_stmt(PSSParser::Activity_bind_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 
 	enter("visitActivity_bind_stmt");
 	todo("visitActivity_bind_stmt\n");
@@ -140,7 +140,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_bind_stmt(PSSParser::Activity_bind_s
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Activity_action_traversal_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 	IConstraintBlock *with_c = 0;
 
 	enter("visitActivity_action_traveral_stmt");
@@ -150,12 +150,20 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 
 		if (ctx->inline_with_constraint()->single_stmt_constraint()) {
 			IConstraint *c = ctx->inline_with_constraint()->single_stmt_constraint()->accept(this);
-			constraints.push_back(c);
+			if (c) {
+				constraints.push_back(c);
+			} else {
+				fprintf(stdout, "Error: null constraint in single-statement action traversal\n");
+			}
 		} else {
 			uint32_t n=ctx->inline_with_constraint()->constraint_body_item().size();
 			for (uint32_t i=0; i<n; i++) {
 				IConstraint *c = ctx->inline_with_constraint()->constraint_body_item(i)->accept(this);
-				constraints.push_back(c);
+				if (c) {
+					constraints.push_back(c);
+				} else {
+					fprintf(stdout, "Error: null constraint in action traversal\n");
+				}
 			}
 		}
 		with_c = m_factory->mkConstraintBlock("", constraints);
@@ -185,19 +193,19 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_parallel_stmt(PSSParser::Activity_parallel_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 
 	enter("visitActivity_parallel_stmt");
 
-	IGraphBlockStmt *parallel = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Parallel);
+	IActivityBlockStmt *parallel = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Parallel);
 
 	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
-		IGraphStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
-		if (dynamic_cast<IGraphBlockStmt *>(stmt) &&
-				dynamic_cast<IGraphBlockStmt *>(stmt)->getStmtType() == IGraphBlockStmt::GraphStmt_Block) {
+		IActivityStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
+		if (dynamic_cast<IActivityBlockStmt *>(stmt) &&
+				dynamic_cast<IActivityBlockStmt *>(stmt)->getStmtType() == IActivityBlockStmt::ActivityStmt_Block) {
 			parallel->add(stmt);
 		} else {
-			IGraphBlockStmt *stmt_b = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+			IActivityBlockStmt *stmt_b = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Block);
 			if (stmt) {
 				stmt_b->add(stmt);
 			}
@@ -211,39 +219,38 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_parallel_stmt(PSSParser::Activity_pa
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repeat_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 	IExpr *expr = 0;
 
 	enter("visitActivity_repeat_stmt");
 
-	IGraphRepeatStmt::RepeatType type = IGraphRepeatStmt::RepeatType_Forever;
-	IGraphBlockStmt *body = m_factory->mkGraphBlockStmt();
+	IActivityRepeatStmt::RepeatType type = IActivityRepeatStmt::RepeatType_Forever;
+	IActivityBlockStmt *body = 0;
 
 	if (ctx->expression()) {
 		expr = ctx->expression()->accept(this);
 	}
 
 	if (ctx->is_while) {
-		type = IGraphRepeatStmt::RepeatType_While;
+		type = IActivityRepeatStmt::RepeatType_While;
 	} else if (ctx->is_do_while) {
-		type = IGraphRepeatStmt::RepeatType_Until;
+		type = IActivityRepeatStmt::RepeatType_Until;
 	} else if (expr) {
 		if (ctx->loop_var) {
 			// TODO: must allow loop variable
 		}
-		type = IGraphRepeatStmt::RepeatType_Count;
+		type = IActivityRepeatStmt::RepeatType_Count;
 	}
 
-	for (uint32_t i=0; i<ctx->activity_sequence_block_stmt()->activity_stmt().size(); i++) {
-		IGraphStmt *stmt = ctx->activity_sequence_block_stmt()->activity_stmt(i)->accept(this);
-		if (stmt) {
-			body->add(stmt);
-		} else {
-			error("null repeat-body statement");
-		}
+	IActivityStmt *stmt = ctx->activity_stmt()->accept(this);
+	if (dynamic_cast<IActivityBlockStmt *>(stmt)) {
+		body = dynamic_cast<IActivityBlockStmt *>(stmt);
+	} else {
+		body = m_factory->mkActivityBlockStmt();
+		body->add(stmt);
 	}
 
-	ret = m_factory->mkGraphRepeatStmt(type, expr, body);
+	ret = m_factory->mkActivityRepeatStmt(type, expr, body);
 
 	leave("visitActivity_repeat_stmt");
 
@@ -251,7 +258,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_repeat_stmt(PSSParser::Activity_repe
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_constraint_stmt(PSSParser::Activity_constraint_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 	enter("visitActivity_constraint_stmt");
 
 	todo("visitActivity_constraint_stmt\n");
@@ -261,29 +268,38 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_constraint_stmt(PSSParser::Activity_
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_if_else_stmt(PSSParser::Activity_if_else_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 
 	enter("visitActivity_if_else_stmt");
-	todo("visitActivity_if_else_stmt");
+
+	IExpr *cond = ctx->expression()->accept(this);
+	IActivityStmt *true_stmt = ctx->activity_stmt(0)->accept(this);
+	IActivityStmt *false_stmt = 0;
+
+	if (ctx->activity_stmt().size() > 1) {
+		false_stmt = ctx->activity_stmt(1)->accept(this);
+	}
+
+	ret = m_factory->mkActivityIfElseStmt(cond, true_stmt, false_stmt);
 	leave("visitActivity_if_else_stmt");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_select_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 
 	enter("visitActivity_select_stmt");
 
-	IGraphBlockStmt *select = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Select);
+	IActivityBlockStmt *select = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Select);
 
 	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
-		IGraphStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
-		if (dynamic_cast<IGraphBlockStmt *>(stmt) &&
-				dynamic_cast<IGraphBlockStmt *>(stmt)->getStmtType() == IGraphBlockStmt::GraphStmt_Block) {
+		IActivityStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
+		if (dynamic_cast<IActivityBlockStmt *>(stmt) &&
+				dynamic_cast<IActivityBlockStmt *>(stmt)->getStmtType() == IActivityBlockStmt::ActivityStmt_Block) {
 			select->add(stmt);
 		} else {
-			IGraphBlockStmt *stmt_b = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+			IActivityBlockStmt *stmt_b = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Block);
 			if (stmt) {
 				stmt_b->add(stmt);
 			} else {
@@ -300,13 +316,13 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_sele
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_schedule_stmt(PSSParser::Activity_schedule_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 
 	enter("visitActivity_schedule_stmt");
-	IGraphBlockStmt *schedule = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Schedule);
+	IActivityBlockStmt *schedule = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Schedule);
 
 	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
-		IGraphStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
+		IActivityStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
 		schedule->add(stmt);
 	}
 
@@ -318,20 +334,20 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_schedule_stmt(PSSParser::Activity_sc
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_foreach_stmt(PSSParser::Activity_foreach_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 	enter("visitActivity_schedule_stmt");
 
 	return ret;
 }
 
 antlrcpp::Any PSS2PSIVisitor::visitActivity_sequence_block_stmt(PSSParser::Activity_sequence_block_stmtContext *ctx) {
-	IGraphStmt *ret = 0;
+	IActivityStmt *ret = 0;
 
 	enter("visitActivity_sequence_block_stmt");
 
-	IGraphBlockStmt *seq = m_factory->mkGraphBlockStmt(IGraphStmt::GraphStmt_Block);
+	IActivityBlockStmt *seq = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Block);
 	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
-		IGraphStmt *stmt = ctx->activity_stmt(i)->accept(this);
+		IActivityStmt *stmt = ctx->activity_stmt(i)->accept(this);
 		if (stmt) {
 			seq->add(stmt);
 		}
@@ -359,13 +375,13 @@ antlrcpp::Any PSS2PSIVisitor::visitSymbol_declaration(PSSParser::Symbol_declarat
 			params.push_back(p);
 		}
 	}
-	IGraphStmt *body_s = ctx->activity_stmt()->accept(this);
-	IGraphBlockStmt *body = 0;
+	IActivityStmt *body_s = ctx->activity_stmt()->accept(this);
+	IActivityBlockStmt *body = 0;
 
-	if (dynamic_cast<IGraphBlockStmt *>(body_s)) {
-		body = dynamic_cast<IGraphBlockStmt *>(body_s);
+	if (dynamic_cast<IActivityBlockStmt *>(body_s)) {
+		body = dynamic_cast<IActivityBlockStmt *>(body_s);
 	} else {
-		body = m_factory->mkGraphBlockStmt(IGraphBlockStmt::GraphStmt_Block);
+		body = m_factory->mkActivityBlockStmt(IActivityBlockStmt::ActivityStmt_Block);
 		body->add(body_s);
 	}
 	ISymbol *sym = m_factory->mkSymbol(
@@ -868,7 +884,12 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 	enter("visitConstraint_declaration");
 
 	if (ctx->single_stmt_constraint()) {
-		constraints.push_back(ctx->single_stmt_constraint()->accept(this));
+		IConstraint *c = ctx->single_stmt_constraint()->accept(this);
+		if (c) {
+			constraints.push_back(c);
+		} else {
+			fprintf(stdout, "Error: null constraint in single constraint\n");
+		}
 	} else {
 		is_dynamic = (ctx->is_dynamic != 0);
 
@@ -882,7 +903,7 @@ antlrcpp::Any PSS2PSIVisitor::visitConstraint_declaration(PSSParser::Constraint_
 			if (c) {
 				constraints.push_back(c);
 			} else {
-				error("null constraint");
+				error("null constraint in %s", name.c_str());
 			}
 		}
 	}
@@ -899,6 +920,12 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression_constraint_item(PSSParser::Express
 	enter("visitExpression_constraint_item");
 
 	IExpr *expr = ctx->expression()->accept(this);
+
+	if (!expr) {
+		fprintf(stdout, "Error: null constraint expression: %s\n",
+				ctx->expression()->getText().c_str());
+		return ret;
+	}
 
 	if (ctx->implicand_constraint_item()) {
 		ret = m_factory->mkConstraintImplies(expr,
@@ -968,7 +995,11 @@ antlrcpp::Any PSS2PSIVisitor::visitForeach_constraint_item(PSSParser::Foreach_co
 		body = dynamic_cast<IConstraintBlock *>(cs);
 	} else {
 		std::vector<IConstraint *> c;
-		c.push_back(cs);
+		if (cs) {
+			c.push_back(cs);
+		} else {
+			fprintf(stdout, "Error: null constraint in foreach");
+		}
 		body = m_factory->mkConstraintBlock("", c);
 	}
 
@@ -1162,7 +1193,12 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 				ctx->rhs->accept(this));
 	} else if (ctx->primary()) {
 		ret = ctx->primary()->accept(this);
+	} else if (ctx->inside_expr_term()) {
+		IExpr *lhs = ctx->lhs->accept(this);
+		IOpenRangeList *rhs = ctx->inside_expr_term()->open_range_list()->accept(this);
+		ret = m_factory->mkInExpr(lhs, rhs);
 	} else {
+		todo("unknown expression %s\n", ctx->getText().c_str());
 		enter("unknown %s\n", ctx->getText().c_str());
 		/* ret = */ visitChildren(ctx);
 		leave("unknown");

@@ -26,15 +26,18 @@ TEST(z3_model,smoke) {
 		component top {
 			action entry {
 				rand bit[16]	a, b, c, d, e, f;
-				rand string		s1, s2, s3;
+				rand bit[4]		s1, s2, s3;
 
 				constraint c {
 					a < 4;
 					a > 0;
-					b == 7;
-					s1 == "abc";
-					s2 == "def";
-					s3 == "ghi";
+					if (a==1) {
+						b==1;
+					}
+					if (a!=1) {
+						b==2;
+					}
+//					(b==1 || b==2 || b==4 || b==8);
 				}
 			}
 		}

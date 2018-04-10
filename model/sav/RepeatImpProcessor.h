@@ -24,7 +24,7 @@ public:
 
 	virtual void visit_action(IAction *a);
 
-	virtual void visit_graph_repeat_stmt(IGraphRepeatStmt *repeat);
+	virtual void visit_activity_repeat_stmt(IActivityRepeatStmt *repeat);
 
 
 private:

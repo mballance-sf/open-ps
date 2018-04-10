@@ -22,15 +22,15 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_ACTIVITY_TRAVSERSE_STMT_H
-#define INCLUDED_ACTIVITY_TRAVSERSE_STMT_H
+#pragma once
+#include "BaseItemImpl.h"
 #include "IActivityTraverseStmt.h"
 
 using namespace psi_api;
 
 namespace psi {
 
-class ActivityTraverseStmtImpl: public IActivityTraverseStmt {
+class ActivityTraverseStmtImpl: public virtual BaseItemImpl, public virtual IActivityTraverseStmt {
 public:
 	ActivityTraverseStmtImpl(
 			IVariableRef	*action,
@@ -38,8 +38,8 @@ public:
 
 	virtual ~ActivityTraverseStmtImpl();
 
-	virtual GraphStmtType getStmtType() const {
-		return GraphStmt_Traverse;
+	virtual ActivityStmtType getStmtType() const {
+		return ActivityStmt_Traverse;
 	}
 
 	virtual IVariableRef *getAction() const {
@@ -50,7 +50,7 @@ public:
 		return m_constraint;
 	}
 
-	virtual IGraphStmt *clone() const;
+	virtual IActivityStmt *clone() const;
 
 private:
 
@@ -61,4 +61,3 @@ private:
 
 } /* namespace psi */
 
-#endif /* INCLUDED_ACTIVITY_TRAVSERSE_STMT_H */

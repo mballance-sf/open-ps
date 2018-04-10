@@ -5,7 +5,6 @@
  * All Rights Reserved Worldwide
  *
  * Licensed under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in
  *  compliance with the License.  You may obtain a copy of
  *  the License at
  *
@@ -29,6 +28,7 @@
 #include <stdint.h>
 #include "IAction.h"
 #include "IBinaryExpr.h"
+#include "IInExpr.h"
 #include "IBind.h"
 #include "IBindPath.h"
 #include "IComponent.h"
@@ -46,10 +46,11 @@
 #include "IExtend.h"
 #include "IExtendComposite.h"
 #include "IExtendEnum.h"
-#include "IGraphBlockStmt.h"
+#include "IActivityBlockStmt.h"
 #include "IActivityDoActionStmt.h"
+#include "IActivityIfElseStmt.h"
 #include "IActivityTraverseStmt.h"
-#include "IGraphRepeatStmt.h"
+#include "IActivityRepeatStmt.h"
 #include "ILiteral.h"
 #include "IArrayType.h"
 #include "IScalarType.h"
@@ -153,7 +154,7 @@ public:
 	virtual ISymbol *mkSymbol(
 			const std::string			&name,
 			const std::vector<IField *>	&params,
-			IGraphBlockStmt				*body) = 0;
+			IActivityBlockStmt				*body) = 0;
 
 	virtual IExtendComposite *mkExtendComposite(
 			IExtend::ExtendType		type,
@@ -183,6 +184,10 @@ public:
 			IBinaryExpr::BinOpType	op,
 			IExpr 					*rhs) = 0;
 
+	virtual IInExpr *mkInExpr(
+			IExpr					*lhs,
+			IOpenRangeList			*rhs) = 0;
+
 	virtual IOpenRangeValue *mkOpenRangeValue(
 			IExpr					*lhs,
 			IExpr					*rhs,
@@ -204,10 +209,10 @@ public:
 	 * Creates a new block statement. parallel, schedule, pss_select, and
 	 * Block statements are all, fundamentally, block statements.
 	 * The value of the 'type' parameter can be
-	 * GraphStmt_Block, GraphStmt_Parallel, GraphStmt_Schedule, or GraphStmt_Select
+	 * ActivityStmt_Block, ActivityStmt_Parallel, ActivityStmt_Schedule, or ActivityStmt_Select
 	 */
-	virtual IGraphBlockStmt *mkGraphBlockStmt(
-			IGraphStmt::GraphStmtType type=IGraphStmt::GraphStmt_Block) = 0;
+	virtual IActivityBlockStmt *mkActivityBlockStmt(
+			IActivityStmt::ActivityStmtType type=IActivityStmt::ActivityStmt_Block) = 0;
 
 	virtual IActivityTraverseStmt *mkActivityTraverseStmt(
 			IVariableRef 	*action,
@@ -216,9 +221,14 @@ public:
 	virtual IActivityDoActionStmt *mkActivityDoActionStmt(
 			IBaseItem *type, IConstraintBlock *with_c) = 0;
 
-	virtual IGraphRepeatStmt *mkGraphRepeatStmt(
-			IGraphRepeatStmt::RepeatType type,
-			IExpr *expr, IGraphStmt *body) = 0;
+	virtual IActivityIfElseStmt *mkActivityIfElseStmt(
+			IExpr			*cond,
+			IActivityStmt	*true_stmt,
+			IActivityStmt	*false_stmt) = 0;
+
+	virtual IActivityRepeatStmt *mkActivityRepeatStmt(
+			IActivityRepeatStmt::RepeatType type,
+			IExpr *expr, IActivityStmt *body) = 0;
 
 	virtual ILiteral *mkIntLiteral(int64_t v) = 0;
 

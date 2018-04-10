@@ -65,15 +65,10 @@ unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
 		$(PROCESSOR_DEPS) \
 		$(MODEL_DEPS) \
 		gtest-all.o gtest_main.o
-	$(Q)$(CXX) -o $@ \
-		$(PARSER_TESTS_SRC:.cpp=.o) \
-		$(PROCESSOR_LINK) \
-		$(MODEL_LINK) \
-		gtest-all.o gtest_main.o \
-		$(Z3_LINK) $(PSS_PARSER_LINK) $(ANTLR4_LINK) -lpthread
+	$(Q)$(LINK_EXE) -lpthread
 
 clean :
-	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*.a
+	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*$(DLIBEXT)
 	
 clean-all :
 	rm -rf $(BUILD_DIR)

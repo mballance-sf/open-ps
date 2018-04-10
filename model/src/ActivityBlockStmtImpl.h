@@ -24,35 +24,36 @@
 
 #ifndef IMPL_GRAPHBLOCKSTMTIMPL_H_
 #define IMPL_GRAPHBLOCKSTMTIMPL_H_
-#include "IGraphBlockStmt.h"
+#include "BaseItemImpl.h"
+#include "IActivityBlockStmt.h"
 
 using namespace psi_api;
 
 namespace psi {
 
 
-class ActivityBlockStmtImpl : public IGraphBlockStmt {
+class ActivityBlockStmtImpl : public virtual BaseItemImpl, public virtual IActivityBlockStmt {
 public:
-	ActivityBlockStmtImpl(IGraphBlockStmt::GraphStmtType type);
+	ActivityBlockStmtImpl(IActivityBlockStmt::ActivityStmtType type);
 
 	virtual ~ActivityBlockStmtImpl();
 
-	virtual GraphStmtType getStmtType() const { return m_type; }
+	virtual ActivityStmtType getStmtType() const { return m_type; }
 
-	virtual const std::vector<IGraphStmt *> &getStmts() const;
+	virtual const std::vector<IActivityStmt *> &getStmts() const;
 
-	virtual std::vector<IGraphStmt *> &getStmtsM();
+	virtual std::vector<IActivityStmt *> &getStmtsM();
 
-	virtual void add(IGraphStmt *stmt);
+	virtual void add(IActivityStmt *stmt);
 
-	void insert(std::vector<IGraphStmt *>::iterator it, IGraphStmt *stmt);
+	void insert(std::vector<IActivityStmt *>::iterator it, IActivityStmt *stmt);
 
-	virtual IGraphStmt *clone() const;
+	virtual IActivityStmt *clone() const;
 
 private:
 
-	IGraphBlockStmt::GraphStmtType				m_type;
-	std::vector<IGraphStmt *>					m_stmts;
+	IActivityBlockStmt::ActivityStmtType				m_type;
+	std::vector<IActivityStmt *>					m_stmts;
 
 };
 

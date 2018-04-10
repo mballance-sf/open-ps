@@ -431,9 +431,9 @@ activity_labeled_stmt:
 
 activity_repeat_stmt:
 	 (
-		('repeat' is_while='while' '(' expression ')' activity_sequence_block_stmt) |
-		('repeat' '(' (loop_var=identifier ':')? expression ')' activity_sequence_block_stmt) |
-		('repeat' activity_sequence_block_stmt (is_do_while='while' '(' expression ')' ';')?)
+		(is_while='while' '(' expression ')' activity_stmt) |
+		(is_repeat='repeat' '(' (loop_var=identifier ':')? expression ')' activity_stmt) |
+		(is_do_while='do' activity_stmt is_do_while='while' '(' expression ')' ';')
 		)
 ;
 

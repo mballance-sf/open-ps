@@ -19,6 +19,6 @@ endif
 else # Rules
 
 $(DLIBPREF)pss_model$(DLIBEXT) : $(MODEL_SRC:.cpp=.o)
-	$(Q)$(LINK_DLIB) $(MODEL_SRC:.cpp=.o)
+	$(Q)$(LINK_DLIB)
 
 endif

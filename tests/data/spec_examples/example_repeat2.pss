@@ -2,6 +2,9 @@
 // Example: 11.4.1.3
 
 component top {
+	action my_action1 { }
+	action my_action2 { }
+
 	action my_test {
 		
 		activity {

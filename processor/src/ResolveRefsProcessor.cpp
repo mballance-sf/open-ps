@@ -13,7 +13,7 @@
 #include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	m_debug = false;
+	m_debug = true;
 	m_phase = 0;
 }
 
@@ -91,6 +91,38 @@ void ResolveRefsProcessor::resolve_variable_ref(
 				break;
 			}
 		}
+
+		if (!resolved_ref) {
+			// Check to see if we are inside a traversal statement
+			const std::vector<IBaseItem *> &all_scope_l = scopes();
+			for (int32_t i=all_scope_l.size()-1; i>=0; i--) {
+				IBaseItem *it = all_scope_l.at(i);
+				if (dynamic_cast<IActivityTraverseStmt *>(it)) {
+					IActivityTraverseStmt *stmt = dynamic_cast<IActivityTraverseStmt *>(it);
+					IField *a_h = dynamic_cast<IField *>(stmt->getAction()->getTarget());
+					IRefType *a_h_t = dynamic_cast<IRefType *>(a_h->getDataType());
+					IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
+					if (m_debug) {
+						debug("Searching for %s in 'with' scope\n",
+								ref->getId().c_str());
+					}
+					if (a_t) {
+						resolved_ref = resolve_variable_ref(a_t, ref->getId());
+					} else {
+						fprintf(stdout, "Error: target is not an action\n");
+					}
+				} else if (dynamic_cast<IActivityDoActionStmt *>(it)) {
+					IActivityDoActionStmt *stmt = dynamic_cast<IActivityDoActionStmt *>(it);
+					IRefType *a_h_t = dynamic_cast<IRefType *>(stmt->getTargetType());
+					IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
+					resolved_ref = resolve_variable_ref(a_t, ref->getId());
+				}
+
+				if (resolved_ref) {
+					break;
+				}
+			}
+		}
 	} else {
 		resolved_ref = resolve_variable_ref(scope, ref->getId());
 	}
@@ -132,6 +164,8 @@ void ResolveRefsProcessor::resolve_variable_ref(
 		if (dynamic_cast<IRefType *>(ref_field->getDataType())) {
 			subscope = dynamic_cast<IScopeItem *>(
 					dynamic_cast<IRefType *>(ref_field->getDataType())->getTargetType());
+		} else if (dynamic_cast<IScopeItem *>(ref_field->getDataType())) {
+			subscope = dynamic_cast<IScopeItem *>(ref_field->getDataType());
 		} else if (dynamic_cast<IArrayType *>(ref_field->getDataType())) {
 			subscope = dynamic_cast<IArrayType *>(
 					dynamic_cast<IArrayType *>(ref_field->getDataType()));
