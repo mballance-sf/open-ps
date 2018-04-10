@@ -378,7 +378,9 @@ void PSIVisitor::visit_activity_parallel_block_stmt(IActivityBlockStmt *block) {
 }
 
 void PSIVisitor::visit_activity_repeat_stmt(IActivityRepeatStmt *repeat) {
+	push_scope(repeat);
 	visit_activity_stmt(repeat->getBody());
+	pop_scope();
 }
 
 void PSIVisitor::visit_activity_schedule_block_stmt(IActivityBlockStmt *block) {
