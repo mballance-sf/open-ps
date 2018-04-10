@@ -28,9 +28,6 @@ endif
 PARSER_TESTS_SRC = $(notdir $(wildcard $(TESTS_PARSER_DIR)/src/*.cpp))
 SRC_DIRS += $(TESTS_PARSER_DIR)/src
 
-CFLAGS += $(foreach dir,$(SRC_DIRS),-I$(dir))
-CXXFLAGS += $(foreach dir,$(SRC_DIRS),-I$(dir))
-CXXFLAGS += -std=c++11
 CXXFLAGS += -DTESTS_DATA_DIR='"$(TESTS_DATA_DIR)"'
 CXXFLAGS += -g
 CFLAGS += -g

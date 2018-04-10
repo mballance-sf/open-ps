@@ -63,7 +63,7 @@ antlr/$(DLIBPREF)antlr_runtime$(DLIBEXT) : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),a
 ifeq (cl,$(COMPILER))
 antlr/%.o : %.cpp
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
-	$(Q)$(CXX) -Fo$(@) $(CXXFLAGS) $^
+	$(Q)$(CXX) -c -Fo$(@) $(CXXFLAGS) $^
 else
 ifeq (true,$(VERBOSE))
 antlr/%.o : %.cpp

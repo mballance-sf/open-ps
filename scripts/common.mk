@@ -45,6 +45,7 @@ ifeq (cl,$(COMPILER))
 	CC=cl
 	CXXFLAGS += -std:c++14 -nologo -EHsc
 	LINK_EXE=link -nologo -out:$@
+	LINK_DLIB=link -nologo -dll -out:$@
 	DLIBPREF := 
 endif
 
