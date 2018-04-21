@@ -69,7 +69,13 @@ public:
 	virtual IExec *mkTargetTemplateExec(
 			IExec::ExecKind			kind,
 			const std::string		&language,
-			const std::string		&text);
+			const std::string		&text,
+			const std::vector<IExecReplacementExpr *> &replacements);
+
+	virtual IExecReplacementExpr *mkExecReplacementExpr(
+			IExpr					*expr,
+			uint32_t				offset,
+			uint32_t				length);
 
 	virtual IExec *mkInlineExec(
 			IExec::ExecKind			kind,

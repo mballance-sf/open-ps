@@ -12,13 +12,20 @@
 #include <typeinfo>
 #include <stdarg.h>
 #include "VariableRefImpl.h"
+#include "ExprLexer.h"
+#include "ExprParser.h"
+#include "Expr2PSIVisitor.h"
+#include <cstdio>
+#include <sstream>
+#include <iostream>
 
 using namespace antlrcpp;
+using namespace antlr4;
 
 
 PSS2PSIVisitor::PSS2PSIVisitor(IModel *model, const std::string &path) :
 		m_model(model), m_factory(model->getItemFactory()), m_file(path) {
-	m_debug = false;
+	m_debug = true;
 }
 
 PSS2PSIVisitor::~PSS2PSIVisitor() {
@@ -1520,6 +1527,7 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 	enter("visitTarget_code_exec_block");
 
 	std::string kind_s = ctx->exec_kind_identifier()->getText();
+	std::vector<IExecReplacementExpr *> replacements;
 
 	IExec::ExecKind kind;
 
@@ -1535,10 +1543,67 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 		error("unknown exec kind \"%s\"", kind_s.c_str());
 	}
 
+	const std::string &templ = ctx->string()->getText();
+	fprintf(stdout, "template=%s\n", templ.c_str());
+
+	// Identify all the positions in the target-template
+	// string that are template substituions
+	// Save these in an offsets list to be used later
+	// in compusing the replace-expression list
+	uint32_t i=0;
+	while (i<templ.size()) {
+		if (i+1 < templ.size() &&
+				templ.at(i) == '{' &&
+				templ.at(i+1) == '{') {
+			// Scan forward to the closing }}
+			uint32_t start = i;
+			i++;
+			while (i<templ.size()) {
+				if (templ.at(i) == '}' && templ.at(i-1) == '}') {
+					break;
+				} else {
+					i++;
+				}
+			}
+
+			// Valid template reference
+			if (templ.at(i) == '}' && templ.at(i-1) == '}') {
+				uint32_t end = i;
+				uint32_t len = (end-start+1);
+				std::string expr = templ.substr(start+2,
+						end-start+1-4);
+				fprintf(stdout, "expr=%s offset=%d len=%d\n",
+						expr.c_str(), start, len);
+				std::stringstream in(expr);
+				ANTLRInputStream input(in);
+				ExprLexer lexer(&input);
+				CommonTokenStream tokens(&lexer);
+				ExprParser parser(&tokens);
+
+				ExprParser::EntryContext *ctxt = parser.entry();
+
+				IBaseItem *s = dynamic_cast<IBaseItem *>(scope());
+				Expr2PSIVisitor visitor(m_factory, s);
+
+				fprintf(stdout, "--> process expression\n");
+				IExpr *target_expr = visitor.visit(ctxt);
+				fprintf(stdout, "<-- process expression\n");
+
+				replacements.push_back(m_factory->mkExecReplacementExpr(
+						target_expr, start, (end-start+1)));
+
+			} else {
+				fprintf(stdout, "bad template ref\n");
+			}
+		}
+		i++;
+	}
+
 	exec = m_factory->mkTargetTemplateExec(
 			kind,
 			ctx->language_identifier()->getText(),
-			ctx->string()->getText());
+			ctx->string()->getText(),
+			replacements);
 
 	leave("visitTarget_code_exec_block");
 

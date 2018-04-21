@@ -22,18 +22,22 @@ $next_template_var="";
 while (<$in>) {
 	my $line = $_;
 	
-	if ($line =~ /class .*{/) {
+	$next_template_var = "";
+
+	if ($line =~ /class\s*[a-zA-Z][a-zA-Z0-9_]*\s*<\s*[a-zA-Z][a-zA-Z0-9_]*\s*>.*{/) {
+		print "TODO: specialized-template class\n";
+	} elsif ($line =~ /class .*{/) {
 #		print "match class...{\n";
 		if ($prev_template_var eq "") {
 			$line =~ s/class ([a-zA-Z][a-zA-Z0-9_]*).*{/class $1 : public ${1}_impl {/g;
 		} else {
 			$line =~ s/class ([a-zA-Z][a-zA-Z0-9_]*).*{/class $1 : public ${1}_impl<$prev_template_var> {/g;
 		}
-	} elsif ($line =~ /template<class/) {
+	} elsif ($line =~ /template\s*<\s*class\s*[a-zA-Z]/) {
 		$next_template_var = $line;
 		chomp $next_template_var;
-		$next_template_var =~ s/^.*class ([a-zA-Z]).*$/$1/g;
-		print "next_template_var=$next_template_var\n";
+		$next_template_var =~ s/^.*class\s*([a-zA-Z]).*$/$1/g;
+		print "$infile: next_template_var=$next_template_var\n";
 	} elsif ($line =~ /pragma once/) {
 		$line = $line . "#include \"pss_impl.h\"\n";
 	} elsif ($line =~ /pss\/detail/) {

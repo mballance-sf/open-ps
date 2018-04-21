@@ -32,6 +32,9 @@ portable-stimulus.d : $(PORTABLE_STIMULUS_TGZ)
 	$(UNTARGZ) $^
 	$(Q)touch $@
 
+$(PORTABLE_STIMULUS_TGZ) : 
+	$(Q)echo "TODO: clone Git repository"
+	
 pss-headers.d : portable-stimulus.d
 	$(Q)rm -rf pss-headers
 	$(Q)mkdir -p pss-headers/pss

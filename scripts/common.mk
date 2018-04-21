@@ -1,5 +1,5 @@
 
-SCRIPTS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+SCRIPTS_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 OPEN_PS_DIR:=$(abspath $(SCRIPTS_DIR)/..)
 PACKAGES_DIR := $(OPEN_PS_DIR)/packages
 

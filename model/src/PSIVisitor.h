@@ -77,6 +77,8 @@ protected:
 
 	virtual void visit_exec_vendor_stmt(IExecStmt *s);
 
+	virtual void visit_target_template_replacement(IExecReplacementExpr *r);
+
 	virtual void visit_expr(IExpr *e);
 
 	virtual void visit_extend(IExtend *e);

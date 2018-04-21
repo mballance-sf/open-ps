@@ -28,5 +28,5 @@ template <class T> T *type_decl_impl<T>::get_type() {
 	return m_type;
 }
 
-template <class T> T type_decl_impl<T>::m_type = 0;
+template <class T> T *type_decl_impl<T>::m_type = 0;
 
