@@ -260,7 +260,8 @@ antlrcpp::Any Expr2PSIVisitor::visitString(ExprParser::StringContext *ctx) {
 	IExpr *ret = 0;
 
 	enter("visitString");
-	ret = m_factory->mkStringLiteral(ctx->getText());
+	const std::string &s = ctx->getText();
+	ret = m_factory->mkStringLiteral(s.substr(1, s.size()-2));
 	leave("visitString");
 
 	return ret;

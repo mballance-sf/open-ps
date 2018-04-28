@@ -15,12 +15,15 @@
 #include "PSIVisitor.h"
 #include "StringTableBuilder.h"
 #include "SolverErrorException.h"
+#include "IVarValueProvider.h"
 #include "LFSR.h"
 #include "z3.h"
 
 using namespace psi::apps;
 
-class Z3ModelProcessor: public virtual PSIVisitor {
+class Z3ModelProcessor:
+		public virtual PSIVisitor,
+		public virtual IVarValueProvider {
 public:
 
 	Z3ModelProcessor();
@@ -35,9 +38,11 @@ public:
 
 	virtual void visit_field(IField *f) override;
 
+	virtual VarVal get_value(const std::string &path);
+
 protected:
 
-	void apply_bias(const std::vector<Z3ModelVar *> &vars);
+	bool solve(const std::vector<Z3ModelVar *> &vars);
 
 	uint32_t compute_bits(IScalarType *t);
 
@@ -70,6 +75,7 @@ private:
 	StringTableBuilder						m_strtab;
 	Z3_config								m_cfg;
 	Z3_context								m_ctxt;
+	Z3_model								m_model;
 	Z3_solver								m_solver;
 	std::map<std::string, Z3ModelVar *>		m_variables;
 	std::vector<std::string>				m_prefix_v;
@@ -77,7 +83,6 @@ private:
 	bool									m_prefix_valid;
 	LFSR									m_lfsr;
 	Z3ExprTerm								m_expr;
-	Z3_ast									m_hash;
 	std::vector<Z3_ast>						m_if_else_conds;
 	uint32_t								m_expr_depth;
 

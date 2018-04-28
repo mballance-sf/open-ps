@@ -50,8 +50,8 @@ namespace psi_api {
 			TypeArray,
 			TypeBind,
 			TypeComponent,
-			TypeConstraint,
-			TypeCoverspec,	// 5
+			TypeConstraint, // 5
+			TypeCoverspec,
 			TypeField,
 			TypeImport,
 			TypeEnum,

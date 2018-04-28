@@ -9,10 +9,17 @@
 #include <limits.h>
 
 
-Z3ModelProcessor::Z3ModelProcessor() : m_cfg(0), m_ctxt(0), m_hash(0) {
+Z3ModelProcessor::Z3ModelProcessor() : m_cfg(0), m_ctxt(0) {
 	m_prefix_valid = false;
 	m_expr_depth = 0;
+	m_solver = 0;
+	m_ctxt = 0;
 
+//	m_lfsr.seed(0);
+//	m_lfsr.next();
+//	m_lfsr.next();
+//	m_lfsr.next();
+//	m_lfsr.next();
 }
 
 Z3ModelProcessor::~Z3ModelProcessor() {
@@ -32,10 +39,6 @@ bool Z3ModelProcessor::build(IComponent *comp, IAction *action) {
 	m_solver = Z3_mk_solver(m_ctxt);
 	Z3_solver_inc_ref(m_ctxt, m_solver);
 
-	m_hash = Z3_mk_const(m_ctxt,
-			Z3_mk_string_symbol(m_ctxt, "__hash"),
-			Z3_mk_bv_sort(m_ctxt, 4));
-
 	push_prefix(action->getName());
 	visit_action(action);
 	pop_prefix();
@@ -45,55 +48,6 @@ bool Z3ModelProcessor::build(IComponent *comp, IAction *action) {
 			it!=m_variables.end(); it++) {
 		vars.push_back(it->second);
 	}
-
-//	for (uint32_t i=1; i<vars.size(); i++) {
-//		Z3_solver_assert(m_ctxt,
-//				m_solver,
-//				Z3_mk_bvult(m_ctxt,
-//						vars.at(i-1)->var(),
-//						vars.at(i)->var())
-//		);
-//	}
-
-//	Z3_lbool result = Z3_solver_check(m_ctxt, m_solver);
-//	if (result == Z3_L_FALSE) {
-//		fprintf(stdout, "Result: unsat\n");
-//	} else if (result == Z3_L_UNDEF) {
-//		fprintf(stdout, "Result: unknown\n");
-//	} else if (result == Z3_L_TRUE) {
-//		fprintf(stdout, "Result: sat\n");
-//	}
-//	Z3_model m = Z3_solver_get_model(m_ctxt, m_solver);
-//	if (m) {
-////		Z3_model_eval(m_ctxt, m, t, true, v)
-//		Z3_model_inc_ref(m_ctxt, m);
-//		fprintf(stdout, "  Model:\n%s\n", Z3_model_to_string(m_ctxt, m));
-//		for (uint32_t i=0; i<m_variables.size(); i++) {
-//			Z3_ast v;
-//			Z3_model_eval(m_ctxt, m,
-//					m_variables.at(i),
-//					true, &v);
-//			fprintf(stdout, "Result kind: %d\n", Z3_get_ast_kind(m_ctxt, v));
-//			fprintf(stdout, "  Value: %s\n",
-//					Z3_get_numeral_string(m_ctxt, v));
-//		}
-
-//		for (uint32_t i=0; i<Z3_model_get_num_consts(m_ctxt, m); i++) {
-//			Z3_func_decl cnst = Z3_model_get_const_decl(m_ctxt, m, i);
-//			Z3_symbol name = Z3_get_decl_name(m_ctxt, cnst);
-//			fprintf(stdout, "Symbol: %s\n",
-//					Z3_get_symbol_string(m_ctxt, name));
-//
-//		}
-//		for (std::vector<Z3_ast>::const_iterator it=m_variables.begin();
-//				it!=m_variables.end(); it++) {
-//			Z3_symbol name = Z3_get_decl_name(m_ctxt, (Z3_func_decl)*it);
-//			fprintf(stdout, "Symbol: %s\n",
-//					Z3_get_symbol_string(m_ctxt, name));
-//		}
-//		Z3_model_dec_ref(m_ctxt, m);
-//	}
-//	Z3_solver_dec_ref(m_ctxt, m_solver);
 
 	return true;
 }
@@ -107,7 +61,6 @@ bool Z3ModelProcessor::run() {
 		return false;
 	}
 
-
 	std::vector<Z3ModelVar *> vars;
 	for (std::map<std::string,Z3ModelVar *>::iterator it=m_variables.begin();
 			it!=m_variables.end(); it++) {
@@ -115,25 +68,43 @@ bool Z3ModelProcessor::run() {
 		vars.push_back(it->second);
 	}
 
-	apply_bias(vars);
+	for (uint32_t i=0; i<vars.size(); i++) {
+		fprintf(stdout, "--> solve %d\n", i);
+		solve(vars);
+		fprintf(stdout, "<-- solve %d\n", i);
 
-	Z3_model m = Z3_solver_get_model(m_ctxt, m_solver);
-	if (m) {
-//		Z3_model_eval(m_ctxt, m, t, true, v)
-		Z3_model_inc_ref(m_ctxt, m);
-//		fprintf(stdout, "  Model:\n%s\n", Z3_model_to_string(m_ctxt, m));
+		m_model = Z3_solver_get_model(m_ctxt, m_solver);
+		if (m_model) {
+			Z3_model_inc_ref(m_ctxt, m_model);
 
-		for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
-				it!=m_variables.end(); it++) {
-			Z3ModelVar *v = it->second;
-			fprintf(stdout, "%s: 0x%08llx\n",
-					v->name().c_str(), v->get_val(m_ctxt, m));
+			for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
+					it!=m_variables.end(); it++) {
+				Z3ModelVar *v = it->second;
+				VarVal val = v->get_val(m_ctxt, m_model);
+				switch (val.type) {
+				case VarVal_Int:
+					fprintf(stdout, "%s: %d\n", v->name().c_str(), val.si);
+					break;
+				case VarVal_Uint:
+					fprintf(stdout, "%s: 0x%08x\n", v->name().c_str(), val.ui);
+					break;
+				case VarVal_Bool:
+					fprintf(stdout, "%s: %s\n", v->name().c_str(),
+							(val.b)?"true":"false");
+					break;
+				case VarVal_String:
+					fprintf(stdout, "%s: %s\n", v->name().c_str(),
+							m_strtab.id2str(val.ui).c_str());
+					break;
+				}
+			}
 		}
-		Z3_model_dec_ref(m_ctxt, m);
-	}
 
-	// apply_bias pushes a context
-	Z3_solver_pop(m_ctxt, m_solver, 1);
+		uint32_t val = vars.at(i)->get_val(m_ctxt, m_model).ui;
+		fprintf(stdout, "Fix %d to %lld\n", i, val);
+		vars.at(i)->set_val(val);
+		Z3_model_dec_ref(m_ctxt, m_model);
+	}
 
 	return true;
 }
@@ -145,15 +116,22 @@ void Z3ModelProcessor::visit_field(IField *f) {
 		std::string id = prefix() + "." + f->getName();
 		uint32_t bits = compute_bits(
 				dynamic_cast<IScalarType *>(f->getDataType()));
-		bool is_signed = compute_sign(
-				dynamic_cast<IScalarType *>(f->getDataType()));
+		VarValType type;
+		IScalarType *st = dynamic_cast<IScalarType *>(f->getDataType());
+
+		switch (st->getScalarType()) {
+		case IScalarType::ScalarType_Bit: type = VarVal_Uint; break;
+		case IScalarType::ScalarType_Int: type = VarVal_Int; break;
+		case IScalarType::ScalarType_Bool: type = VarVal_Bool; break;
+		case IScalarType::ScalarType_String: type = VarVal_String; break;
+		}
 
 		fprintf(stdout, "Note: scalar variable %s\n", id.c_str());
 
 		Z3_ast var = Z3_mk_const(m_ctxt,
 				Z3_mk_string_symbol(m_ctxt, id.c_str()),
 				Z3_mk_bv_sort(m_ctxt, bits));
-		m_variables[id] = new Z3ModelVar(id, var, bits, is_signed);
+		m_variables[id] = new Z3ModelVar(id, var, bits, type);
 
 	} else if (f->getDataType()->getType() == IBaseItem::TypeArray) {
 
@@ -171,60 +149,119 @@ void Z3ModelProcessor::visit_field(IField *f) {
 			fprintf(stdout, "Error: unknown composite type\n");
 		}
 		pop_prefix();
+	} else if (f->getDataType()->getType() == IBaseItem::TypeComponent) {
+		if (dynamic_cast<IAction *>(f->getParent())) {
+			// Ignore component-type fields in action, since this
+			// is 'comp'
+		} else {
+			fprintf(stdout, "TODO: determine whether component-type field should be ignored\n");
+		}
 	} else {
 		// composite data type?
-		fprintf(stdout, "Error: unknown data type\n");
+		fprintf(stdout, "Error: unknown data type %d\n",
+				f->getDataType()->getType());
 	}
 }
 
-void Z3ModelProcessor::apply_bias(const std::vector<Z3ModelVar *> &vars) {
-	Z3_lbool result;
+VarVal Z3ModelProcessor::get_value(const std::string &path) {
+	std::map<std::string, Z3ModelVar *>::iterator it =
+			m_variables.find(path);
+	VarVal ret;
+
+	if (it != m_variables.end()) {
+		Z3ModelVar *var = it->second;
+		// The return is always the integer value
+		ret = var->get_val(m_ctxt, m_model);
+
+		if (ret.type == VarVal_String) {
+			ret.s = m_strtab.id2str(ret.ui);
+		}
+	} else {
+		fprintf(stdout, "Error: no variable named %s\n", path.c_str());
+	}
+
+	return ret;
+}
+
+bool Z3ModelProcessor::solve(const std::vector<Z3ModelVar *> &vars) {
+	// First, remove all backtracking scopes
+	Z3_solver_pop(m_ctxt, m_solver,
+			Z3_solver_get_num_scopes(m_ctxt, m_solver));
+
+	Z3_lbool result = Z3_solver_check(m_ctxt, m_solver);
+	if (result != Z3_L_TRUE) {
+		return false;
+	};
+
+	// Push a scope into which fixed values go
+	Z3_solver_push(m_ctxt, m_solver);
+
+	// First, add values for all fixed fields
+	for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
+			it!=vars.end(); it++) {
+		if ((*it)->fixed()) {
+			// TODO: need to deal with sign
+			Z3_ast eq = Z3_mk_eq(m_ctxt, (*it)->var(),
+					Z3_mk_int(m_ctxt,
+							(*it)->get_val(0, 0).ui, // already know we have a value
+							Z3_mk_bv_sort(m_ctxt, (*it)->bits())));
+			Z3_solver_assert(m_ctxt, m_solver, eq);
+		}
+		(*it)->invalidate(); // Ensure we query the value from the model
+	}
 
 	for (uint32_t i=0; i<100; i++) {
 		Z3_solver_push(m_ctxt, m_solver);
 
-//		uint32_t n_vars = (vars.size()*30)/100;
-		uint32_t n_vars = vars.size();
-		if (n_vars < 1) {
-			n_vars = 1;
-		}
-
-		std::vector<Z3ModelVar *> vars_t(vars);
 		Z3_ast term = 0;
 
-		for (uint32_t j=0; j<n_vars; j++) {
-			uint32_t var_idx = 0; // (m_lfsr.value() % vars_t.size());
-			uint64_t coeff = m_lfsr.next();
-//			fprintf(stdout, "Force idx %d (%s) %llx\n",
-//					var_idx, vars_t.at(var_idx)->name().c_str(), coeff);
-			Z3ModelVar *var = vars_t.at(var_idx);
-			Z3_ast var_ast = var->var();
-			if (var->bits() < 64) {
-				if (var->is_signed()) {
-					var_ast = Z3_mk_sign_ext(m_ctxt, (64-var->bits()), var_ast);
+		uint32_t total_bits = 0;
+
+		for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
+				it!=vars.end(); it++) {
+			if (!(*it)->fixed()) {
+				uint64_t coeff = m_lfsr.next();
+
+				Z3_ast var_ast = (*it)->var();
+				total_bits += (*it)->bits();
+				if ((*it)->bits() < 64) {
+					if ((*it)->is_signed()) {
+						var_ast = Z3_mk_sign_ext(m_ctxt, (64-(*it)->bits()), var_ast);
+					} else {
+						var_ast = Z3_mk_zero_ext(m_ctxt, (64-(*it)->bits()), var_ast);
+					}
+				}
+
+				Z3_ast this_t = Z3_mk_bvmul(m_ctxt, var_ast,
+						Z3_mk_unsigned_int64(m_ctxt, coeff,
+								Z3_mk_bv_sort(m_ctxt, 64)));
+				if (term) {
+					term = Z3_mk_bvadd(m_ctxt, term, this_t);
 				} else {
-					var_ast = Z3_mk_zero_ext(m_ctxt, (64-var->bits()), var_ast);
+					term = this_t;
 				}
 			}
-			vars_t.erase(vars_t.begin()+var_idx);
-			Z3_ast this_t = Z3_mk_bvmul(m_ctxt, var_ast,
-					Z3_mk_unsigned_int64(m_ctxt, coeff,
-							Z3_mk_bv_sort(m_ctxt, 64)));
-			if (term) {
-				term = Z3_mk_bvadd(m_ctxt, term, this_t);
-			} else {
-				term = this_t;
-			}
+		}
+
+		if (total_bits == 0) {
+			fprintf(stdout, "Error: no random variables\n");
 		}
 
 		uint32_t hash_bits = 20;
-		Z3_ast sum = Z3_mk_extract(m_ctxt, (hash_bits-1), 0, term);
-		uint64_t hash = m_lfsr.next();
+
+		if (total_bits < hash_bits) {
+			hash_bits = total_bits;
+		}
+
+		if (term) {
+			Z3_ast sum = Z3_mk_extract(m_ctxt, (hash_bits-1), 0, term);
+			uint64_t hash = m_lfsr.next();
 //		fprintf(stdout, "Hash[7:0]=0x%08x\n", (uint32_t)(hash & ((1 << hash_bits)-1)));
-		Z3_ast eq = Z3_mk_eq(m_ctxt, sum,
+			Z3_ast eq = Z3_mk_eq(m_ctxt, sum,
 				Z3_mk_unsigned_int64(m_ctxt, hash, Z3_mk_bv_sort(m_ctxt, hash_bits)));
 
-		Z3_solver_assert(m_ctxt, m_solver, eq);
+			Z3_solver_assert(m_ctxt, m_solver, eq);
+		}
 
 		result = Z3_solver_check(m_ctxt, m_solver);
 		if (result == Z3_L_TRUE) {
@@ -237,7 +274,10 @@ void Z3ModelProcessor::apply_bias(const std::vector<Z3ModelVar *> &vars) {
 
 	if (result != Z3_L_TRUE) {
 		fprintf(stdout, "Failed to apply bias\n");
+		return false;
 	}
+
+	return true;
 }
 
 uint32_t Z3ModelProcessor::compute_bits(IScalarType *t) {
