@@ -14,6 +14,8 @@ Z3ModelProcessor::Z3ModelProcessor() : m_cfg(0), m_ctxt(0) {
 	m_expr_depth = 0;
 	m_solver = 0;
 	m_ctxt = 0;
+	m_exec_listener = 0;
+	m_model = 0;
 
 //	m_lfsr.seed(0);
 //	m_lfsr.next();
@@ -27,6 +29,8 @@ Z3ModelProcessor::~Z3ModelProcessor() {
 }
 
 bool Z3ModelProcessor::build(IComponent *comp, IAction *action) {
+	m_root_comp   = comp;
+	m_root_action = action;
 
 	m_strtab.build(comp);
 	m_strtab.build(action);
@@ -61,52 +65,60 @@ bool Z3ModelProcessor::run() {
 		return false;
 	}
 
-	std::vector<Z3ModelVar *> vars;
-	for (std::map<std::string,Z3ModelVar *>::iterator it=m_variables.begin();
-			it!=m_variables.end(); it++) {
-		it->second->reset();
-		vars.push_back(it->second);
-	}
+	exec_action(
+			m_root_action->getName(),
+			m_root_action);
 
-	for (uint32_t i=0; i<vars.size(); i++) {
-		fprintf(stdout, "--> solve %d\n", i);
-		solve(vars);
-		fprintf(stdout, "<-- solve %d\n", i);
-
-		m_model = Z3_solver_get_model(m_ctxt, m_solver);
-		if (m_model) {
-			Z3_model_inc_ref(m_ctxt, m_model);
-
-			for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
-					it!=m_variables.end(); it++) {
-				Z3ModelVar *v = it->second;
-				VarVal val = v->get_val(m_ctxt, m_model);
-				switch (val.type) {
-				case VarVal_Int:
-					fprintf(stdout, "%s: %d\n", v->name().c_str(), val.si);
-					break;
-				case VarVal_Uint:
-					fprintf(stdout, "%s: 0x%08x\n", v->name().c_str(), val.ui);
-					break;
-				case VarVal_Bool:
-					fprintf(stdout, "%s: %s\n", v->name().c_str(),
-							(val.b)?"true":"false");
-					break;
-				case VarVal_String:
-					fprintf(stdout, "%s: %s\n", v->name().c_str(),
-							m_strtab.id2str(val.ui).c_str());
-					break;
-				}
-			}
-		}
-
-		uint32_t val = vars.at(i)->get_val(m_ctxt, m_model).ui;
-		fprintf(stdout, "Fix %d to %lld\n", i, val);
-		vars.at(i)->set_val(val);
-		Z3_model_dec_ref(m_ctxt, m_model);
-	}
+//	std::vector<Z3ModelVar *> vars;
+//	for (std::map<std::string,Z3ModelVar *>::iterator it=m_variables.begin();
+//			it!=m_variables.end(); it++) {
+//		it->second->reset();
+//		vars.push_back(it->second);
+//	}
+//
+//	for (uint32_t i=0; i<vars.size(); i++) {
+//		fprintf(stdout, "--> solve %d\n", i);
+//		solve(vars);
+//		fprintf(stdout, "<-- solve %d\n", i);
+//
+////		m_model = Z3_solver_get_model(m_ctxt, m_solver);
+////		if (m_model) {
+////			Z3_model_inc_ref(m_ctxt, m_model);
+////
+////			for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
+////					it!=m_variables.end(); it++) {
+////				Z3ModelVar *v = it->second;
+////				VarVal val = v->get_val(m_ctxt, m_model);
+////				switch (val.type) {
+////				case VarVal_Int:
+////					fprintf(stdout, "%s: %d\n", v->name().c_str(), val.si);
+////					break;
+////				case VarVal_Uint:
+////					fprintf(stdout, "%s: 0x%08x\n", v->name().c_str(), val.ui);
+////					break;
+////				case VarVal_Bool:
+////					fprintf(stdout, "%s: %s\n", v->name().c_str(),
+////							(val.b)?"true":"false");
+////					break;
+////				case VarVal_String:
+////					fprintf(stdout, "%s: %s\n", v->name().c_str(),
+////							m_strtab.id2str(val.ui).c_str());
+////					break;
+////				}
+////			}
+////		}
+////
+////		uint32_t val = vars.at(i)->get_val(m_ctxt, m_model).ui;
+////		fprintf(stdout, "Fix %d to %lld\n", i, val);
+////		vars.at(i)->set_val(val);
+////		Z3_model_dec_ref(m_ctxt, m_model);
+//	}
 
 	return true;
+}
+
+void Z3ModelProcessor::set_exec_listener(IExecListener *l) {
+	m_exec_listener = l;
 }
 
 void Z3ModelProcessor::visit_field(IField *f) {
@@ -184,6 +196,11 @@ VarVal Z3ModelProcessor::get_value(const std::string &path) {
 }
 
 bool Z3ModelProcessor::solve(const std::vector<Z3ModelVar *> &vars) {
+
+	if (m_model) {
+		Z3_model_dec_ref(m_ctxt, m_model);
+		m_model = 0;
+	}
 	// First, remove all backtracking scopes
 	Z3_solver_pop(m_ctxt, m_solver,
 			Z3_solver_get_num_scopes(m_ctxt, m_solver));
@@ -197,17 +214,18 @@ bool Z3ModelProcessor::solve(const std::vector<Z3ModelVar *> &vars) {
 	Z3_solver_push(m_ctxt, m_solver);
 
 	// First, add values for all fixed fields
-	for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
-			it!=vars.end(); it++) {
-		if ((*it)->fixed()) {
+	for (std::map<std::string,Z3ModelVar *>::iterator it=m_variables.begin();
+			it!=m_variables.end(); it++) {
+		if (it->second->fixed()) {
 			// TODO: need to deal with sign
-			Z3_ast eq = Z3_mk_eq(m_ctxt, (*it)->var(),
+			Z3ModelVar *var = it->second;
+			Z3_ast eq = Z3_mk_eq(m_ctxt, var->var(),
 					Z3_mk_int(m_ctxt,
-							(*it)->get_val(0, 0).ui, // already know we have a value
-							Z3_mk_bv_sort(m_ctxt, (*it)->bits())));
+							var->get_val(0, 0).ui, // already know we have a value
+							Z3_mk_bv_sort(m_ctxt, var->bits())));
 			Z3_solver_assert(m_ctxt, m_solver, eq);
 		}
-		(*it)->invalidate(); // Ensure we query the value from the model
+		it->second->invalidate(); // Ensure we query the value from the model
 	}
 
 	for (uint32_t i=0; i<100; i++) {
@@ -276,6 +294,10 @@ bool Z3ModelProcessor::solve(const std::vector<Z3ModelVar *> &vars) {
 		fprintf(stdout, "Failed to apply bias\n");
 		return false;
 	}
+
+	// Get a model of the system for later use
+	m_model = Z3_solver_get_model(m_ctxt, m_solver);
+	Z3_model_inc_ref(m_ctxt, m_model);
 
 	return true;
 }
@@ -784,6 +806,182 @@ void Z3ModelProcessor::compute_domain(Z3ModelVar &var) {
 	} else {
 
 	}
+}
+
+void Z3ModelProcessor::exec_action(
+		const std::string		&context,
+		IAction 				*action) {
+	std::vector<Z3ModelVar *> reset_vars;
+	std::vector<Z3ModelVar *> rand_vars;
+	IExec *pre_solve=0;
+	IExec *post_solve=0;
+	IExec *body=0;
+
+	fprintf(stdout, "--> exec_action %s\n", context.c_str());
+
+	for (std::vector<IBaseItem *>::const_iterator it=action->getItems().begin();
+			it!=action->getItems().end(); it++) {
+		if ((*it)->getType() == IBaseItem::TypeExec) {
+			IExec *exec = dynamic_cast<IExec *>(*it);
+			switch (exec->getExecKind()) {
+			case IExec::Body: body = exec; break;
+			case IExec::PreSolve: pre_solve = exec; break;
+			case IExec::PostSolve: post_solve = exec; break;
+			default:
+				fprintf(stdout, "TODO: unsupported exec kind %d\n", exec->getExecKind());
+				break;
+			}
+		}
+	}
+
+	if (pre_solve) {
+		fprintf(stdout, "TODO: support pre-solve exec\n");
+	}
+
+	collect_variables(reset_vars, context, action);
+
+	// Collect variables that will be randomized in this action
+	collect_rand_variables(rand_vars, context, action);
+
+	// Reset all context actions
+	for (std::vector<Z3ModelVar *>::const_iterator it=reset_vars.begin();
+			it!=reset_vars.end(); it++) {
+		(*it)->reset();
+	}
+
+	// Solve for the random variables
+	if (rand_vars.size() > 0) {
+		if (!solve(rand_vars)) {
+			fprintf(stdout, "Error: solve failed\n");
+		}
+		// Now, lock down the values of the random variables
+		for (std::vector<Z3ModelVar *>::const_iterator it=rand_vars.begin();
+				it!=rand_vars.end(); it++) {
+			const VarVal &val = (*it)->get_val(m_ctxt, m_model);
+			fprintf(stdout, "%s = %lld\n",
+					(*it)->name().c_str(),
+					val.ui);
+			(*it)->set_val(val.ui);
+		}
+	}
+
+	if (post_solve) {
+		fprintf(stdout, "TODO: support post-solve exec\n");
+	}
+
+	if (body) {
+		if (m_exec_listener) {
+			m_exec_listener->exec(context, body);
+		} else {
+			fprintf(stdout, "Warning: no exec listener\n");
+		}
+	} else if (action->getGraph()) {
+		exec_activity_stmt(context, action->getGraph());
+	} else {
+		fprintf(stdout, "Note: this is a boring action with no exec and no activity\n");
+	}
+
+	fprintf(stdout, "<-- exec_action\n");
+}
+
+void Z3ModelProcessor::collect_variables(
+		std::vector<Z3ModelVar *>		&vars,
+		const std::string				&context,
+		IAction							*action) {
+	for (uint32_t i=0; i<action->getItems().size(); i++) {
+		IBaseItem *item = action->getItems().at(i);
+
+		if (dynamic_cast<IField *>(item)) {
+			IField *field = dynamic_cast<IField *>(item);
+
+			if (dynamic_cast<IScalarType *>(field->getDataType())) {
+				// scalar field
+				std::string varname = context;
+				varname.append(".");
+				varname.append(field->getName());
+			} else {
+				// composite or user-defined field
+
+			}
+		}
+	}
+}
+
+// In this case, we only collect variables that will
+// be randomized at the beginning of this action
+void Z3ModelProcessor::collect_rand_variables(
+		std::vector<Z3ModelVar *>		&vars,
+		const std::string				&context,
+		IAction							*action) {
+	for (uint32_t i=0; i<action->getItems().size(); i++) {
+		IBaseItem *item = action->getItems().at(i);
+
+		if (dynamic_cast<IField *>(item)) {
+			IField *field = dynamic_cast<IField *>(item);
+
+			if (dynamic_cast<IScalarType *>(field->getDataType())) {
+				// scalar field
+				std::string varname = context;
+				varname.append(".");
+				varname.append(field->getName());
+				std::map<std::string,Z3ModelVar *>::iterator it =
+						m_variables.find(varname);
+
+				if (it != m_variables.end()) {
+					vars.push_back(it->second);
+				}
+			} else {
+				// composite or user-defined field
+
+			}
+		}
+	}
+}
+
+void Z3ModelProcessor::exec_activity_stmt(
+		const std::string			&context,
+		IActivityStmt				*stmt) {
+	switch (stmt->getStmtType()) {
+	case IActivityStmt::ActivityStmt_Block: {
+		IActivityBlockStmt *block = dynamic_cast<IActivityBlockStmt *>(stmt);
+		fprintf(stdout, "block=%p\n", block);
+		fflush(stdout);
+		for (std::vector<IActivityStmt *>::const_iterator it=block->getStmts().begin();
+				it!=block->getStmts().end(); it++) {
+			exec_activity_stmt(context, *it);
+		}
+	} break;
+	case IActivityStmt::ActivityStmt_Traverse: {
+		exec_activity_traverse_stmt(context,
+				dynamic_cast<IActivityTraverseStmt *>(stmt));
+	} break;
+
+	default: {
+		fprintf(stdout, "TODO: unhandled activity-stmt %d\n",
+				stmt->getStmtType());
+	}
+	}
+}
+
+void Z3ModelProcessor::exec_activity_traverse_stmt(
+			const std::string				&context,
+			IActivityTraverseStmt			*stmt) {
+	IVariableRef *ref = stmt->getAction();
+	fprintf(stdout, "ref=%p target=%p\n", ref, ref->getTarget());
+	fflush(stdout);
+
+	IField *action_f = dynamic_cast<IField *>(ref->getTarget());
+	fprintf(stdout, "action_f=%p\n", action_f);
+	fflush(stdout);
+	IRefType *type_r = dynamic_cast<IRefType *>(action_f->getDataType());
+	IAction *action = dynamic_cast<IAction *>(type_r->getTargetType());
+
+	fprintf(stdout, "action_f.type=%d\n", action_f->getDataType()->getType());
+	fflush(stdout);
+
+	std::string this_ctxt = context + "." + ref->getId();
+
+	exec_action(this_ctxt, action);
 }
 
 void Z3ModelProcessor::z3_error_handler(Z3_context c, Z3_error_code e) {

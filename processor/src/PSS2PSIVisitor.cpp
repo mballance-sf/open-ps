@@ -1540,7 +1540,19 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 		error("unknown exec kind \"%s\"", kind_s.c_str());
 	}
 
-	const std::string &templ = ctx->string()->getText();
+	const std::string templ;
+
+	if (ctx->string()->DOUBLE_QUOTED_STRING()) {
+		templ = ctx->string()->DOUBLE_QUOTED_STRING()->getText();
+		// Remove leading and trailing double quotes
+		templ = templ.substr(1, templ.size()-2);
+	} else if (ctx->string()->TRIPLE_DOUBLE_QUOTED_STRING()) {
+		templ = ctx->string()->TRIPLE_DOUBLE_QUOTED_STRING()->getText();
+		templ = templ.substr(3, templ.size()-6);
+	} else {
+		fprintf(stdout, "Error: unknown type of string\n");
+	}
+
 	fprintf(stdout, "template=%s\n", templ.c_str());
 
 	replacements = TargetTemplateBuilder::build(templ, m_factory,
@@ -1549,7 +1561,7 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 	exec = m_factory->mkTargetTemplateExec(
 			kind,
 			ctx->language_identifier()->getText(),
-			ctx->string()->getText(),
+			templ,
 			replacements);
 
 	leave("visitTarget_code_exec_block");

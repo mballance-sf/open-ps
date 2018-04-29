@@ -68,3 +68,22 @@ TEST(target_template,single_var) {
 	run_test(var_map, "", content, exp);
 }
 
+TEST(target_template,plus_same_sign) {
+	std::map<std::string, VarVal> var_map;
+
+	var_map["v1"] = VarVal("c");
+	var_map["v2"] = VarVal((uint64_t)1);
+	var_map["v3"] = VarVal((uint64_t)2);
+
+	fprintf(stdout, "v1.type=%d\n", var_map.find("v1")->second.type);
+
+	const char *content = R"(
+	a b {{1+2}} 3 4
+	)";
+
+	const char *exp = R"(
+	a b 3 3 4
+	)";
+
+	run_test(var_map, "", content, exp);
+}
