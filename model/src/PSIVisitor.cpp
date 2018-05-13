@@ -151,9 +151,20 @@ void PSIVisitor::visit_coverspec(ICoverspec *coverspec) {
 }
 
 void PSIVisitor::visit_exec(IExec *e) {
-	for (std::vector<IExecStmt *>::const_iterator it=e->getStmts().begin();
-			it!=e->getStmts().end(); it++) {
-		visit_exec_stmt(*it);
+	switch (e->getExecType()) {
+	case IExec::TargetTemplate: {
+		for (uint32_t i=0; i<e->getTargetTemplateReplacements().size(); i++) {
+			visit_target_template_replacement(
+					e->getTargetTemplateReplacements().at(i));
+		}
+	} break;
+	case IExec::Native: {
+		for (std::vector<IExecStmt *>::const_iterator it=e->getStmts().begin();
+				it!=e->getStmts().end(); it++) {
+			visit_exec_stmt(*it);
+		}
+	} break;
+
 	}
 }
 
@@ -201,6 +212,10 @@ void PSIVisitor::visit_exec_expr_stmt(IExecExprStmt *s) {
 
 void PSIVisitor::visit_exec_vendor_stmt(IExecStmt *s) {
 	// NOP
+}
+
+void PSIVisitor::visit_target_template_replacement(IExecReplacementExpr *r) {
+	visit_expr(r->getExpr());
 }
 
 void PSIVisitor::visit_expr(IExpr *e) {

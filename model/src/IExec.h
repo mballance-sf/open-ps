@@ -29,6 +29,7 @@
 #include "IExpr.h"
 #include "IExecStmt.h"
 #include "IBaseItem.h"
+#include "IExecReplacementExpr.h"
 
 namespace psi_api {
 
@@ -65,6 +66,8 @@ public:
 	 * exec type TargetTemplate
 	 */
 	virtual const std::string &getTargetTemplate() const = 0;
+
+	virtual const std::vector<IExecReplacementExpr *> &getTargetTemplateReplacements() const = 0;
 
 	/**
 	 * Returns the inline-exec closure for exec type Inline

@@ -12,13 +12,17 @@
 #include <typeinfo>
 #include <stdarg.h>
 #include "VariableRefImpl.h"
+#include "TargetTemplateBuilder.h"
+#include <cstdio>
+#include <iostream>
 
 using namespace antlrcpp;
+using namespace antlr4;
 
 
 PSS2PSIVisitor::PSS2PSIVisitor(IModel *model, const std::string &path) :
 		m_model(model), m_factory(model->getItemFactory()), m_file(path) {
-	m_debug = false;
+	m_debug = true;
 }
 
 PSS2PSIVisitor::~PSS2PSIVisitor() {
@@ -1379,8 +1383,8 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 		// TODO: should create a dedicated paren expression
 		ret = ctx->paren_expr()->expression()->accept(this);
 	} else if (ctx->string_literal()) {
-		ret = m_factory->mkStringLiteral(
-				ctx->string_literal()->getText());
+		const std::string &s = ctx->string_literal()->getText();
+		ret = m_factory->mkStringLiteral(s.substr(1, s.size()-2));
 	} else if (ctx->variable_ref_path()) {
 		IVariableRef *vref = 0;
 		IVariableRef *prev = 0;
@@ -1653,6 +1657,7 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 	enter("visitTarget_code_exec_block");
 
 	std::string kind_s = ctx->exec_kind_identifier()->getText();
+	std::vector<IExecReplacementExpr *> replacements;
 
 	IExec::ExecKind kind;
 
@@ -1668,10 +1673,29 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 		error("unknown exec kind \"%s\"", kind_s.c_str());
 	}
 
+	const std::string templ;
+
+	if (ctx->string()->DOUBLE_QUOTED_STRING()) {
+		templ = ctx->string()->DOUBLE_QUOTED_STRING()->getText();
+		// Remove leading and trailing double quotes
+		templ = templ.substr(1, templ.size()-2);
+	} else if (ctx->string()->TRIPLE_DOUBLE_QUOTED_STRING()) {
+		templ = ctx->string()->TRIPLE_DOUBLE_QUOTED_STRING()->getText();
+		templ = templ.substr(3, templ.size()-6);
+	} else {
+		fprintf(stdout, "Error: unknown type of string\n");
+	}
+
+	fprintf(stdout, "template=%s\n", templ.c_str());
+
+	replacements = TargetTemplateBuilder::build(templ, m_factory,
+			dynamic_cast<IBaseItem *>(scope()));
+
 	exec = m_factory->mkTargetTemplateExec(
 			kind,
 			ctx->language_identifier()->getText(),
-			ctx->string()->getText());
+			templ,
+			replacements);
 
 	leave("visitTarget_code_exec_block");
 

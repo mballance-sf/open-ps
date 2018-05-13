@@ -33,6 +33,7 @@
 #include "EnumeratorImpl.h"
 #include "EnumTypeImpl.h"
 #include "ExecImpl.h"
+#include "ExecReplacementExprImpl.h"
 #include "ExecExprStmtImpl.h"
 #include "MethodCallExprImpl.h"
 #include "StructImpl.h"
@@ -126,8 +127,16 @@ ICoverspec *ItemFactoryImpl::mkCoverspec(const std::string &name) {
 IExec *ItemFactoryImpl::mkTargetTemplateExec(
 		IExec::ExecKind			kind,
 		const std::string		&language,
-		const std::string		&text) {
-	return new ExecImpl(kind, language, text);
+		const std::string		&text,
+		const std::vector<IExecReplacementExpr *> &replacements) {
+	return new ExecImpl(kind, language, text, replacements);
+}
+
+IExecReplacementExpr *ItemFactoryImpl::mkExecReplacementExpr(
+			IExpr					*expr,
+			uint32_t				offset,
+			uint32_t				length) {
+	return new ExecReplacementExprImpl(expr, offset, length);
 }
 
 IExec *ItemFactoryImpl::mkInlineExec(

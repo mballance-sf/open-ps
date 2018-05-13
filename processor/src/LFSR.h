@@ -19,6 +19,8 @@ public:
 
 	uint64_t next();
 
+	void seed(uint64_t seed) { m_value = seed; }
+
 private:
 	uint64_t				m_value;
 

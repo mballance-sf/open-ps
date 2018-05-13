@@ -9,13 +9,16 @@
 #define PROCESSOR_SRC_STRINGTABLEBUILDER_H_
 #include "PSIVisitor.h"
 #include "IModel.h"
+#include "IStringTable.h"
 #include <map>
 #include <string>
 #include <stdint.h>
 
 using namespace psi_api;
 
-class StringTableBuilder: public psi::apps::PSIVisitor {
+class StringTableBuilder:
+		public virtual psi::apps::PSIVisitor,
+		public virtual IStringTable {
 public:
 	StringTableBuilder();
 
@@ -27,11 +30,11 @@ public:
 
 	void build(IComponent *component);
 
-	uint32_t str2id(const std::string &str) const {
+	virtual uint32_t str2id(const std::string &str) const {
 		return m_str2id.find(str)->second;
 	}
 
-	const std::string &id2str(uint32_t id) const {
+	virtual const std::string &id2str(uint32_t id) const {
 		return m_id2str.find(id)->second;
 	}
 

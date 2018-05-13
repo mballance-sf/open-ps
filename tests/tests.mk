@@ -13,6 +13,10 @@ SRC_DIRS += $(BUILD_DIR)/$(GOOGLETEST_DIR)/googletest/include
 
 UNPACK_TARGETS += $(BUILD_DIR)/googletest.unpack
 
+ifeq (cl,$(COMPILER))
+	SRC_DIRS += $(TESTS_DIR)/win32
+endif
+
 else # Rules
 
 $(PACKAGES_DIR)/$(GOOGLETEST_ZIP) :

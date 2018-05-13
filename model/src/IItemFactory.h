@@ -41,6 +41,7 @@
 #include "IEnumerator.h"
 #include "IEnumType.h"
 #include "IExec.h"
+#include "IExecReplacementExpr.h"
 #include "IExecStmt.h"
 #include "IExecExprStmt.h"
 #include "IExtend.h"
@@ -116,7 +117,13 @@ public:
 	virtual IExec *mkTargetTemplateExec(
 			IExec::ExecKind 		kind,
 			const std::string		&language,
-			const std::string 		&text) = 0;
+			const std::string 		&text,
+			const std::vector<IExecReplacementExpr *> &replacements) = 0;
+
+	virtual IExecReplacementExpr *mkExecReplacementExpr(
+			IExpr					*expr,
+			uint32_t				offset,
+			uint32_t				length) = 0;
 
 	virtual IExec *mkInlineExec(
 			IExec::ExecKind 		kind,

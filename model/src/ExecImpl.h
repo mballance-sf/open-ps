@@ -22,8 +22,7 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_EXECIMPL_H_
-#define IMPL_EXECIMPL_H_
+#pragma once
 #include "IExec.h"
 #include "BaseItemImpl.h"
 
@@ -36,9 +35,10 @@ class ExecImpl :
 		public virtual BaseItemImpl {
 public:
 	ExecImpl(
-			ExecKind			kind,
-			const std::string	&language,
-			const std::string	&text);
+			ExecKind									kind,
+			const std::string							&language,
+			const std::string							&text,
+			const std::vector<IExecReplacementExpr *>	&replacements);
 
 	ExecImpl(
 			ExecKind			kind,
@@ -73,6 +73,10 @@ public:
 		return m_targetTemplate;
 	}
 
+	virtual const std::vector<IExecReplacementExpr *> &getTargetTemplateReplacements() const {
+		return m_template_replacements;
+	}
+
 	/**
 	 * Returns the inline-exec closure for exec type Inline
 	 */
@@ -94,11 +98,11 @@ private:
 	ExecType					m_execType;
 	std::string					m_language;
 	std::string					m_targetTemplate;
-	IExecCallback				*m_inlineExec;
-	std::vector<IExecStmt *>	m_stmts;
+	IExecCallback							*m_inlineExec;
+	std::vector<IExecStmt *>				m_stmts;
+	std::vector<IExecReplacementExpr *>		m_template_replacements;
 
 };
 
 } /* namespace psi */
 
-#endif /* IMPL_EXECIMPL_H_ */

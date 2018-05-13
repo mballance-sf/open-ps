@@ -22,15 +22,13 @@ MK_INCLUDES += $(TESTS_PARSER_DIR)/../../scripts/common.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../model/model.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../parser/src/pss-parser.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../processor/processor.mk
+MK_INCLUDES += $(TESTS_PARSER_DIR)/../../pss-cpp/pss-cpp.mk
 ifeq (true,$(BUILD))
 endif
 
 PARSER_TESTS_SRC = $(notdir $(wildcard $(TESTS_PARSER_DIR)/src/*.cpp))
 SRC_DIRS += $(TESTS_PARSER_DIR)/src
 
-CFLAGS += $(foreach dir,$(SRC_DIRS),-I$(dir))
-CXXFLAGS += $(foreach dir,$(SRC_DIRS),-I$(dir))
-CXXFLAGS += -std=c++11
 CXXFLAGS += -DTESTS_DATA_DIR='"$(TESTS_DATA_DIR)"'
 CXXFLAGS += -g
 CFLAGS += -g
@@ -63,10 +61,12 @@ __run: unittest$(EXEEXT)
 	echo "LD_LIBRARY_PATH=$(LD_LIBRARY_PATH)"
 	./unittest$(EXEEXT) $(GTEST_ARGS)
 
+# __run: $(DLIBPREF)pss-cpp$(DLIBEXT) pss_sys_test.o
+
 unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
-		$(PSS_PARSER_DEPS) $(ANTLR4_DEPS) \
 		$(PROCESSOR_DEPS) \
 		$(MODEL_DEPS) \
+		$(ANTLR4_DEPS) \
 		gtest-all.o gtest_main.o
 	$(Q)$(LINK_EXE) -lpthread
 

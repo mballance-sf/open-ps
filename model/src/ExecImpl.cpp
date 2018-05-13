@@ -27,13 +27,15 @@
 namespace psi {
 
 ExecImpl::ExecImpl(
-		ExecKind			kind,
-		const std::string	&language,
-		const std::string	&text) :
+		ExecKind									kind,
+		const std::string							&language,
+		const std::string							&text,
+		const std::vector<IExecReplacementExpr *>	&replacements) :
 				BaseItemImpl(IBaseItem::TypeExec),
 				m_execKind(kind), m_execType(IExec::TargetTemplate),
 				m_language(language), m_targetTemplate(text),
-				m_inlineExec(0), m_stmts(0) { }
+				m_inlineExec(0), m_stmts(0),
+				m_template_replacements(replacements) { }
 
 ExecImpl::ExecImpl(
 		ExecKind			kind,
@@ -71,7 +73,8 @@ IBaseItem *ExecImpl::clone() const {
 	ExecImpl *impl;
 	switch (getExecType()) {
 	case IExec::TargetTemplate:
-		impl = new ExecImpl(getExecKind(), getLanguage(), getTargetTemplate());
+		impl = new ExecImpl(getExecKind(), getLanguage(), getTargetTemplate(),
+				getTargetTemplateReplacements());
 		break;
 
 	case IExec::Native: {
