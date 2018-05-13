@@ -89,24 +89,6 @@ antlrcpp::Any PSS2PSIVisitor::visitAbstract_action_declaration(PSSParser::Abstra
 	return ret;
 }
 
-antlrcpp::Any PSS2PSIVisitor::visitAction_data_type(PSSParser::Action_data_typeContext *ctx) {
-	IBaseItem *ret = 0;
-
-	enter("visitAction_data_type");
-
-	if (ctx->scalar_data_type()) {
-		ret = ctx->scalar_data_type()->accept(this);
-	} else if (ctx->user_defined_datatype()) {
-		ret = ctx->user_defined_datatype()->accept(this);
-	} else {
-		error("Unknown action data type");
-	}
-
-	leave("visitAction_data_type");
-
-	return ret;
-}
-
 antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 
@@ -125,6 +107,17 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 	action->setActivity(block);
 
 	leave("visitActivity_declaration");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitActivity_labeled_stmt(PSSParser::Activity_labeled_stmtContext *ctx) {
+	IActivityStmt *ret = 0;
+
+	enter("visitActivity_labeled_stmt");
+	todo("visitActivity_labeled_stmt");
+	ret = ctx->labeled_activity_stmt()->accept(this);
+	leave("visitActivity_labeled_stmt");
 
 	return ret;
 }
@@ -199,8 +192,8 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_parallel_stmt(PSSParser::Activity_pa
 
 	IActivityBlockStmt *parallel = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Parallel);
 
-	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
-		IActivityStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
+	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
+		IActivityStmt *stmt = ctx->activity_stmt(i)->accept(this);
 		if (dynamic_cast<IActivityBlockStmt *>(stmt) &&
 				dynamic_cast<IActivityBlockStmt *>(stmt)->getStmtType() == IActivityBlockStmt::ActivityStmt_Block) {
 			parallel->add(stmt);
@@ -305,8 +298,10 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_sele
 
 	IActivityBlockStmt *select = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Select);
 
-	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
-		IActivityStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
+	for (uint32_t i=0; i<ctx->select_branch().size(); i++) {
+		todo("Support select condition and guard");
+		IActivityStmt *stmt = ctx->select_branch(i)->activity_stmt()->accept(this);
+
 		if (dynamic_cast<IActivityBlockStmt *>(stmt) &&
 				dynamic_cast<IActivityBlockStmt *>(stmt)->getStmtType() == IActivityBlockStmt::ActivityStmt_Block) {
 			select->add(stmt);
@@ -327,14 +322,24 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_select_stmt(PSSParser::Activity_sele
     return ret;
 }
 
+antlrcpp::Any PSS2PSIVisitor::visitActivity_match_stmt(PSSParser::Activity_match_stmtContext *ctx) {
+	IActivityStmt *ret = 0;
+
+	enter("visitActivity_match_stmt");
+	todo("visitActivity_match_stmt");
+	leave("visitActivity_match_stmt");
+
+	return ret;
+}
+
 antlrcpp::Any PSS2PSIVisitor::visitActivity_schedule_stmt(PSSParser::Activity_schedule_stmtContext *ctx) {
 	IActivityStmt *ret = 0;
 
 	enter("visitActivity_schedule_stmt");
 	IActivityBlockStmt *schedule = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Schedule);
 
-	for (uint32_t i=0; i<ctx->activity_labeled_stmt().size(); i++) {
-		IActivityStmt *stmt = ctx->activity_labeled_stmt(i)->activity_stmt()->accept(this);
+	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
+		IActivityStmt *stmt = ctx->activity_stmt(i)->accept(this);
 		schedule->add(stmt);
 	}
 
@@ -387,15 +392,13 @@ antlrcpp::Any PSS2PSIVisitor::visitSymbol_declaration(PSSParser::Symbol_declarat
 			params.push_back(p);
 		}
 	}
-	IActivityStmt *body_s = ctx->activity_stmt()->accept(this);
-	IActivityBlockStmt *body = 0;
-
-	if (dynamic_cast<IActivityBlockStmt *>(body_s)) {
-		body = dynamic_cast<IActivityBlockStmt *>(body_s);
-	} else {
-		body = m_factory->mkActivityBlockStmt(IActivityBlockStmt::ActivityStmt_Block);
+	IActivityBlockStmt *body = m_factory->mkActivityBlockStmt(
+			IActivityBlockStmt::ActivityStmt_Block);
+	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
+		IActivityStmt *body_s = ctx->activity_stmt(i)->accept(this);
 		body->add(body_s);
 	}
+
 	ISymbol *sym = m_factory->mkSymbol(
 			ctx->identifier()->getText(),
 			params, body);
@@ -426,19 +429,19 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_declaration(PSSParser::Struct_declarat
 	}
 
 	IStruct::StructType t;
-	if (ctx->struct_type()->getText() == "struct") {
+	const std::string &kind = ctx->struct_kind()->getText();
+	if (kind == "struct") {
 		t = IStruct::Base;
-	} else if (ctx->struct_type()->getText() == "buffer") {
+	} else if (kind == "buffer") {
 		t = IStruct::Memory;
-	} else if (ctx->struct_type()->getText() == "stream") {
+	} else if (kind == "stream") {
 		t = IStruct::Stream;
-	} else if (ctx->struct_type()->getText() == "state") {
+	} else if (kind == "state") {
 		t = IStruct::State;
-	} else if (ctx->struct_type()->getText() == "resource") {
+	} else if (kind == "resource") {
 		t = IStruct::Resource;
 	} else {
-		error("Unknown struct type \"%s\"\n",
-				ctx->struct_type()->img->getText().c_str());
+		error("Unknown struct type \"%s\"\n", kind.c_str());
 	}
 
 	IStruct *s = m_factory->mkStruct(
@@ -461,19 +464,18 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_declaration(PSSParser::Struct_declarat
     return ret;
 }
 
-antlrcpp::Any PSS2PSIVisitor::visitStruct_field_declaration(PSSParser::Struct_field_declarationContext *ctx) {
+antlrcpp::Any PSS2PSIVisitor::visitAttr_field(PSSParser::Attr_fieldContext *ctx) {
 	IBaseItem *ret = 0;
 	IField::FieldAttr attr = IField::FieldAttr_None;
 
-	enter("visitStruct_field_declaration");
+	enter("visitAttr_field");
 
-	if (ctx->struct_field_modifier()) {
-		if (ctx->struct_field_modifier()->getText() == "rand") {
-			attr = IField::FieldAttr_Rand;
-		} else {
-			error("Unknown field modifier \"%s\"",
-					ctx->struct_field_modifier()->getText().c_str());
-		}
+	if (ctx->rand) {
+		attr = IField::FieldAttr_Rand;
+	}
+
+	if (ctx->access_modifier()) {
+		todo("Field access modifier");
 	}
 
 	IBaseItem *data_type = ctx->data_declaration()->data_type()->accept(this);
@@ -481,36 +483,52 @@ antlrcpp::Any PSS2PSIVisitor::visitStruct_field_declaration(PSSParser::Struct_fi
 	for (uint32_t i=0; i<ctx->data_declaration()->data_instantiation().size(); i++) {
 		PSSParser::Data_instantiationContext *di =
 				ctx->data_declaration()->data_instantiation(i);
-		IExpr *array_dim = 0;
-		IBaseItem *field_data_type = data_type;
 
-		if (di->array_dim()) {
-			bool has_sum = (dynamic_cast<IScalarType *>(data_type));
-			IExpr *lhs = 0;
-			IExpr *rhs = 0;
+		if (di->plain_data_instantiation()) {
+			PSSParser::Plain_data_instantiationContext *pi = di->plain_data_instantiation();
+			IExpr *array_dim = 0;
+			IBaseItem *field_data_type = data_type;
 
-			if (di->array_dim()->constant_expression()) {
-				lhs = di->array_dim()->constant_expression()->accept(this);
+			if (pi->array_dim()) {
+				bool has_sum = (dynamic_cast<IScalarType *>(data_type));
+				IExpr *lhs = 0;
+				IExpr *rhs = 0;
+
+				if (pi->array_dim()->constant_expression()) {
+					lhs = pi->array_dim()->constant_expression()->accept(this);
+				}
+
+				// Wrap data_type in an array_type
+				field_data_type = m_factory->mkArrayType(
+						data_type,
+						has_sum,
+						lhs,
+						rhs);
 			}
 
-			// Wrap data_type in an array_type
-			field_data_type = m_factory->mkArrayType(
-					data_type,
-					has_sum,
-					lhs,
-					rhs);
+			IField *field = m_factory->mkField(
+					pi->identifier()->getText(),
+					field_data_type,
+					attr,
+					array_dim);
+
+			scope()->add(field);
+		} else {
+			todo("covergroup instance");
 		}
-
-		IField *field = m_factory->mkField(
-				di->identifier()->getText(),
-				field_data_type,
-				attr,
-				array_dim);
-
-		scope()->add(field);
 	}
 
-	leave("visitStruct_field_declaration");
+	leave("visitAttr_field");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitAttr_group(PSSParser::Attr_groupContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitAttr_group");
+	todo("visitAttr_group");
+	leave("visitAttr_group");
 
 	return ret;
 }
@@ -521,6 +539,7 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 
 	enter("visitAction_field_declaration");
 
+#ifdef TODO
 	if (ctx->action_field_modifier()) {
 		const std::string &modifier = ctx->action_field_modifier()->getText();
 		if (modifier == "rand") {
@@ -577,8 +596,59 @@ antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_fi
 
 		scope()->add(field);
 	}
+#endif
 
 	leave("visitAction_field_declaration");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitSub_action_field(PSSParser::Sub_action_fieldContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitSub_action_field");
+	todo("visitSub_action_field");
+	leave("visitSub_action_field");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitFlow_ref_field(PSSParser::Flow_ref_fieldContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitFlow_ref_field");
+	todo("visitFlow_ref_field");
+	leave("visitFlow_ref_field");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitResource_ref_field(PSSParser::Resource_ref_fieldContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitResource_ref_field");
+	todo("visitResource_ref_field");
+	leave("visitResource_ref_field");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitActivity_data_field(PSSParser::Activity_data_fieldContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitActivity_data_field");
+	todo("visitActivity_data_field");
+	leave("visitActivity_data_field");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitScheduling_constraint(PSSParser::Scheduling_constraintContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitScheduling_constraint");
+	todo("visitScheduling_constraint");
+	leave("visitScheduling_constraint");
 
 	return ret;
 }
@@ -682,6 +752,16 @@ antlrcpp::Any PSS2PSIVisitor::visitEnum_declaration(PSSParser::Enum_declarationC
 	return ret;
 }
 
+antlrcpp::Any PSS2PSIVisitor::visitTypedef_declaration(PSSParser::Typedef_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitTypedef_declaration");
+	todo("visitTypedef_declaration");
+	leave("visitTypedef_declaration");
+
+	return ret;
+}
+
 antlrcpp::Any PSS2PSIVisitor::visitComponent_field_declaration(PSSParser::Component_field_declarationContext *ctx) {
 	IBaseItem *ret = 0;
 	enter("visitComponent_field_declaration");
@@ -700,6 +780,7 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 	IBaseItem *ret = 0;
 	enter("visitComponent_data_declaration");
 
+#ifdef TODO
 	IField::FieldAttr attr = IField::FieldAttr_None;
 
 //	if (ctx->struct_field_modifier()) {
@@ -751,6 +832,7 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 	}
 
 	leave("visitComponent_data_declaration");
+#endif
 
 	return ret;
 }
@@ -767,11 +849,10 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_pool_declaration(PSSParser::Compone
 
 	for (uint32_t i=0;
 			i<ctx->data_declaration()->data_instantiation().size(); i++) {
+		const std::string &id = ctx->data_declaration()->data_instantiation(i)->
+				plain_data_instantiation()->identifier()->getText();
 
-		IPool *pool = m_factory->mkPool(
-				ctx->data_declaration()->data_instantiation(i)->identifier()->getText(),
-				pool_type,
-				pool_size);
+		IPool *pool = m_factory->mkPool(id, pool_type, pool_size);
 
 		scope()->add(pool);
 	}
@@ -1065,24 +1146,51 @@ antlrcpp::Any PSS2PSIVisitor::visitUnique_constraint_item(PSSParser::Unique_cons
 	return ret;
 }
 
-antlrcpp::Any PSS2PSIVisitor::visitBins_declaration(PSSParser::Bins_declarationContext *ctx) {
+antlrcpp::Any PSS2PSIVisitor::visitCovergroup_declaration(PSSParser::Covergroup_declarationContext *ctx) {
 	IBaseItem *ret = 0;
-
-	enter("visitBins_declaration");
-	todo("visitBins_declaration");
-	enter("visitBins_declaration");
+	enter("visitCovergroup_declaration");
+	todo("visitCovergroup_declaration");
+	leave("visitCovergroup_declaration");
 
 	return ret;
 }
 
-antlrcpp::Any PSS2PSIVisitor::visitCoverspec_declaration(PSSParser::Coverspec_declarationContext *ctx) {
+antlrcpp::Any PSS2PSIVisitor::visitInline_covergroup(PSSParser::Inline_covergroupContext *ctx) {
 	IBaseItem *ret = 0;
-	enter("visitCoverspec_declaration");
-	ICoverspec *cs = m_factory->mkCoverspec(ctx->identifier()->getText());
-	todo("visitCoverspec_declaration");
-	leave("visitCoverspec_declaration");
 
-	ret = cs;
+	enter("visitInline_covergroup");
+	todo("visitInline_covergroup");
+	leave("visitInline_covergroup");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitCovergroup_option(PSSParser::Covergroup_optionContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitCovergroup_option");
+	todo("visitCovergroup_option");
+	leave("visitCovergroup_option");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitCovergroup_type_option(PSSParser::Covergroup_type_optionContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitCovergroup_type_option");
+	todo("visitCovergroup_type_option");
+	leave("visitCovergroup_type_option");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitCovergroup_coverpoint(PSSParser::Covergroup_coverpointContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitCovergroup_coverpoint");
+	todo("visitCovergroup_coverpoint");
+	leave("visitCovergroup_coverpoint");
 
 	return ret;
 }
@@ -1106,6 +1214,31 @@ antlrcpp::Any PSS2PSIVisitor::visitPackage_declaration(PSSParser::Package_declar
 	pop_scope();
 
 	leave("visitPackage_declaration");
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitNull_stmt(PSSParser::Null_stmtContext *ctx) {
+	IBaseItem *ret = 0;
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitConst_field_declaration(PSSParser::Const_field_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+	enter("visitConst_field_declaration");
+	todo("visitConst_field_declaration");
+	leave("visitConst_field_declaration");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitStatic_const_field_declaration(PSSParser::Static_const_field_declarationContext *ctx) {
+	IBaseItem *ret = 0;
+
+	enter("visitStatic_const_field_declaration");
+	todo("visitStatic_const_field_declaration");
+	leave("visitStatic_const_field_declaration");
+
 	return ret;
 }
 
@@ -1277,15 +1410,15 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 
 		ret = vref;
 	} else if (ctx->method_function_call()) {
-		ctx->method_function_call()->function_call()->method_parameter_list()->expression().size();
+//		ctx->method_function_call()->function_call()->method_parameter_list()->expression().size();
 		const std::vector<PSSParser::ExpressionContext *> &param_ctx =
-				ctx->method_function_call()->function_call()->method_parameter_list()->expression();
+				ctx->method_function_call()->function_symbol_call()->method_parameter_list()->expression();
 		std::vector<IExpr *> parameters;
 
 		for (uint32_t i=0; i<param_ctx.size(); i++) {
 			parameters.push_back(param_ctx.at(i)->accept(this));
 		}
-		IImportFunc *func = find_import_func(ctx->method_function_call()->function_call()); // TODO: find
+		IImportFunc *func = find_import_func(ctx->method_function_call()->function_symbol_call()); // TODO: find
 		ret = m_factory->mkMethodCallExpr(func, parameters);
 	} else {
 		error("unknown primary %s", ctx->getText().c_str());
@@ -1385,10 +1518,10 @@ IFieldRef *PSS2PSIVisitor::elaborate_field_ref(
 }
 
 IImportFunc *PSS2PSIVisitor::find_import_func(
-		PSSParser::Function_callContext *func
+		PSSParser::Function_symbol_callContext *func
 		) {
 	IImportFunc *ret = 0;
-	PSSParser::Type_identifierContext *func_id = func->function_id()->type_identifier();
+	PSSParser::Type_identifierContext *func_id = func->function_symbol_id()->type_identifier();
 
 	if (func_id->ID().size() == 1) {
         const std::string &name = func_id->ID(0)->getText();

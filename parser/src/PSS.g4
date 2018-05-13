@@ -9,54 +9,75 @@ model :
 	;
 
 portable_stimulus_description : 
-	package_body_item 
+	package_body_item
+	| package_declaration
+	| component_declaration
 	;
 	
 package_declaration:
 	'package' name=package_identifier '{'
 		package_body_item*
-	'}'	(';')?
+	'}'	
 ;	
 
+null_stmt: ';';
+
+package_action_component_body_item:
+	abstract_action_declaration
+	| struct_declaration
+	| enum_declaration
+	| covergroup_declaration
+	| function_decl
+	| import_class_decl
+	| import_method_qualifiers
+	| export_action
+	| typedef_declaration
+	| import_stmt
+	| extend_stmt
+	| static_const_field_declaration	
+	| compile_assert_stmt
+	| null_stmt
+;
+
 package_body_item:
-	abstract_action_declaration 	|
-	struct_declaration 				|
-	enum_declaration 				|
-	coverspec_declaration 			|
-	function_decl					|
-	import_class_decl				|
-	import_method_qualifiers		|
-	export_action					|
-	typedef_declaration 			|
-	bins_declaration 				|
-	import_stmt 					|
-	extend_stmt						|
-	package_declaration				|
-	component_declaration			|
-	const_data_declaration
+	package_action_component_body_item
+	| const_field_declaration
+	| package_body_compile_if
+	;
+
+const_field_declaration :
+	'const' const_data_declaration
+;
+
+static_const_field_declaration :
+	'static' 'const' const_data_declaration
 ;
 
 const_data_declaration:
-	('static')? 'const' data_declaration
+	scalar_data_type const_data_instantiation (',' const_data_instantiation)* ';' 
+;
+
+const_data_instantiation:	
+	identifier '=' init=constant_expression
 ;
 
 extend_stmt:
 		(
 			('extend' ext_type='action' type_identifier '{'
 				action_body_item*
-				'}' (';')?
+				'}' 
 			) | 
-			('extend' ext_type='struct' type_identifier '{'
+			('extend' struct_kind type_identifier '{'
 				struct_body_item*
-				'}' (';')?
+				'}' 
 			) |
 			('extend' ext_type='enum' type_identifier '{'
 				(enum_item (',' enum_item)*)?
-				'}' (';')?
+				'}' 
 			) |
 			('extend' ext_type='component' type_identifier '{'
 				component_body_item*
-				'}' (';')?
+				'}' 
 			)
 		)
 ;
@@ -76,7 +97,7 @@ action_declaration:
 	'action' action_identifier (action_super_spec)? 
 	'{'
 		action_body_item*
-	'}' (';')?
+	'}' 
 ;
 
 
@@ -84,7 +105,7 @@ abstract_action_declaration :
 	'abstract' 'action' action_identifier (action_super_spec)?
 	'{'
 		action_body_item*
-	'}' (';')?
+	'}' 
 ;
 
 action_super_spec:
@@ -92,30 +113,63 @@ action_super_spec:
 ;
 
 action_body_item:
-	activity_declaration		|
-	overrides_declaration  		|	
-	constraint_declaration 		|
-	action_field_declaration	|
-	bins_declaration   			|
-	symbol_declaration			|
-	coverspec_declaration		|
-	exec_block_stmt				|
-	const_data_declaration
+	activity_declaration
+	| overrides_declaration
+	| constraint_declaration
+	| action_field_declaration
+	| symbol_declaration
+	| covergroup_declaration
+	| exec_block_stmt
+	| scheduling_constraint
+	| static_const_field_declaration
+	| action_body_compile_if
+	| compile_assert_stmt
+	| attr_field
+	| attr_group
+	| null_stmt
 ;
 
-activity_declaration: 'activity' '{' activity_stmt* '}' (';')? ;
+activity_declaration: 'activity' '{' activity_stmt* '}'  ;
+
+attr_field:
+	access_modifier? rand='rand'? declaration=data_declaration
+;
+
+attr_group:
+	access_modifier ':'
+	;
 
 action_field_declaration:
-	action_field_modifier? action_data_declaration
+	object_ref_field
+	| activity_data_field
 ;
 
-action_field_modifier:
-	'rand'|io_direction|'lock'|'share'|'action'	
+sub_action_field:
+	type_identifier identifier array_dim? ';'
+	;
+	
+object_ref_field:
+	flow_ref_field
+	| resource_ref_field
+	;
+
+
+flow_ref_field:
+	('input' | 'output') type_identifier identifier (',' identifier)* ';'
+	;
+	
+resource_ref_field:
+	('lock' | 'share') type_identifier identifier (',' identifier)* ';'
+	;
+
+activity_data_field:
+	'action' data_declaration
 ;
 
-io_direction:
-	'input' | 'output'
-;
+scheduling_constraint:
+	'constraint' ('parallel' | 'sequence') '{'
+		variable_ref_path ',' variable_ref_path (',' variable_ref_path)* '}'
+	;
 
 /****************************************************************************
  * H2: Exec Blocks
@@ -155,44 +209,41 @@ assign_op:
 
 exec_body_stmt:
 	expression (assign_op expression)? ';'
+	| null_stmt
 ;
 
 /****************************************************************************
  * H1: Struct Declarations
  ****************************************************************************/
-struct_declaration: struct_type identifier (struct_super_spec)? '{'
+struct_declaration: struct_kind identifier (struct_super_spec)? '{'
 		struct_body_item*
-	'}' (';')?
+	'}' 
 ;
 
-struct_type:
+struct_kind:
 	(img='struct' | img='buffer' | img='stream' | img='state' | (img='resource' ('[' constant_expression ']')?))
 ;
 
 struct_super_spec : ':' type_identifier
 ;
 
-//struct_qualifier:
-//	 ('memory' | 'stream' | 'state' | ('resource' ('[' constant_expression ']')?))
-//;
-
 struct_body_item:
-	constraint_declaration		|
-	struct_field_declaration	|
-	typedef_declaration			|
-	bins_declaration			|
-	coverspec_declaration		|
-	exec_block_stmt				|
-	const_data_declaration
+	constraint_declaration
+	| attr_field
+	| attr_group
+	| typedef_declaration
+	| covergroup_declaration
+	| exec_block_stmt
+	| static_const_field_declaration
+	| struct_body_compile_if
+	| compile_assert_stmt
+	| null_stmt
 ;
 
-struct_field_declaration:
-	struct_field_modifier? data_declaration
-;
+access_modifier:
+	'public' | 'protected' | 'private'
+	;
 
-struct_field_modifier:
-	'rand'
-;
 
 /****************************************************************************
  * H1: Procedural Interface
@@ -202,8 +253,6 @@ function_decl:
 ;
 
 method_prototype:
-// Namespace
-//	method_return_type method_identifier method_parameter_list_prototype
 	method_return_type method_identifier method_parameter_list_prototype
 ;
 
@@ -264,7 +313,7 @@ method_parameter_dir:
 import_class_decl:
 	'import' 'class' import_class_identifier (import_class_extends)? '{'
 		import_class_method_decl*
-	'}' (';')?
+	'}' 
 	;
 	
 import_class_method_decl:
@@ -279,7 +328,6 @@ import_class_extends:
  * H2: Export Action
  ****************************************************************************/
 export_action:
-//	(attributes)?
 	'export' (method_qualifiers)? action_type_identifier method_parameter_list_prototype ';'
 ;
 
@@ -287,10 +335,9 @@ export_action:
  * H1: Component Declaration
  ****************************************************************************/
 component_declaration:
-//	(attributes)?
 	'component' component_identifier (component_super_spec)? '{'
 	component_body_item*
-	'}' (';')?
+	'}' 
 ;
 
 component_super_spec :
@@ -298,12 +345,17 @@ component_super_spec :
 ;
 
 component_body_item:
-	overrides_declaration			|
-	component_field_declaration		|
-	action_declaration 				|
-	object_bind_stmt				|
-	exec_block						|
-	package_body_item
+	overrides_declaration
+	| attr_field
+	| attr_group
+	| component_pool_declaration
+	| action_declaration
+	| object_bind_stmt
+	| exec_block
+	| package_action_component_body_item
+	| component_body_compile_if
+	| compile_assert_stmt
+	| null_stmt
 ;
 
 component_field_declaration:
@@ -344,24 +396,35 @@ component_path_elem:
  * H1: Activity-Graph Statements
  ********************************************************************/
 activity_stmt: 
-	activity_if_else_stmt		
-	| activity_repeat_stmt 			//*	
-	| activity_constraint_stmt			
-	| activity_foreach_stmt				
-	| activity_action_traversal_stmt //*
-	| activity_sequence_block_stmt	//*
-	| activity_select_stmt			//*	
-	| activity_parallel_stmt		//*
-	| activity_schedule_stmt				
-	| activity_bind_stmt					
-//	| graph_method_call_stmt
+	labeled_activity_stmt
+	| activity_labeled_stmt
+	| activity_constraint_stmt
+	| activity_bind_stmt
+	| activity_data_field
+	| sub_action_field
+	| null_stmt
 ;
 
-/*
-graph_method_call_stmt:
-	(variable_ref assign_op)? method_function_call ';'
+activity_labeled_stmt:
+	identifier ':' labeled_activity_stmt
+	;
+
+labeled_activity_stmt:
+	activity_if_else_stmt
+	| activity_repeat_stmt
+	| activity_foreach_stmt
+	| activity_sequence_block_stmt
+	| activity_select_stmt
+	| activity_match_stmt
+	| activity_parallel_stmt
+	| activity_schedule_stmt
+	| activity_action_traversal_stmt
+	| activity_super_stmt
 ;
-*/
+
+activity_super_stmt:
+	'super' ';'
+	;
 
 activity_bind_stmt:
 	'bind' hierarchical_id activity_bind_item_or_list ';'
@@ -378,19 +441,42 @@ activity_if_else_stmt:
 
 activity_select_stmt:
 	'select' '{'
-		activity_labeled_stmt 
-		activity_labeled_stmt
-		activity_labeled_stmt*
+		select_branch
+		select_branch
+		select_branch*
 	'}'
 ;
 
+select_branch:
+	select_guard_weight? activity_stmt
+	;
+	
+select_guard_weight:
+	(
+		('(' guard=expression ')' ('[' weight=expression ']')? ':') 
+		| ('[' weight=expression ']' ':')
+	)
+	;
+
+activity_match_stmt:
+	'match' '(' expression ')' '{'
+		match_choice
+		match_choice
+		match_choice*
+	'}'
+	;
+	
+match_choice:
+	('[' open_range_list ']' ':' activity_stmt)
+	| ('default' ':' activity_stmt)
+	;
+	
 // TODO: allow action array elements to be traversed
 activity_action_traversal_stmt:
-	 (
-		(variable_ref inline_with_constraint?
-		) |
-		(is_do='do' type_identifier inline_with_constraint?
-		)
+	(
+		(variable_ref inline_with_constraint?)
+		| (is_do='do' type_identifier inline_with_constraint?)
+		| (function_symbol_call)
 	)
 	';'
 ;
@@ -405,42 +491,28 @@ inline_with_constraint:
 
 activity_parallel_stmt:
 	 'parallel' '{'
-		activity_labeled_stmt*
-	'}' (';')?
+		activity_stmt*
+	'}' 
 ;
 
 activity_schedule_stmt:
 	 'schedule' '{'
-		activity_labeled_stmt*
-	'}' (';')?
-;
-
-//graph_select_production:
-//	(identifier /*(':=' graph_select_weight)?*/ ':')? activity_stmt 
-//;
-//
-//graph_select_weight:
-//	number |
-//	identifier |
-//	'(' expression ')'
-//;
-
-activity_labeled_stmt:
-	(identifier ':')? activity_stmt
+		activity_stmt*
+	'}' 
 ;
 
 activity_repeat_stmt:
 	 (
 		(is_while='while' '(' expression ')' activity_stmt) |
 		(is_repeat='repeat' '(' (loop_var=identifier ':')? expression ')' activity_stmt) |
-		(is_do_while='do' activity_stmt is_do_while='while' '(' expression ')' ';')
+		(is_do_while='repeat' activity_stmt is_do_while='while' '(' expression ')' ';')
 		)
 ;
 
 activity_constraint_stmt:
 	 (
 		('constraint' ('{' constraint_body_item* '}' )) | 
-		('constraint' (single_stmt_constraint))
+		('constraint' single_stmt_constraint)
 	)
 ;
 
@@ -453,12 +525,11 @@ activity_sequence_block_stmt:
 ;
 
 symbol_declaration:
-	'symbol' identifier ('(' symbol_paramlist ')')? '='
-		activity_stmt 
+	'symbol' identifier ('(' symbol_paramlist ')')? '{' activity_stmt* '}'
 ;
 
 symbol_param:
-	(data_type) identifier
+	data_type identifier
 ;
 
 symbol_paramlist:
@@ -491,31 +562,45 @@ data_declaration:
 	data_type data_instantiation (',' data_instantiation)* ';' 
 ;
 
-action_data_declaration :
-	action_data_type data_instantiation (',' data_instantiation)* ';' 
+data_instantiation:
+	covergroup_port_or_with_instantiation 
+	| plain_data_instantiation
+	;
+
+covergroup_port_or_with_instantiation:
+	(
+		(name=identifier '(' portmap=covergroup_portmap_list ')' withclause=covergroup_instance_with_clause?)
+		| (name=identifier withclause=covergroup_instance_with_clause)
+	)
 ;
 
-data_instantiation:
-	identifier ('(' coverspec_portmap_list ')')? array_dim? ('=' constant_expression)?
+covergroup_instance_with_clause:
+	'with' '{'
+	body+=covergroup_option*
+	'}'
+;
+	
+plain_data_instantiation:	
+	name=identifier dim=array_dim? ('=' init=constant_expression)?
 ;
 
 array_dim:
-//	 '[' (constant_expression (':' constant_expression)?)? ']'
 	 '[' constant_expression ']'
 ;
 
-coverspec_portmap_list:
-	 (
+covergroup_portmap_list:
+	(
 		// Name-mapped port binding
-		(coverspec_portmap (',' coverspec_portmap)*) |
+		(covergroup_portmap (',' covergroup_portmap)*) |
 		// Positional port binding
 		(hierarchical_id (',' hierarchical_id)*)
 	)?
 ;
 
-coverspec_portmap:
+covergroup_portmap:
 	'.' identifier '(' hierarchical_id ')'
 ;
+
 
 /********************************************************************
  * H1: Data Types
@@ -528,11 +613,11 @@ data_type:
 
 /**
  * BNF: action_data_type ::= scalar_data_type | user_defined_datatype | action_type
- */
 action_data_type:
 	scalar_data_type |
 	user_defined_datatype
 ;
+ */
 
 
 scalar_data_type:
@@ -545,7 +630,7 @@ scalar_data_type:
 enum_declaration:
   	'enum' enum_identifier '{' 
   		(enum_item (',' enum_item)*)?
-  		'}' (';')?
+  		'}' 
   ;
   
 bool_type:
@@ -609,10 +694,11 @@ constraint_declaration:
 ;
 
 constraint_body_item:
-	expression_constraint_item |
-	foreach_constraint_item |
-	if_constraint_item		|
-	unique_constraint_item
+	expression_constraint_item
+	| foreach_constraint_item
+	| if_constraint_item
+	| unique_constraint_item
+	| null_stmt
 ;
 
 /**
@@ -655,97 +741,172 @@ unique_constraint_item:
 ;
 
 /********************************************************************
- * H1: Bins 
- ********************************************************************/
- bins_declaration:
- 	'bins' identifier (variable_identifier)? bin_specification ';'
- ;
- 
- bin_specification:
- 	bin_specifier (bin_specifier)* (bin_wildcard)?
- ;
- 
- bin_specifier:
- 	explicit_bin_value |
- 	explicit_bin_range |
- 	bin_range_divide   |
- 	bin_range_size
- ;
- 
- explicit_bin_value:
- 	'[' constant ']'
- ;
- 
- explicit_bin_range:
- 	'[' constant '..' constant ']'
- ;
- 
- bin_range_divide:
- 	explicit_bin_range '/' constant
- ;
- 
- bin_range_size:
- 	explicit_bin_range ':' constant
- ;
- 
- bin_wildcard:
- 	'[' '*' ']'
- ;
- 
-/********************************************************************
- * H1: Coverspec
+ * H1: Covergroup
  ********************************************************************/
 
-coverspec_declaration:
-	'coverspec' identifier '(' coverspec_port (',' coverspec_port)* ')' '{'
-		coverspec_body_item*
-	'}' (';')?
+covergroup_declaration:
+	'covergroup' name=identifier ('(' covergroup_port (',' covergroup_port)* ')')? '{'
+		covergroup_body_item*
+	'}' 
 ;
 
-coverspec_port:
+inline_covergroup:
+	'covergroup' '{'
+		covergroup_body_item*
+	'}' identifier ';'
+;
+
+covergroup_port:
 	data_type identifier
 ;
 
-coverspec_body_item:
-	coverspec_option		|
-	coverspec_coverpoint	|
-	coverspec_cross			|
-//	coverspec_paths			|
-	constraint_declaration
+covergroup_body_item:
+	covergroup_option
+	| covergroup_coverpoint
+	| covergroup_cross
+	| constraint_declaration
+	| null_stmt
 ;
 
-coverspec_option:
+covergroup_option:
 	'option' '.' identifier '=' constant_expression ';'
 ;
 
-coverspec_coverpoint: (
-		(coverpoint_identifier ':' 'coverpoint' coverpoint_target_identifier 
-			'{' coverspec_coverpoint_body_item* '}' (';')?) |
-		(coverpoint_identifier ':' 'coverpoint' coverpoint_target_identifier ';')
+covergroup_type_option:
+	'type_option' '.' identifier '=' constant_expression ';'
+;
+
+// 6382 -- coverpoint on expression, not identifier
+// 6383 -- Support 'iff' clause on coverpoints
+covergroup_coverpoint: 
+		(data_type? coverpoint_identifier ':')? 'coverpoint' target=expression ('iff' '(' iff=expression ')')?
+			covergroup_coverpoint_body
+;
+
+covergroup_coverpoint_body:
+		('{' covergroup_coverpoint_body_item* '}' ) 
+		| ';'
+;
+
+covergroup_coverpoint_body_item:
+	covergroup_option
+	| covergroup_coverpoint_binspec
+	| null_stmt
+;
+
+bins_keyword:
+	'bins' | 'illegal_bins' | 'ignore_bins' 
+;
+
+covergroup_coverpoint_binspec: (
+		(bins_keyword identifier ('['constant_expression? ']')? '=' covergroup_coverpoint_explicit_bins)
 	)
 ;
 
-coverspec_coverpoint_body_item:
-	coverspec_option			|
-	coverspec_coverpoint_binspec
-;
-
-coverspec_coverpoint_binspec: (
-		('bins' identifier bin_specification ';') | 
-		('bins' identifier hierarchical_id ';')
+covergroup_coverpoint_explicit_bins:
+	(
+		('[' covergroup_open_range_list ']' ('with' '(' covergroup_expression ')')? ';')
+		| (coverpoint_identifier 'with' '(' covergroup_expression ')' ';')
+		| 'default' ';'
 	)
 ;
 
-coverspec_cross_body_item:
-	coverspec_option
+covergroup_open_range_list:
+	covergroup_open_range_value (',' covergroup_open_range_value)*
 ;
 
-coverspec_cross: (
-	(ID ':' 'cross' coverpoint_identifier (',' coverpoint_identifier)*
-			'{' coverspec_cross_body_item* '}' (';')? ) |
-	(ID ':' 'cross' coverpoint_identifier (',' coverpoint_identifier)* ';')
-	)
+covergroup_open_range_value:
+	('..' rhs=expression) |
+	lhs=expression ('..' (rhs=expression)?)?
 ;
+
+covergroup_expression : expression;
+
+
+covergroup_cross: 
+	identifier ':' 'cross' covercross_identifier (',' coverpoint_identifier)*
+		('iff' '(' iff=expression ')')? covergroup_cross_body
+;
+
+covergroup_cross_body:
+	(('{' covergroup_cross_body_item* '}' ) | ';')
+;
+
+covergroup_cross_body_item:
+	covergroup_option
+	| covergroup_cross_binspec
+	| null_stmt
+;
+
+covergroup_cross_binspec:
+	type=bins_keyword name=identifier  
+		'=' covercross_identifier 'with' '(' expr=covergroup_expression ')' ';'
+;
+
+/********************************************************************
+ * Conditional Compile
+ ********************************************************************/
+
+package_body_compile_if:
+	'compile' 'if' '(' cond=constant_expression ')' true_body=package_body_compile_if_body_stmt
+	('else' false_body=package_body_compile_if_body_stmt)?
+;
+
+package_body_compile_if_body_stmt:
+	package_body_item
+	| package_body_compile_if_block_stmt
+;
+
+package_body_compile_if_block_stmt:
+	'{' package_body_item* '}'
+;
+
+action_body_compile_if:
+	'compile' 'if' '(' cond=constant_expression ')' true_body=action_body_compile_if_body_stmt
+	('else' false_body=action_body_compile_if_body_stmt)?
+;
+
+action_body_compile_if_body_stmt:
+	action_body_item
+	| action_body_compile_if_block_stmt
+;
+
+action_body_compile_if_block_stmt:
+	'{' action_body_item* '}'
+;
+
+component_body_compile_if:
+	'compile' 'if' '(' cond=constant_expression ')' true_body=component_body_compile_if_body_stmt
+	('else' false_body=component_body_compile_if_body_stmt)?
+;
+
+component_body_compile_if_body_stmt:
+	component_body_item
+	| component_body_compile_if_block_stmt
+;
+
+component_body_compile_if_block_stmt:
+	'{' component_body_item* '}'
+;
+
+struct_body_compile_if:
+	'compile' 'if' '(' cond=constant_expression ')' true_body=struct_body_compile_if_body_stmt
+	('else' false_body=struct_body_compile_if_body_stmt)?
+;
+
+struct_body_compile_if_body_stmt:
+	struct_body_item
+	| struct_body_compile_if_block_stmt
+;
+
+struct_body_compile_if_block_stmt:
+	'{' struct_body_item* '}'
+;
+
+compile_assert_stmt :
+	'compile' 'assert' '(' cond=constant_expression (',' msg=string_literal)? ')' ';'
+;
+
 
 /********************************************************************
  * H1: Expressions
@@ -754,6 +915,7 @@ coverspec_cross: (
 constant_expression: expression;
 
 expression:
+	cast_op lhs=expression								|
 	unary_op lhs=expression								|
 	lhs=expression exp_op rhs=expression 				|
 	lhs=expression mul_div_mod_op rhs=expression 		|
@@ -789,6 +951,8 @@ logical_inequality_op:
 	'<'|'<='|'>'|'>='
 ;
 
+cast_op: '(' data_type ')';
+
 unary_op: '+' | '-' | '!' | '~' | '&' | '|' | '^';
 
 exp_op: '**';
@@ -806,16 +970,26 @@ primary:
 	| variable_ref_path
 	| method_function_call
 	| static_ref_path
+	| compile_has_expr
+	| super_primary
 	;
 
 // #6362	
 static_ref_path:
 	identifier '::' identifier ('::' identifier)*
 	;
+	
+compile_has_static_ref_path:
+	(is_global='::')? identifier ('::' identifier)*
+	;
+	
+compile_has_expr:
+	'compile' 'has' '(' compile_has_static_ref_path ')'
+	;
 
 method_function_call:
 	method_call		|
-	function_call
+	function_symbol_call
 ;
 
 method_call:
@@ -826,13 +1000,11 @@ method_hierarchical_id :
 	identifier '.' identifier ('.' identifier)*
 ;
 
-function_call:
-	function_id method_parameter_list	
+function_symbol_call:
+	function_symbol_id method_parameter_list	
 ;
 
-function_id:
-// Namespace
-//	ID ('::' ID ('::' ID)?)?
+function_symbol_id:
 	type_identifier
 ;
 
@@ -840,14 +1012,12 @@ paren_expr:
 	'(' expression ')'
 ;
 
-// TODO: Mantis
 variable_ref_path:
 	variable_ref ('.' variable_ref)*
 ;
 
 variable_ref:
 	identifier ('[' expression (':' expression)? ']')?
-//	hierarchical_id ('[' expression (':' expression)? ']')?
 ;
 
 
@@ -860,6 +1030,7 @@ struct_identifier: identifier;
 component_identifier: identifier;
 component_action_identifier: identifier;
 coverpoint_identifier : identifier;
+covercross_identifier : identifier;
 enum_identifier: identifier;
 import_class_identifier: identifier;
 language_identifier: identifier;
@@ -879,7 +1050,7 @@ package_identifier: type_identifier ;
 
 action_type_identifier: type_identifier;
 
-type_identifier : ID ('::' ID)* ;
+type_identifier : (explicit_global='::')? ID ('::' ID)* ;
 
 hierarchical_id:
 	identifier ('.' identifier)*
@@ -888,6 +1059,10 @@ hierarchical_id:
 bool_literal:
 	'true'|'false'
 ;
+
+super_primary:
+	'super'
+	;
 
 /********************************************************************
  * H1: Numbers
