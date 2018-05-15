@@ -99,23 +99,29 @@ void ResolveRefsProcessor::resolve_variable_ref(
 				IBaseItem *it = all_scope_l.at(i);
 				if (dynamic_cast<IActivityTraverseStmt *>(it)) {
 					IActivityTraverseStmt *stmt = dynamic_cast<IActivityTraverseStmt *>(it);
-					IField *a_h = dynamic_cast<IField *>(stmt->getAction()->getTarget());
-					IRefType *a_h_t = dynamic_cast<IRefType *>(a_h->getDataType());
-					IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
-					if (m_debug) {
-						debug("Searching for %s in 'with' scope\n",
-								ref->getId().c_str());
-					}
-					if (a_t) {
-						resolved_ref = resolve_variable_ref(a_t, ref->getId());
-					} else {
-						fprintf(stdout, "Error: target is not an action\n");
+					if (stmt->getAction() && stmt->getAction()->getTarget()) {
+						IField *a_h = dynamic_cast<IField *>(stmt->getAction()->getTarget());
+						IRefType *a_h_t = dynamic_cast<IRefType *>(a_h->getDataType());
+						IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
+						if (m_debug) {
+							debug("Searching for %s in 'with' scope\n",
+									ref->getId().c_str());
+						}
+						if (a_t) {
+							resolved_ref = resolve_variable_ref(a_t, ref->getId());
+						} else {
+							fprintf(stdout, "Error: target is not an action\n");
+						}
 					}
 				} else if (dynamic_cast<IActivityDoActionStmt *>(it)) {
 					IActivityDoActionStmt *stmt = dynamic_cast<IActivityDoActionStmt *>(it);
 					IRefType *a_h_t = dynamic_cast<IRefType *>(stmt->getTargetType());
-					IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
-					resolved_ref = resolve_variable_ref(a_t, ref->getId());
+					if (a_h_t) {
+						IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
+						if (a_t) {
+							resolved_ref = resolve_variable_ref(a_t, ref->getId());
+						}
+					}
 				}
 
 				if (resolved_ref) {

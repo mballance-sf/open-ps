@@ -24,6 +24,9 @@
  */
 
 #include "StructImpl.h"
+#include "FieldImpl.h"
+#include "ScalarTypeImpl.h"
+#include "LiteralImpl.h"
 
 namespace psi {
 
@@ -34,6 +37,19 @@ StructImpl::StructImpl(
 				BaseItemImpl(IBaseItem::TypeStruct),
 				NamedItemImpl(name),
 				m_struct_type(t), m_super_type(super_type) {
+
+	if (t == IStruct::State) {
+		IField *field = new FieldImpl("initial",
+				new ScalarTypeImpl(IScalarType::ScalarType_Bool, 0, 0, 0),
+				IField::FieldAttr_Rand, 0);
+		add(field);
+	} else if (t == IStruct::Resource) {
+		IField *field = new FieldImpl("instance_id",
+				new ScalarTypeImpl(IScalarType::ScalarType_Bit,
+						new LiteralImpl((uint64_t)32), 0, 0),
+				IField::FieldAttr_Rand, 0);
+		add(field);
+	}
 
 }
 

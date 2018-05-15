@@ -126,6 +126,7 @@ action_body_item:
 	| compile_assert_stmt
 	| attr_field
 	| attr_group
+	| inline_covergroup
 	| null_stmt
 ;
 
@@ -155,11 +156,11 @@ object_ref_field:
 
 
 flow_ref_field:
-	('input' | 'output') type_identifier identifier (',' identifier)* ';'
+	(input='input' | output='output') type_identifier identifier (',' identifier)* ';'
 	;
 	
 resource_ref_field:
-	('lock' | 'share') type_identifier identifier (',' identifier)* ';'
+	(lock='lock' | share='share') type_identifier identifier (',' identifier)* ';'
 	;
 
 activity_data_field:
@@ -237,6 +238,7 @@ struct_body_item:
 	| static_const_field_declaration
 	| struct_body_compile_if
 	| compile_assert_stmt
+	| inline_covergroup
 	| null_stmt
 ;
 
@@ -1109,7 +1111,7 @@ WS : [ \t\n\r]+ -> channel (HIDDEN) ;
 /**
  * BNF: SL_COMMENT ::= <kw>//</kw>\n 
  */
-SL_COMMENT 	: '//' .*? '\r'? '\n' -> channel (HIDDEN) ;
+SL_COMMENT 	: '//' .*? '\r'? ('\n'|EOF) -> channel (HIDDEN) ;
 
 /*
  * BNF: ML_COMMENT ::= <kw>/*</kw><kw>*\057</kw>

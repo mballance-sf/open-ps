@@ -93,17 +93,26 @@ static std::vector<TestParam> ReadTestCasesFromDisk() {
 	std::vector<TestParam> ret;
 	struct dirent *ent;
 	DIR *spec_examples;
-	std::string spec_examples_dir = DATA_DIR(TESTS_DATA_DIR, "/spec_examples");
+	const char *spec_examples_dir = ::getenv("SPEC_EXAMPLES");
 
-	spec_examples = opendir(spec_examples_dir.c_str());
+	EXPECT_TRUE((spec_examples_dir != 0));
 
-	while ((ent = readdir(spec_examples))) {
-		if (strstr(ent->d_name, ".pss")) {
-			std::string name = ent->d_name;
-			name = name.substr(0, name.size()-4);
-			std::string path = spec_examples_dir + "/" + ent->d_name;
-			ret.push_back(std::pair<std::string,std::string>(name, path));
+	if (spec_examples_dir) {
+
+		spec_examples = opendir(spec_examples_dir);
+		std::string spec_examples_dir_s = spec_examples_dir;
+
+		while ((ent = readdir(spec_examples))) {
+			if (strstr(ent->d_name, ".pss")) {
+				std::string name = ent->d_name;
+				name = name.substr(0, name.size()-4);
+				std::string path = spec_examples_dir_s + "/" + ent->d_name;
+				ret.push_back(std::pair<std::string,std::string>(name, path));
+			}
 		}
+	} else {
+		fprintf(stdout, "Error: SPEC_EXAMPLES not set\n");
+		fflush(stdout);
 	}
 
 	return ret;

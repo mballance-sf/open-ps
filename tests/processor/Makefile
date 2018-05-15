@@ -55,11 +55,14 @@ all : $(UNPACK_TARGETS)
 	$(MAKE) -C $(BUILD_DIR) -f $(TESTS_PARSER_DIR)/Makefile BUILD=true \
 		VERBOSE=$(VERBOSE) \
 		-j$(NUM_CORES) TESTS_PARSER_DIR=$(TESTS_PARSER_DIR) __run
-		
+	
+ifeq (1,$(USE_VALGRIND))
+VALGRIND=valgrind --tool=memcheck
+endif
 
 __run: unittest$(EXEEXT)
 	echo "LD_LIBRARY_PATH=$(LD_LIBRARY_PATH)"
-	./unittest$(EXEEXT) $(GTEST_ARGS)
+	$(VALGRIND) ./unittest$(EXEEXT) $(GTEST_ARGS)
 
 # __run: $(DLIBPREF)pss-cpp$(DLIBEXT) pss_sys_test.o
 

@@ -98,7 +98,6 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 
 	enter("visitActivity_declaration");
 
-	IAction *action = dynamic_cast<IAction *>(scope());
 	IActivityBlockStmt *block = m_factory->mkActivityBlockStmt(IActivityBlockStmt::ActivityStmt_Block);
 	for (uint32_t i=0; i<ctx->activity_stmt().size(); i++) {
 		IActivityStmt *stmt = ctx->activity_stmt(i)->accept(this);
@@ -108,7 +107,15 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_declaration(PSSParser::Activity_decl
 			error("null activity stmt");
 		}
 	}
-	action->setActivity(block);
+	if (dynamic_cast<IAction *>(scope())) {
+		IAction *action = dynamic_cast<IAction *>(scope());
+		action->setActivity(block);
+	} else if (dynamic_cast<IExtendComposite *>(scope())) {
+		IExtendComposite *ext = dynamic_cast<IExtendComposite *>(scope());
+		ext->add(block);
+	} else {
+		todo("activity parent is neither an action nor an extension");
+	}
 
 	leave("visitActivity_declaration");
 
@@ -173,7 +180,7 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 						type2vector(ctx->type_identifier())),
 				with_c);
 		ret = stmt;
-	} else {
+	} else if (ctx->variable_ref()) {
 		// <type>
 		std::vector<PSSParser::Variable_refContext *> path;
 		path.push_back(ctx->variable_ref());
@@ -182,6 +189,8 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_action_traversal_stmt(PSSParser::Act
 						dynamic_cast<IBaseItem *>(scope()),
 						ctx->variable_ref()->getText(), 0, 0),
 				with_c);
+	} else {
+		todo("activity function_symbol_call");
 	}
 
 	leave("visitActivity_action_traveral_stmt");
@@ -537,75 +546,75 @@ antlrcpp::Any PSS2PSIVisitor::visitAttr_group(PSSParser::Attr_groupContext *ctx)
 	return ret;
 }
 
-antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_field_declarationContext *ctx) {
-	IBaseItem *ret = 0;
-	IField::FieldAttr attr = IField::FieldAttr_None;
-
-	enter("visitAction_field_declaration");
-
-#ifdef TODO
-	if (ctx->action_field_modifier()) {
-		const std::string &modifier = ctx->action_field_modifier()->getText();
-		if (modifier == "rand") {
-			attr = IField::FieldAttr_Rand;
-		} else if (modifier == "input") {
-			attr = IField::FieldAttr_Input;
-		} else if (modifier == "output") {
-			attr = IField::FieldAttr_Output;
-		} else if (modifier == "lock") {
-			attr = IField::FieldAttr_Lock;
-		} else if (modifier == "share") {
-			attr = IField::FieldAttr_Share;
-		} else if (modifier == "action") {
-			attr = IField::FieldAttr_Action;
-		} else {
-			todo("unknown action-field modifier %s", modifier.c_str());
-		}
-	}
-
-	IBaseItem *data_type = ctx->action_data_declaration()->action_data_type()->accept(this);
-
-	for (uint32_t i=0; i<ctx->action_data_declaration()->data_instantiation().size(); i++) {
-		PSSParser::Data_instantiationContext *di =
-				ctx->action_data_declaration()->data_instantiation(i);
-		// Array-dim as a field property is deprecated
-		IExpr *array_dim = 0;
-
-		if (di->array_dim()) {
-			bool has_sum = (dynamic_cast<IScalarType *>(data_type));
-			IExpr *lhs = 0;
-			IExpr *rhs = 0;
-
-			if (di->array_dim()->constant_expression()) {
-				lhs = di->array_dim()->constant_expression()->accept(this);
-			}
-
-			// Wrap data_type in an array_type
-			data_type = m_factory->mkArrayType(
-					data_type,
-					has_sum,
-					lhs,
-					rhs);
-		}
-
-		// TODO: use an 'array-type' to represent an array
-		// - Scalar array type
-		// - Has reference to data-type field
-		// - Has handles to 'size' and 'sum'
-		IField *field = m_factory->mkField(
-				di->identifier()->getText(),
-				data_type,
-				attr,
-				array_dim);
-
-		scope()->add(field);
-	}
-#endif
-
-	leave("visitAction_field_declaration");
-
-	return ret;
-}
+//antlrcpp::Any PSS2PSIVisitor::visitAction_field_declaration(PSSParser::Action_field_declarationContext *ctx) {
+//	IBaseItem *ret = 0;
+//	IField::FieldAttr attr = IField::FieldAttr_None;
+//
+//	enter("visitAction_field_declaration");
+//
+//#ifdef TODO
+//	if (ctx->action_field_modifier()) {
+//		const std::string &modifier = ctx->action_field_modifier()->getText();
+//		if (modifier == "rand") {
+//			attr = IField::FieldAttr_Rand;
+//		} else if (modifier == "input") {
+//			attr = IField::FieldAttr_Input;
+//		} else if (modifier == "output") {
+//			attr = IField::FieldAttr_Output;
+//		} else if (modifier == "lock") {
+//			attr = IField::FieldAttr_Lock;
+//		} else if (modifier == "share") {
+//			attr = IField::FieldAttr_Share;
+//		} else if (modifier == "action") {
+//			attr = IField::FieldAttr_Action;
+//		} else {
+//			todo("unknown action-field modifier %s", modifier.c_str());
+//		}
+//	}
+//
+//	IBaseItem *data_type = ctx->action_data_declaration()->action_data_type()->accept(this);
+//
+//	for (uint32_t i=0; i<ctx->action_data_declaration()->data_instantiation().size(); i++) {
+//		PSSParser::Data_instantiationContext *di =
+//				ctx->action_data_declaration()->data_instantiation(i);
+//		// Array-dim as a field property is deprecated
+//		IExpr *array_dim = 0;
+//
+//		if (di->array_dim()) {
+//			bool has_sum = (dynamic_cast<IScalarType *>(data_type));
+//			IExpr *lhs = 0;
+//			IExpr *rhs = 0;
+//
+//			if (di->array_dim()->constant_expression()) {
+//				lhs = di->array_dim()->constant_expression()->accept(this);
+//			}
+//
+//			// Wrap data_type in an array_type
+//			data_type = m_factory->mkArrayType(
+//					data_type,
+//					has_sum,
+//					lhs,
+//					rhs);
+//		}
+//
+//		// TODO: use an 'array-type' to represent an array
+//		// - Scalar array type
+//		// - Has reference to data-type field
+//		// - Has handles to 'size' and 'sum'
+//		IField *field = m_factory->mkField(
+//				di->identifier()->getText(),
+//				data_type,
+//				attr,
+//				array_dim);
+//
+//		scope()->add(field);
+//	}
+//#endif
+//
+//	leave("visitAction_field_declaration");
+//
+//	return ret;
+//}
 
 antlrcpp::Any PSS2PSIVisitor::visitSub_action_field(PSSParser::Sub_action_fieldContext *ctx) {
 	IBaseItem *ret = 0;
@@ -619,9 +628,28 @@ antlrcpp::Any PSS2PSIVisitor::visitSub_action_field(PSSParser::Sub_action_fieldC
 
 antlrcpp::Any PSS2PSIVisitor::visitFlow_ref_field(PSSParser::Flow_ref_fieldContext *ctx) {
 	IBaseItem *ret = 0;
+	IField::FieldAttr attr;
 
 	enter("visitFlow_ref_field");
-	todo("visitFlow_ref_field");
+	if (ctx->input) {
+		attr = IField::FieldAttr_Input;
+	} else if (ctx->output) {
+		attr = IField::FieldAttr_Output;
+	} else {
+		error("flow_ref_field is missing input/output");
+	}
+
+	IBaseItem *data_type = ctx->type_identifier()->accept(this);
+
+	for (uint32_t i=0; i<ctx->identifier().size(); i++) {
+		IField *field = m_factory->mkField(
+				ctx->identifier(i)->getText(),
+				data_type,
+				attr,
+				0);
+		scope()->add(field);
+	}
+
 	leave("visitFlow_ref_field");
 
 	return ret;
@@ -629,9 +657,29 @@ antlrcpp::Any PSS2PSIVisitor::visitFlow_ref_field(PSSParser::Flow_ref_fieldConte
 
 antlrcpp::Any PSS2PSIVisitor::visitResource_ref_field(PSSParser::Resource_ref_fieldContext *ctx) {
 	IBaseItem *ret = 0;
+	IField::FieldAttr attr;
 
 	enter("visitResource_ref_field");
-	todo("visitResource_ref_field");
+
+	if (ctx->lock) {
+		attr = IField::FieldAttr_Lock;
+	} else if (ctx->share) {
+		attr = IField::FieldAttr_Share;
+	} else {
+		error("resource_ref_field missing lock/share");
+	}
+
+	IBaseItem *data_type = ctx->type_identifier()->accept(this);
+
+	for (uint32_t i=0; i<ctx->identifier().size(); i++) {
+		IField *field = m_factory->mkField(
+				ctx->identifier(i)->getText(),
+				data_type,
+				attr,
+				0);
+		scope()->add(field);
+	}
+
 	leave("visitResource_ref_field");
 
 	return ret;
@@ -641,7 +689,19 @@ antlrcpp::Any PSS2PSIVisitor::visitActivity_data_field(PSSParser::Activity_data_
 	IBaseItem *ret = 0;
 
 	enter("visitActivity_data_field");
-	todo("visitActivity_data_field");
+	IBaseItem *data_type = ctx->data_declaration()->data_type()->accept(this);
+
+	for (uint32_t i=0; i<ctx->data_declaration()->data_instantiation().size(); i++) {
+		const std::string &id = ctx->data_declaration()->data_instantiation(i)->plain_data_instantiation()->identifier()->getText();
+
+		IField *field = m_factory->mkField(
+				id,
+				data_type,
+				IField::FieldAttr_Action,
+				0);
+		scope()->add(field);
+	}
+
 	leave("visitActivity_data_field");
 
 	return ret;
@@ -1256,6 +1316,9 @@ antlrcpp::Any PSS2PSIVisitor::visitExpression(PSSParser::ExpressionContext *ctx)
 	if (ctx->unary_op()) {
 		todo("unary op");
 		ret = ctx->lhs->accept(this);
+	} else if (ctx->cast_op()) {
+		todo("cast op");
+		ret = ctx->lhs->accept(this);
 	} else if (ctx->exp_op()) {
 		// TODO:
 		todo("exp op");
@@ -1415,15 +1478,22 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 		ret = vref;
 	} else if (ctx->method_function_call()) {
 //		ctx->method_function_call()->function_call()->method_parameter_list()->expression().size();
-		const std::vector<PSSParser::ExpressionContext *> &param_ctx =
-				ctx->method_function_call()->function_symbol_call()->method_parameter_list()->expression();
-		std::vector<IExpr *> parameters;
+		if (ctx->method_function_call()->function_symbol_call()) {
+			PSSParser::Function_symbol_callContext *call_ctx  =
+					ctx->method_function_call()->function_symbol_call();
+			const std::vector<PSSParser::ExpressionContext *> &param_ctx =
+					call_ctx->method_parameter_list()->expression();
+			std::vector<IExpr *> parameters;
 
-		for (uint32_t i=0; i<param_ctx.size(); i++) {
-			parameters.push_back(param_ctx.at(i)->accept(this));
+			for (uint32_t i=0; i<param_ctx.size(); i++) {
+				parameters.push_back(param_ctx.at(i)->accept(this));
+			}
+			IImportFunc *func = find_import_func(ctx->method_function_call()->function_symbol_call()); // TODO: find
+			ret = m_factory->mkMethodCallExpr(func, parameters);
+		} else {
+			todo("method_call");
 		}
-		IImportFunc *func = find_import_func(ctx->method_function_call()->function_symbol_call()); // TODO: find
-		ret = m_factory->mkMethodCallExpr(func, parameters);
+
 	} else {
 		error("unknown primary %s", ctx->getText().c_str());
 	}
@@ -1673,7 +1743,7 @@ antlrcpp::Any PSS2PSIVisitor::visitTarget_code_exec_block(PSSParser::Target_code
 		error("unknown exec kind \"%s\"", kind_s.c_str());
 	}
 
-	const std::string templ;
+	std::string templ;
 
 	if (ctx->string()->DOUBLE_QUOTED_STRING()) {
 		templ = ctx->string()->DOUBLE_QUOTED_STRING()->getText();
@@ -1918,6 +1988,23 @@ antlrcpp::Any PSS2PSIVisitor::visitExport_action(PSSParser::Export_actionContext
 	enter("visitExport_action");
 	todo("visitExport_action");
 	leave("visitExport_action");
+
+	return ret;
+}
+
+antlrcpp::Any PSS2PSIVisitor::visitType_identifier(PSSParser::Type_identifierContext *ctx) {
+	IBaseItem *ret = 0;
+	std::vector<std::string> type;
+
+	enter("visitType_identifier");
+
+	for (uint32_t i=0; i<ctx->ID().size(); i++) {
+		type.push_back(ctx->ID(i)->getText());
+	}
+
+	ret = m_factory->mkRefType(scope(), type);
+
+	leave("visitType_identifier");
 
 	return ret;
 }

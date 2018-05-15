@@ -32,7 +32,7 @@ public:
 	antlrcpp::Any visitActivity_declaration(PSSParser::Activity_declarationContext *ctx) override;
 	antlrcpp::Any visitAttr_field(PSSParser::Attr_fieldContext *ctx) override;
 	antlrcpp::Any visitAttr_group(PSSParser::Attr_groupContext *ctx) override;
-	antlrcpp::Any visitAction_field_declaration(PSSParser::Action_field_declarationContext *ctx) override;
+//	antlrcpp::Any visitAction_field_declaration(PSSParser::Action_field_declarationContext *ctx) override;
 	antlrcpp::Any visitSub_action_field(PSSParser::Sub_action_fieldContext *ctx) override;
 	antlrcpp::Any visitFlow_ref_field(PSSParser::Flow_ref_fieldContext *ctx) override;
 	antlrcpp::Any visitResource_ref_field(PSSParser::Resource_ref_fieldContext *ctx) override;
@@ -93,6 +93,8 @@ public:
 	antlrcpp::Any visitTarget_code_exec_block(PSSParser::Target_code_exec_blockContext *ctx) override;
 	antlrcpp::Any visitTarget_file_exec_block(PSSParser::Target_file_exec_blockContext *ctx) override;
 	antlrcpp::Any visitUser_defined_datatype(PSSParser::User_defined_datatypeContext *ctx);
+
+	antlrcpp::Any visitType_identifier(PSSParser::Type_identifierContext *ctx) override;
 
 	IFieldRef *elaborate_field_ref(
 			const std::vector<PSSParser::Variable_refContext *> &path);
