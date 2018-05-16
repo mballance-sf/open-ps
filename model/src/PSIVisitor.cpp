@@ -66,8 +66,8 @@ void PSIVisitor::visit_action(IAction *a) {
 	push_scope(a);
 	visit_scope(a);
 
-	if (a->getGraph()) {
-		visit_activity(a->getGraph());
+	if (a->getActivity()) {
+		visit_activity(a->getActivity());
 	}
 	pop_scope();
 
@@ -250,6 +250,7 @@ void PSIVisitor::visit_expr(IExpr *e) {
 }
 
 void PSIVisitor::visit_extend(IExtend *e) {
+	push_scope(e);
 	visit_item(e->getTarget());
 
 	switch (e->getExtendType()) {
@@ -265,6 +266,7 @@ void PSIVisitor::visit_extend(IExtend *e) {
 		fprintf(stdout, "Error: unhandled extension type %d\n",
 				e->getExtendType());
 	}
+	pop_scope();
 }
 
 void PSIVisitor::visit_extend_composite(IExtendComposite *e) {
@@ -499,6 +501,10 @@ void PSIVisitor::visit_item(IBaseItem *it) {
 		visit_action(dynamic_cast<IAction *>(it));
 		break;
 
+	case IBaseItem::TypeActivityStmt:
+		visit_activity_stmt(dynamic_cast<IActivityStmt *>(it));
+		break;
+
 	case IBaseItem::TypeStruct:
 		visit_struct(dynamic_cast<IStruct *>(it));
 		break;
@@ -570,7 +576,9 @@ void PSIVisitor::visit_ref_type(IRefType *ref) {
 }
 
 void PSIVisitor::visit_symbol(ISymbol *sym) {
+	push_scope(sym);
 	visit_activity_stmt(sym->getBody());
+	pop_scope();
 }
 
 void PSIVisitor::visit_variable_ref(IVariableRef *ref) {

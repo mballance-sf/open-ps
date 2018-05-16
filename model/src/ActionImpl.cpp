@@ -58,8 +58,8 @@ IBaseItem *ActionImpl::clone() const {
 		ret->add((*it)->clone());
 	}
 
-	if (getGraph()) {
-		ret->setActivity(getGraph()->clone());
+	if (getActivity()) {
+		ret->setActivity(getActivity()->clone());
 	}
 
 	return ret;

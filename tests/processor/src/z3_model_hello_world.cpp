@@ -135,6 +135,9 @@ TEST(z3_model,two_level_action) {
 begin_exec:
 printf("Hello World 0 0 1 0 0\n");
 end_exec:
+begin_exec:
+printf("Hello World 0 0 1 0 0\n");
+end_exec:
 	)";
 
 	run_test(src, "top", "entry", expected);

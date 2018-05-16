@@ -103,7 +103,8 @@ static std::vector<TestParam> ReadTestCasesFromDisk() {
 		std::string spec_examples_dir_s = spec_examples_dir;
 
 		while ((ent = readdir(spec_examples))) {
-			if (strstr(ent->d_name, ".pss")) {
+			if (strstr(ent->d_name, ".pss") &&
+					ent->d_name[0] != '.') {
 				std::string name = ent->d_name;
 				name = name.substr(0, name.size()-4);
 				std::string path = spec_examples_dir_s + "/" + ent->d_name;

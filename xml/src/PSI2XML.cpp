@@ -148,8 +148,8 @@ void PSI2XML::process_action(IAction *a) {
 
 	process_body(a->getItems(), "action");
 
-	if (a->getGraph()) {
-		process_graph(a->getGraph());
+	if (a->getActivity()) {
+		process_graph(a->getActivity());
 	}
 
 	exit("action");

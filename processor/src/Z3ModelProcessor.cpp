@@ -16,12 +16,8 @@ Z3ModelProcessor::Z3ModelProcessor() : m_cfg(0), m_ctxt(0) {
 	m_ctxt = 0;
 	m_exec_listener = 0;
 	m_model = 0;
-
-//	m_lfsr.seed(0);
-//	m_lfsr.next();
-//	m_lfsr.next();
-//	m_lfsr.next();
-//	m_lfsr.next();
+	m_root_comp = 0;
+	m_root_action = 0;
 }
 
 Z3ModelProcessor::~Z3ModelProcessor() {
@@ -47,12 +43,6 @@ bool Z3ModelProcessor::build(IComponent *comp, IAction *action) {
 	visit_action(action);
 	pop_prefix();
 
-	std::vector<Z3ModelVar *> vars;
-	for (std::map<std::string,Z3ModelVar *>::iterator it=m_variables.begin();
-			it!=m_variables.end(); it++) {
-		vars.push_back(it->second);
-	}
-
 	return true;
 }
 
@@ -68,51 +58,6 @@ bool Z3ModelProcessor::run() {
 	exec_action(
 			m_root_action->getName(),
 			m_root_action);
-
-//	std::vector<Z3ModelVar *> vars;
-//	for (std::map<std::string,Z3ModelVar *>::iterator it=m_variables.begin();
-//			it!=m_variables.end(); it++) {
-//		it->second->reset();
-//		vars.push_back(it->second);
-//	}
-//
-//	for (uint32_t i=0; i<vars.size(); i++) {
-//		fprintf(stdout, "--> solve %d\n", i);
-//		solve(vars);
-//		fprintf(stdout, "<-- solve %d\n", i);
-//
-////		m_model = Z3_solver_get_model(m_ctxt, m_solver);
-////		if (m_model) {
-////			Z3_model_inc_ref(m_ctxt, m_model);
-////
-////			for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
-////					it!=m_variables.end(); it++) {
-////				Z3ModelVar *v = it->second;
-////				VarVal val = v->get_val(m_ctxt, m_model);
-////				switch (val.type) {
-////				case VarVal_Int:
-////					fprintf(stdout, "%s: %d\n", v->name().c_str(), val.si);
-////					break;
-////				case VarVal_Uint:
-////					fprintf(stdout, "%s: 0x%08x\n", v->name().c_str(), val.ui);
-////					break;
-////				case VarVal_Bool:
-////					fprintf(stdout, "%s: %s\n", v->name().c_str(),
-////							(val.b)?"true":"false");
-////					break;
-////				case VarVal_String:
-////					fprintf(stdout, "%s: %s\n", v->name().c_str(),
-////							m_strtab.id2str(val.ui).c_str());
-////					break;
-////				}
-////			}
-////		}
-////
-////		uint32_t val = vars.at(i)->get_val(m_ctxt, m_model).ui;
-////		fprintf(stdout, "Fix %d to %lld\n", i, val);
-////		vars.at(i)->set_val(val);
-////		Z3_model_dec_ref(m_ctxt, m_model);
-//	}
 
 	return true;
 }
@@ -875,8 +820,8 @@ void Z3ModelProcessor::exec_action(
 		} else {
 			fprintf(stdout, "Warning: no exec listener\n");
 		}
-	} else if (action->getGraph()) {
-		exec_activity_stmt(context, action->getGraph());
+	} else if (action->getActivity()) {
+		exec_activity_stmt(context, action->getActivity());
 	} else {
 		fprintf(stdout, "Note: this is a boring action with no exec and no activity\n");
 	}

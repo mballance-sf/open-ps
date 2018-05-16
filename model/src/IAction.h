@@ -50,7 +50,7 @@ namespace psi_api {
 			/**
 			 * Returns the activity body, or null if there is none
 			 */
-			virtual IActivityStmt *getGraph() const = 0;
+			virtual IActivityStmt *getActivity() const = 0;
 
 			/**
 			 * Sets the activity body

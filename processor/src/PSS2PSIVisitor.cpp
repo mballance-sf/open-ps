@@ -1506,8 +1506,7 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 antlrcpp::Any PSS2PSIVisitor::visitUser_defined_datatype(PSSParser::User_defined_datatypeContext *ctx) {
 	enter("visitUser_defined_datatype");
 
-	IBaseItem *ret = m_factory->mkRefType(scope(),
-			type2vector(ctx->type_identifier()));
+	IBaseItem *ret = ctx->type_identifier()->accept(this);
 
 	leave("visitUser_defined_datatype");
 

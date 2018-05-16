@@ -152,9 +152,9 @@ void PSI2Rules::visit_action(IAction *a) {
 		m_out->println("__post_solve");
 	}
 
-	if (a->getGraph()) {
+	if (a->getActivity()) {
 		// An explicit graph is specified.
-		RulesPSIVisitor::visit_activity(a->getGraph());
+		RulesPSIVisitor::visit_activity(a->getActivity());
 	}
 
 	if (have_body) {

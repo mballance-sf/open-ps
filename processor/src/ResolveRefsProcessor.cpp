@@ -46,6 +46,9 @@ bool ResolveRefsProcessor::process(IModel *model) {
 }
 
 void ResolveRefsProcessor::visit_ref_type(IRefType *ref) {
+	if (m_debug) {
+		debug("--> visit_ref_type %s\n", ref->toString().c_str());
+	}
 	if (m_phase == 1) { // type-resolution
 		IBaseItem *type = find_type(ref->getTypeId());
 
@@ -54,6 +57,9 @@ void ResolveRefsProcessor::visit_ref_type(IRefType *ref) {
 		}
 
 		ref->setTargetType(type);
+	}
+	if (m_debug) {
+		debug("<-- visit_ref_type %s\n", ref->toString().c_str());
 	}
 }
 
@@ -199,7 +205,8 @@ void ResolveRefsProcessor::resolve_variable_ref(
 
 IBaseItem *ResolveRefsProcessor::resolve_variable_ref(
 		IScopeItem			*scope,
-		const std::string	&id) {
+		const std::string	&id,
+		bool				search_upscope) {
 	IBaseItem *ret = 0;
 
 	INamedItem *sn = dynamic_cast<INamedItem *>(scope);
@@ -237,7 +244,16 @@ IBaseItem *ResolveRefsProcessor::resolve_variable_ref(
 	}
 
 	if (!ret) {
-		if (dynamic_cast<IAction *>(scope) &&
+		if (dynamic_cast<ISymbol *>(scope)) {
+			ISymbol *sym = dynamic_cast<ISymbol *>(scope);
+			for (std::vector<IField *>::const_iterator it=sym->getParameters().begin();
+					it!=sym->getParameters().end(); it++) {
+				if ((*it)->getName() == id) {
+					ret = (*it);
+					break;
+				}
+			}
+		} else if (dynamic_cast<IAction *>(scope) &&
 			dynamic_cast<IAction *>(scope)->getSuperType()) {
 			IAction *action = dynamic_cast<IAction *>(scope);
 			IRefType *super_r = dynamic_cast<IRefType *>(action->getSuperType());
@@ -264,7 +280,17 @@ IBaseItem *ResolveRefsProcessor::resolve_variable_ref(
 				INamedItem *ni = dynamic_cast<INamedItem *>(target_s);
 				debug("Searching extend scope %s", (ni)?ni->getName().c_str():"unnamed");
 			}
-			ret = resolve_variable_ref(target_s, id);
+			ret = resolve_variable_ref(target_s, id, true);
+		}
+
+		if (!ret && search_upscope) {
+			if (dynamic_cast<IScopeItem *>(scope->getParent())) {
+				if (m_debug) {
+					debug("Searching upscope");
+				}
+				ret = resolve_variable_ref(
+						dynamic_cast<IScopeItem *>(scope->getParent()), id, true);
+			}
 		}
 //				else /*if (dynamic_cast<IComponent *>(scope) &&
 //						dynamic_cast<IComponent *>(scope)->get) */ {
@@ -288,7 +314,7 @@ IBaseItem *ResolveRefsProcessor::resolve_variable_ref_in_ext(
 	IBaseItem *ret = 0;
 	if (m_debug) {
 		INamedItem *ni = dynamic_cast<INamedItem *>(scope);
-		debug("--> resolve_variable_ref_in_ext %s\n",
+		debug("--> resolve_variable_ref_in_ext %s %s\n", id.c_str(),
 				(ni)?ni->getName().c_str():"unnamed");
 	}
 	for (std::vector<IBaseItem *>::const_iterator it=scope->getItems().begin();
@@ -442,12 +468,15 @@ IBaseItem *ResolveRefsProcessor::find_type(
 			dynamic_cast<IExtend *>(scope)->getExtendType() != IExtend::ExtendType_Enum) {
 		// Find the target type and search it
 		IExtend *ext = dynamic_cast<IExtend *>(scope);
+
 		IBaseItem *ext_target = dynamic_cast<IRefType *>(ext->getTarget())->getTargetType();
 
+		if (ext_target) {
 		if (dynamic_cast<INamedItem *>(ext_target)->getName() == name) {
 			ret = ext_target;
 		} else {
 			ret = find_type(dynamic_cast<IScopeItem *>(ext_target), name);
+		}
 		}
 	} else {
 		for (uint32_t i=0; i<scope->getItems().size(); i++) {

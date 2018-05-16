@@ -27,6 +27,7 @@
 #include "FieldImpl.h"
 #include "ScalarTypeImpl.h"
 #include "LiteralImpl.h"
+#include "RefTypeImpl.h"
 
 namespace psi {
 
@@ -39,10 +40,20 @@ StructImpl::StructImpl(
 				m_struct_type(t), m_super_type(super_type) {
 
 	if (t == IStruct::State) {
+		std::vector<std::string> type;
+		type.push_back(name);
+
+		RefTypeImpl *this_t = new RefTypeImpl(0, type);
+		this_t->setTargetType(this);
+
 		IField *field = new FieldImpl("initial",
 				new ScalarTypeImpl(IScalarType::ScalarType_Bool, 0, 0, 0),
 				IField::FieldAttr_Rand, 0);
+		IField *prev = new FieldImpl("prev",
+				this_t, IField::FieldAttr_Rand, 0);
+
 		add(field);
+		add(prev);
 	} else if (t == IStruct::Resource) {
 		IField *field = new FieldImpl("instance_id",
 				new ScalarTypeImpl(IScalarType::ScalarType_Bit,

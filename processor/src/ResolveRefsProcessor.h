@@ -42,7 +42,8 @@ private:
 
 	IBaseItem *resolve_variable_ref(
 			IScopeItem			*scope,
-			const std::string	&id);
+			const std::string	&id,
+			bool				search_upscope=false);
 
 	IBaseItem *resolve_variable_ref_in_ext(
 			IScopeItem			*scope,
