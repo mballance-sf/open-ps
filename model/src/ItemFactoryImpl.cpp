@@ -172,7 +172,7 @@ IEnumType *ItemFactoryImpl::mkEnumType(
 
 
 IMethodCallExpr *ItemFactoryImpl::mkMethodCallExpr(
-		IImportFunc					*func,
+		IRefType					*func,
 		const std::vector<IExpr *>	&parameters) {
 	return new MethodCallExprImpl(func, parameters);
 }

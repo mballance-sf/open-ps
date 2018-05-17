@@ -25,7 +25,7 @@
 #ifndef INCLUDED_IMETHOD_CALL_EXPR_H
 #define INCLUDED_IMETHOD_CALL_EXPR_H
 #include "IExpr.h"
-#include "IImportFunc.h"
+#include "IRefType.h"
 
 namespace psi_api {
 
@@ -38,7 +38,7 @@ public:
 	 * The import function
 	 */
 
-	virtual IImportFunc *getFunc() const = 0;
+	virtual IRefType *getFunc() const = 0;
 
 	virtual const std::vector<IExpr *> &getParameters() const = 0;
 };

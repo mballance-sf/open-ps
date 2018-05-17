@@ -28,7 +28,7 @@
 namespace psi {
 
 MethodCallExprImpl::MethodCallExprImpl(
-		IImportFunc					*func,
+		IRefType					*func,
 		const std::vector<IExpr *>	&parameters) :
 				ExprImpl(IExpr::ExprType_MethodCall),
 				m_func(func), m_parameters(parameters) {

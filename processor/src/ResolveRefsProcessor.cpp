@@ -89,49 +89,74 @@ void ResolveRefsProcessor::resolve_variable_ref(
 	// we can search up the containing scopes
 	if (!scope) {
 
-		for (int32_t i=scope_l.size()-1; i>=0; i--) {
-			resolved_ref = resolve_variable_ref(
-					scope_l.at(i), ref->getId());
+		if (ref->getId() == "this") {
+			IBaseItem *this_s = scopes().at(scopes().size()-1);
 
-			if (resolved_ref) {
-				break;
-			}
-		}
+			if (dynamic_cast<IActivityTraverseStmt *>(this_s)) {
+				IActivityTraverseStmt *stmt = dynamic_cast<IActivityTraverseStmt *>(this_s);
+				if (stmt->getAction() && stmt->getAction()->getTarget()) {
+					IField *a_h = dynamic_cast<IField *>(stmt->getAction()->getTarget());
+					IRefType *a_h_t = dynamic_cast<IRefType *>(a_h->getDataType());
+					// TODO: could be action, or action-qualified field (struct, primitive, etc)
 
-		if (!resolved_ref) {
-			// Check to see if we are inside a traversal statement
-			const std::vector<IBaseItem *> &all_scope_l = scopes();
-			for (int32_t i=all_scope_l.size()-1; i>=0; i--) {
-				IBaseItem *it = all_scope_l.at(i);
-				if (dynamic_cast<IActivityTraverseStmt *>(it)) {
-					IActivityTraverseStmt *stmt = dynamic_cast<IActivityTraverseStmt *>(it);
-					if (stmt->getAction() && stmt->getAction()->getTarget()) {
-						IField *a_h = dynamic_cast<IField *>(stmt->getAction()->getTarget());
-						IRefType *a_h_t = dynamic_cast<IRefType *>(a_h->getDataType());
-						IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
-						if (m_debug) {
-							debug("Searching for %s in 'with' scope\n",
-									ref->getId().c_str());
-						}
-						if (a_t) {
-							resolved_ref = resolve_variable_ref(a_t, ref->getId());
-						} else {
-							fprintf(stdout, "Error: target is not an action\n");
-						}
-					}
-				} else if (dynamic_cast<IActivityDoActionStmt *>(it)) {
-					IActivityDoActionStmt *stmt = dynamic_cast<IActivityDoActionStmt *>(it);
-					IRefType *a_h_t = dynamic_cast<IRefType *>(stmt->getTargetType());
-					if (a_h_t) {
-						IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
-						if (a_t) {
-							resolved_ref = resolve_variable_ref(a_t, ref->getId());
-						}
-					}
+					resolved_ref = a_h_t->getTargetType();
 				}
+			} else if (dynamic_cast<IActivityDoActionStmt *>(this_s)) {
+				IActivityDoActionStmt *stmt = dynamic_cast<IActivityDoActionStmt *>(this_s);
+				IRefType *a_h_t = dynamic_cast<IRefType *>(stmt->getTargetType());
+
+				resolved_ref = a_h_t->getTargetType();
+			} else {
+				fprintf(stdout, "Error: this not handled\n");
+			}
+
+
+			fprintf(stdout, "Note: this-qualified reference %p\n", resolved_ref);
+		} else {
+			for (int32_t i=scope_l.size()-1; i>=0; i--) {
+				resolved_ref = resolve_variable_ref(
+						scope_l.at(i), ref->getId());
 
 				if (resolved_ref) {
 					break;
+				}
+			}
+
+			if (!resolved_ref) {
+				// Check to see if we are inside a traversal statement
+				const std::vector<IBaseItem *> &all_scope_l = scopes();
+				for (int32_t i=all_scope_l.size()-1; i>=0; i--) {
+					IBaseItem *it = all_scope_l.at(i);
+					if (dynamic_cast<IActivityTraverseStmt *>(it)) {
+						IActivityTraverseStmt *stmt = dynamic_cast<IActivityTraverseStmt *>(it);
+						if (stmt->getAction() && stmt->getAction()->getTarget()) {
+							IField *a_h = dynamic_cast<IField *>(stmt->getAction()->getTarget());
+							IRefType *a_h_t = dynamic_cast<IRefType *>(a_h->getDataType());
+							IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
+							if (m_debug) {
+								debug("Searching for %s in 'with' scope\n",
+										ref->getId().c_str());
+							}
+							if (a_t) {
+								resolved_ref = resolve_variable_ref(a_t, ref->getId());
+							} else {
+								fprintf(stdout, "Error: target is not an action\n");
+							}
+						}
+					} else if (dynamic_cast<IActivityDoActionStmt *>(it)) {
+						IActivityDoActionStmt *stmt = dynamic_cast<IActivityDoActionStmt *>(it);
+						IRefType *a_h_t = dynamic_cast<IRefType *>(stmt->getTargetType());
+						if (a_h_t) {
+							IAction *a_t = dynamic_cast<IAction *>(a_h_t->getTargetType());
+							if (a_t) {
+								resolved_ref = resolve_variable_ref(a_t, ref->getId());
+							}
+						}
+					}
+
+					if (resolved_ref) {
+						break;
+					}
 				}
 			}
 		}
@@ -172,20 +197,27 @@ void ResolveRefsProcessor::resolve_variable_ref(
 	if (ref->getNext()) {
 		// Transform resolved_ref to its type
 		IField *ref_field = dynamic_cast<IField *>(resolved_ref);
+
 		IScopeItem *subscope = 0;
-		if (dynamic_cast<IRefType *>(ref_field->getDataType())) {
-			subscope = dynamic_cast<IScopeItem *>(
-					dynamic_cast<IRefType *>(ref_field->getDataType())->getTargetType());
-		} else if (dynamic_cast<IScopeItem *>(ref_field->getDataType())) {
-			subscope = dynamic_cast<IScopeItem *>(ref_field->getDataType());
-		} else if (dynamic_cast<IArrayType *>(ref_field->getDataType())) {
-			subscope = dynamic_cast<IArrayType *>(
-					dynamic_cast<IArrayType *>(ref_field->getDataType()));
+		if (ref_field) {
+			if (dynamic_cast<IRefType *>(ref_field->getDataType())) {
+				subscope = dynamic_cast<IScopeItem *>(
+						dynamic_cast<IRefType *>(ref_field->getDataType())->getTargetType());
+			} else if (dynamic_cast<IScopeItem *>(ref_field->getDataType())) {
+				subscope = dynamic_cast<IScopeItem *>(ref_field->getDataType());
+			} else if (dynamic_cast<IArrayType *>(ref_field->getDataType())) {
+				subscope = dynamic_cast<IArrayType *>(
+						dynamic_cast<IArrayType *>(ref_field->getDataType()));
+			} else {
+				fprintf(stdout, "Unknown type %d\n",
+						ref_field->getDataType()->getType());
+				fflush(stdout);
+			}
 		} else {
-			fprintf(stdout, "Unknown type %d\n",
-					ref_field->getDataType()->getType());
-			fflush(stdout);
+			// Already a type
+			subscope = dynamic_cast<IScopeItem *>(resolved_ref);
 		}
+
 		if (subscope) {
 			resolve_variable_ref(subscope, full_ref, ref->getNext());
 		} else {
@@ -505,6 +537,11 @@ IBaseItem *ResolveRefsProcessor::find_type(
 					ret = it;
 					break;
 				}
+			} else {
+				if (m_debug) {
+					INamedItem *ni = dynamic_cast<INamedItem *>(it);
+					debug("  Ignoring item %d (%s)", it->getType(), (ni)?ni->getName().c_str():"unnamed");
+				}
 			}
 		}
 	}
@@ -521,7 +558,9 @@ IBaseItem *ResolveRefsProcessor::find_type(
 bool ResolveRefsProcessor::is_type(IBaseItem *it) {
 	return (dynamic_cast<INamedItem *>(it) &&
 			(dynamic_cast<IScopeItem *>(it) ||
-					dynamic_cast<IEnumType *>(it)));
+					dynamic_cast<IEnumType *>(it) ||
+					dynamic_cast<IImportFunc *>(it)
+					));
 }
 
 bool ResolveRefsProcessor::is_type(IScopeItem *it) {

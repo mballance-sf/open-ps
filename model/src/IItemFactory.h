@@ -147,7 +147,7 @@ public:
 			const std::vector<IEnumerator *>	&enumerators) = 0;
 
 	virtual IMethodCallExpr *mkMethodCallExpr(
-			IImportFunc					*func,
+			IRefType					*func,
 			const std::vector<IExpr *>	&parameters) = 0;
 
 	/**

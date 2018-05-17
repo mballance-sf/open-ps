@@ -37,6 +37,11 @@ antlrcpp::Any PSS2PSIVisitor::visitModel(PSSParser::ModelContext *ctx) {
 		try {
 		IBaseItem *it = ctx->portable_stimulus_description(i)->accept(this);
 		if (it && it->getType() != IBaseItem::TypePackage) {
+			if (m_debug) {
+				INamedItem *ni = dynamic_cast<INamedItem *>(it);
+				debug("Add item %d (%s) to root",
+						it->getType(), (ni)?ni->getName().c_str():"unnamed");
+			}
 			m_model->add(it);
 		}
 		} catch (std::bad_cast &e) {
@@ -526,6 +531,13 @@ antlrcpp::Any PSS2PSIVisitor::visitAttr_field(PSSParser::Attr_fieldContext *ctx)
 					array_dim);
 
 			scope()->add(field);
+
+			if (m_debug) {
+				INamedItem *ni = dynamic_cast<INamedItem *>(scope());
+				debug("Add attr_field %s to scope %s\n",
+						pi->identifier()->getText().c_str(),
+						(ni)?ni->getName().c_str():"unnamed");
+			}
 		} else {
 			todo("covergroup instance");
 		}
@@ -844,59 +856,61 @@ antlrcpp::Any PSS2PSIVisitor::visitComponent_data_declaration(PSSParser::Compone
 	IBaseItem *ret = 0;
 	enter("visitComponent_data_declaration");
 
-#ifdef TODO
 	IField::FieldAttr attr = IField::FieldAttr_None;
-
-//	if (ctx->struct_field_modifier()) {
-//		if (ctx->struct_field_modifier()->getText() == "rand") {
-//			attr = IField::FieldAttr_Rand;
-//		} else {
-//			fprintf(stdout, "Unknown field modifier \"%s\"\n",
-//					ctx->struct_field_modifier()->getText().c_str());
-//		}
-//	}
 
 	IBaseItem *data_type = ctx->data_declaration()->data_type()->accept(this);
 
 	for (uint32_t i=0; i<ctx->data_declaration()->data_instantiation().size(); i++) {
 		PSSParser::Data_instantiationContext *di =
 				ctx->data_declaration()->data_instantiation(i);
-		IExpr *array_dim = 0;
-		IBaseItem *field_data_type = data_type;
 
-		if (di->array_dim()) {
-			bool has_sum = (dynamic_cast<IScalarType *>(data_type));
-			IExpr *lhs = 0;
-			IExpr *rhs = 0;
+		if (di->plain_data_instantiation()) {
+			PSSParser::Plain_data_instantiationContext *pdi =
+					di->plain_data_instantiation();
 
-			if (di->array_dim()->constant_expression()) {
-				lhs = di->array_dim()->constant_expression()->accept(this);
+			IExpr *array_dim = 0;
+			IBaseItem *field_data_type = data_type;
+
+			if (pdi->array_dim()) {
+				bool has_sum = (dynamic_cast<IScalarType *>(data_type));
+				IExpr *lhs = 0;
+				IExpr *rhs = 0;
+
+				if (pdi->array_dim()->constant_expression()) {
+					lhs = pdi->array_dim()->constant_expression()->accept(this);
+				}
+
+				// Wrap data_type in an array_type
+				field_data_type = m_factory->mkArrayType(
+						data_type,
+						has_sum,
+						lhs,
+						rhs);
 			}
 
-			// Wrap data_type in an array_type
-			field_data_type = m_factory->mkArrayType(
-					data_type,
-					has_sum,
-					lhs,
-					rhs);
-		}
+			if (m_debug) {
+				debug("Note: field %s has data type of %d\n",
+						pdi->identifier()->getText().c_str(),
+						field_data_type->getType());
+			}
+			IField *field = m_factory->mkField(
+					pdi->identifier()->getText(),
+					field_data_type,
+					attr,
+					array_dim);
 
-		if (m_debug) {
-			debug("Note: field %s has data type of %d\n",
-					di->identifier()->getText().c_str(),
-					field_data_type->getType());
-		}
-		IField *field = m_factory->mkField(
-				di->identifier()->getText(),
-				field_data_type,
-				attr,
-				array_dim);
+			if (m_debug) {
+				debug("Add component field %s\n",
+						pdi->identifier()->getText().c_str());
+			}
 
-		scope()->add(field);
+			scope()->add(field);
+		} else {
+			fprintf(stdout, "Error: illegal covergroup instance in a component\n");
+		}
 	}
 
 	leave("visitComponent_data_declaration");
-#endif
 
 	return ret;
 }
@@ -1488,8 +1502,8 @@ antlrcpp::Any PSS2PSIVisitor::visitPrimary(PSSParser::PrimaryContext *ctx) {
 			for (uint32_t i=0; i<param_ctx.size(); i++) {
 				parameters.push_back(param_ctx.at(i)->accept(this));
 			}
-			IImportFunc *func = find_import_func(ctx->method_function_call()->function_symbol_call()); // TODO: find
-			ret = m_factory->mkMethodCallExpr(func, parameters);
+			IBaseItem *func = ctx->method_function_call()->function_symbol_call()->function_symbol_id()->accept(this);
+			ret = m_factory->mkMethodCallExpr(dynamic_cast<IRefType *>(func), parameters);
 		} else {
 			todo("method_call");
 		}
@@ -1814,8 +1828,19 @@ antlrcpp::Any PSS2PSIVisitor::visitExec_body_stmt(PSSParser::Exec_body_stmtConte
 		}
 
 		enter("visit_expression (2)");
-		ret = m_factory->mkExecExprStmt((IFieldRef *)expr, op,
-				ctx->expression(1)->accept(this));
+		IExpr *rhs = 0;
+		if (ctx->expression().size() > 1) {
+			try {
+				rhs = ctx->expression(1)->accept(this);
+			} catch (std::bad_cast &e) {
+				error("IExprBodyStmt: bad-cast on RHS");
+			}
+		}
+
+		ret = m_factory->mkExecExprStmt(
+				expr,
+				op,
+				rhs);
 		leave("visit_expression (2)");
 	} else {
 		// Just an expression statement
@@ -1949,7 +1974,7 @@ antlrcpp::Any PSS2PSIVisitor::visitMethod_prototype(PSSParser::Method_prototypeC
 
 	ret = method;
 
-	leave("visitMethod_prototype");
+	leave("visitMethod_prototype %p %s", method, (method)?method->getName().c_str():"unknown");
 
 	return ret;
 }
@@ -1960,11 +1985,9 @@ antlrcpp::Any PSS2PSIVisitor::visitFunction_decl(PSSParser::Function_declContext
 
 antlrcpp::Any PSS2PSIVisitor::visitImport_method_phase_qualifiers(PSSParser::Import_method_phase_qualifiersContext *ctx) {
 	IBaseItem *ret = 0;
-	enter("visitMethod_prototype");
-
-	todo("visitMethod_prototype");
-
-	leave("visitMethod_prototype");
+	enter("visitImport_method_phase_qualifiers");
+	todo("visitImport_method_phase_qualifiers");
+	leave("visitImport_method_phase_qualifiers");
 
 	return ret;
 }

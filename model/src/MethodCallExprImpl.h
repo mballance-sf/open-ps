@@ -39,24 +39,19 @@ class MethodCallExprImpl:
 public:
 
 	MethodCallExprImpl(
-			IImportFunc					*func,
+			IRefType					*func,
 			const std::vector<IExpr *>	&parameters);
-
-	MethodCallExprImpl(
-			IImportFunc					*func,
-			std::initializer_list<IExpr *>	&params) :
-				MethodCallExprImpl(func, std::vector<IExpr *>(params)) { }
 
 	virtual ~MethodCallExprImpl();
 
-	virtual IImportFunc *getFunc() const { return m_func; }
+	virtual IRefType *getFunc() const { return m_func; }
 
 	virtual const std::vector<IExpr *> &getParameters() const { return m_parameters; }
 
 	virtual IExpr *clone() const;
 
 private:
-	IImportFunc						*m_func;
+	IRefType						*m_func;
 	std::vector<IExpr *>			m_parameters;
 };
 

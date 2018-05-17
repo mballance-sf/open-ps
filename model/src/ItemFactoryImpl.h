@@ -100,7 +100,7 @@ public:
 
 
 	virtual IMethodCallExpr *mkMethodCallExpr(
-			IImportFunc					*func,
+			IRefType					*func,
 			const std::vector<IExpr *>	&parameters);
 
 	virtual IVariableRef *mkVariableRef(

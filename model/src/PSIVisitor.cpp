@@ -26,6 +26,7 @@
 #include "ModelImpl.h"
 #include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 using namespace psi;
 
@@ -302,7 +303,19 @@ void PSIVisitor::visit_literal_expr(ILiteral *l) {
 }
 
 void PSIVisitor::visit_method_call(IMethodCallExpr *c) {
+	if (m_debug) {
+		debug("--> visit_method_call %s", c->getFunc()->toString().c_str());
+	}
+	visit_ref_type(c->getFunc());
 
+	for (std::vector<IExpr *>::const_iterator it=c->getParameters().begin();
+			it!=c->getParameters().end(); it++) {
+		visit_expr(*it);
+	}
+
+	if (m_debug) {
+		debug("<-- visit_method_call %s", c->getFunc()->toString().c_str());
+	}
 }
 
 void PSIVisitor::visit_open_range_list(IOpenRangeList *range_l) {
@@ -699,6 +712,17 @@ IActivityStmt *PSIVisitor::graph_parent(IActivityStmt *it) {
 		}
 	}
 	return 0;
+}
+
+void PSIVisitor::debug(const char *fmt, ...) {
+	va_list ap;
+
+	va_start(ap, fmt);
+	fprintf(stdout, "[DEBUG] ");
+	vfprintf(stdout, fmt, ap);
+	fprintf(stdout, "\n");
+
+	va_end(ap);
 }
 
 } /* namespace apps */

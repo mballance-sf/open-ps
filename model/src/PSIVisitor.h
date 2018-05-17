@@ -165,10 +165,13 @@ protected:
 
 	IActivityStmt *graph_parent(IActivityStmt *it=0);
 
-private:
+protected:
+
 	void enter(const char *fmt, ...);
 
 	void leave(const char *fmt, ...);
+
+	void debug(const char *fmt, ...);
 
 private:
 	bool							m_debug;
