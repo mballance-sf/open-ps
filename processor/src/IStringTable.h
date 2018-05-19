@@ -17,6 +17,10 @@ public:
 
 	virtual const std::string &id2str(uint32_t id) const = 0;
 
+	virtual uint32_t size() const = 0;
+
+	virtual uint32_t bits() const = 0;
+
 };
 
 

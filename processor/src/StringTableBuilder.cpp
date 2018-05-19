@@ -6,49 +6,30 @@
  */
 
 #include "StringTableBuilder.h"
+#include "StringTable.h"
 
 StringTableBuilder::StringTableBuilder() {
-	// TODO Auto-generated constructor stub
-
+	m_strtab = 0;
 }
 
 StringTableBuilder::~StringTableBuilder() {
-	// TODO Auto-generated destructor stub
 }
 
-void StringTableBuilder::build(IModel *model) {
-	visit_model(model);
-}
+IStringTable *StringTableBuilder::build(
+		IComponent		*c,
+		IAction			*a) {
+	m_strtab = new StringTable();
+	visit_component(c);
+	visit_action(a);
 
-void StringTableBuilder::build(IAction *action) {
-	visit_action(action);
-}
-
-void StringTableBuilder::build(IComponent *component) {
-	visit_component(component);
+	return m_strtab;
 }
 
 void StringTableBuilder::visit_literal_expr(ILiteral *l) {
 	if (l->getLiteralType() == ILiteral::LiteralString) {
 		// See if we have a new string
 		const std::string &str = l->getString();
-		std::map<std::string, uint32_t>::iterator fr = m_str2id.find(str);
-
-		// This is new
-		if (fr == m_str2id.end()) {
-			uint32_t sz = m_str2id.size();
-			m_str2id[str] = sz;
-			m_id2str[sz] = str;
-		}
+		m_strtab->add(str);
 	}
 }
 
-uint32_t StringTableBuilder::bits() const {
-	uint32_t bits = 1;
-
-	while ((1 << bits) < m_str2id.size()) {
-		bits++;
-	}
-
-	return bits;
-}

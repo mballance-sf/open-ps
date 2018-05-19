@@ -766,7 +766,6 @@ covergroup_body_item:
 	covergroup_option
 	| covergroup_coverpoint
 	| covergroup_cross
-	| constraint_declaration
 	| null_stmt
 ;
 

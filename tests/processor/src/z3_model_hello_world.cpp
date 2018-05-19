@@ -142,3 +142,70 @@ end_exec:
 
 	run_test(src, "top", "entry", expected);
 }
+
+TEST(z3_model,repeat_count) {
+	const char *src = R"(
+		component top {
+			action sub {
+				rand bit[4]		v, v1, v2, v3, v4;
+				exec body C = """
+					printf("Hello World {{v}} {{v1}} {{v2}} {{v3}} {{v4}}\n");
+				""";
+			}
+			action entry {
+				sub s1, s2;
+				activity {
+					repeat (5) {
+						s1;
+					}
+				}
+			}
+		}
+	)";
+
+	const char *expected = R"(
+begin_exec:
+printf("Hello World 0 0 1 0 0\n");
+end_exec:
+begin_exec:
+printf("Hello World 0 0 1 0 0\n");
+end_exec:
+	)";
+
+	run_test(src, "top", "entry", expected);
+}
+
+
+TEST(z3_model,repeat_fix_one) {
+	const char *src = R"(
+		component top {
+			action sub {
+				rand bit[4]		v, v1, v2, v3, v4;
+				exec body C = """
+					printf("Hello World {{v}} {{v1}} {{v2}} {{v3}} {{v4}}\n");
+				""";
+			}
+			action entry {
+				sub s1, s2;
+				rand bit[4]	val;
+				constraint { s1.v == val; }
+				activity {
+					repeat (5) {
+						s1;
+					}
+				}
+			}
+		}
+	)";
+
+	const char *expected = R"(
+begin_exec:
+printf("Hello World 0 0 1 0 0\n");
+end_exec:
+begin_exec:
+printf("Hello World 0 0 1 0 0\n");
+end_exec:
+	)";
+
+	run_test(src, "top", "entry", expected);
+}

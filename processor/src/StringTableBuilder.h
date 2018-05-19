@@ -15,43 +15,25 @@
 #include <stdint.h>
 
 using namespace psi_api;
+using namespace psi::apps;
 
-class StringTableBuilder:
-		public virtual psi::apps::PSIVisitor,
-		public virtual IStringTable {
+class StringTable;
+
+class StringTableBuilder: public virtual PSIVisitor {
 public:
 	StringTableBuilder();
 
 	virtual ~StringTableBuilder();
 
-	void build(IModel *model);
-
-	void build(IAction *action);
-
-	void build(IComponent *component);
-
-	virtual uint32_t str2id(const std::string &str) const {
-		return m_str2id.find(str)->second;
-	}
-
-	virtual const std::string &id2str(uint32_t id) const {
-		return m_id2str.find(id)->second;
-	}
-
-	uint32_t size() const {
-		return m_str2id.size();
-	}
-
-	uint32_t bits() const;
+	IStringTable *build(IComponent *c, IAction *a);
 
 protected:
 
 	virtual void visit_literal_expr(ILiteral *l) override;
 
-
 private:
-	std::map<std::string, uint32_t>			m_str2id;
-	std::map<uint32_t, std::string>			m_id2str;
+	StringTable				*m_strtab;
+
 };
 
 #endif /* PROCESSOR_SRC_STRINGTABLEBUILDER_H_ */
