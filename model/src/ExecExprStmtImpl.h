@@ -21,14 +21,10 @@
  *  Created on: Aug 30, 2016
  *      Author: ballance
  */
-
-#ifndef CONTRIB_API_IMPL_EXECEXPRSTMTIMPL_H_
-#define CONTRIB_API_IMPL_EXECEXPRSTMTIMPL_H_
+#pragma once
 
 #include "ExecStmtImpl.h"
 #include "IExecExprStmt.h"
-
-namespace psi {
 
 class ExecExprStmtImpl:
 		public virtual ExecStmtImpl,
@@ -55,6 +51,3 @@ private:
 	IExpr						*m_rhs;
 };
 
-} /* namespace psi */
-
-#endif /* CONTRIB_API_IMPL_EXECEXPRSTMTIMPL_H_ */

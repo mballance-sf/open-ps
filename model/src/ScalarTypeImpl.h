@@ -23,14 +23,11 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_SCALARTYPEIMPL_H_
-#define IMPL_SCALARTYPEIMPL_H_
+#pragma once
 #include "IScalarType.h"
 #include "BaseItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ScalarTypeImpl:
 		public virtual IScalarType,
@@ -68,6 +65,3 @@ private:
 	IOpenRangeList					*m_domain;
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_SCALARTYPEIMPL_H_ */

@@ -10,7 +10,7 @@
 #include "Z3ExprTerm.h"
 
 class Z3ModelBuilder;
-using namespace psi::apps;
+
 
 class Z3ModelConstraintBuilder : public PSIVisitor {
 public:

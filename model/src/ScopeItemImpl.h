@@ -22,14 +22,12 @@
  *      Author: ballance
  */
 
-#ifndef CONTRIB_API_IMPL_SCOPEITEMIMPL_H_
-#define CONTRIB_API_IMPL_SCOPEITEMIMPL_H_
+#pragma once
 #include "IScopeItem.h"
 #include <stdint.h>
 
-using namespace psi_api;
 
-namespace psi {
+
 
 class ScopeItemImpl : public virtual IScopeItem {
 public:
@@ -63,6 +61,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* CONTRIB_API_IMPL_SCOPEITEMIMPL_H_ */

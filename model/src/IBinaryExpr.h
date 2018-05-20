@@ -23,12 +23,9 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IBINARYEXPR_H_
-#define SRC_PSI_API_IBINARYEXPR_H_
+#pragma once
 
 #include "IExpr.h"
-
-namespace psi_api {
 
 class IBinaryExpr : public IExpr {
 
@@ -65,9 +62,7 @@ public:
 	virtual IExpr *getRHS() const = 0;
 
 };
-}
 
 
 
 
-#endif /* SRC_PSI_API_IBINARYEXPR_H_ */

@@ -12,7 +12,7 @@
 #include "IBaseItem.h"
 #include "IScopeItem.h"
 
-using namespace psi_api;
+
 
 class IRefType : public virtual IBaseItem {
 public:

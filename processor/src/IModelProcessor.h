@@ -10,7 +10,7 @@
 
 #include "IModel.h"
 
-using namespace psi_api;
+
 
 namespace qpssc {
 
@@ -19,7 +19,7 @@ public:
 
 	virtual ~IModelProcessor() { }
 
-	virtual bool process(psi_api::IModel *model) = 0;
+	virtual bool process(IModel *model) = 0;
 
 	// TODO: error handling
 };

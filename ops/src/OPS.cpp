@@ -21,7 +21,7 @@ using namespace antlr4;
 OPS::OPS() {
 	// TODO Auto-generated constructor stub
 
-	m_model = new psi::ModelImpl();
+	m_model = new ModelImpl();
 }
 
 OPS::~OPS() {

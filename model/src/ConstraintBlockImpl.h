@@ -22,8 +22,7 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_CONSTRAINTBLOCKIMPL_H_
-#define IMPL_CONSTRAINTBLOCKIMPL_H_
+#pragma once
 #include <string>
 #include <vector>
 
@@ -31,9 +30,7 @@
 #include "BaseItemImpl.h"
 #include "NamedItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ConstraintBlockImpl:
 		public virtual IConstraintBlock,
@@ -59,6 +56,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_CONSTRAINTBLOCKIMPL_H_ */

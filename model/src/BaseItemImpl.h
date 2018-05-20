@@ -22,27 +22,15 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_BASEITEMIMPL_H_
-#define IMPL_BASEITEMIMPL_H_
+#pragma once
 #include <map>
 #include <string>
 #include "IBaseItem.h"
 #include "AttributesImpl.h"
-
-#ifndef PSS_HAVE_CXX_11
-#if __cplusplus >= 201103L
-#define PSS_HAVE_CXX_11
-#endif
-#endif
-
-#ifdef PSS_HAVE_CXX_11
 #include <initializer_list>
 #include <type_traits>
-#endif
 
-using namespace psi_api;
 
-namespace psi {
 
 	class BaseItemImpl :
 			public virtual IBaseItem,
@@ -72,6 +60,3 @@ namespace psi {
 			ILocation							*m_start;
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_BASEITEMIMPL_H_ */

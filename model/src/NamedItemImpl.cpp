@@ -25,8 +25,6 @@
 
 #include "NamedItemImpl.h"
 
-namespace psi {
-
 NamedItemImpl::NamedItemImpl(const std::string &name) : m_name(name) {
 
 }
@@ -47,4 +45,3 @@ void NamedItemImpl::setName(const std::string &name) {
 	m_name = name;
 }
 
-} /* namespace psi */

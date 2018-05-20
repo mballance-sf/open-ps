@@ -27,9 +27,6 @@
 #include "ScopeItemImpl.h"
 #include "IActivityRepeatStmt.h"
 
-using namespace psi_api;
-
-namespace psi {
 
 class ActivityRepeatStmtImpl:
 		public virtual BaseItemImpl,
@@ -58,6 +55,4 @@ private:
 	IActivityStmt			*m_body;
 };
 
-
-} /* namespace psi */
 

@@ -20,8 +20,8 @@
 #include "ModelImpl.h"
 
 using namespace antlr4;
-using namespace psi_api;
-using namespace psi::apps;
+
+
 
 #ifndef TESTS_DATA_DIR
 #define TESTS_DATA_DIR "/unknown"
@@ -58,7 +58,7 @@ public:
 TEST_P(pss_processor,spec_examples) {
 	CheckRefsResolvedVisitor v;
 	ResolveRefsProcessor	 refs_processor;
-	IModel *model = new psi::ModelImpl();
+	IModel *model = new ModelImpl();
 
 //	fprintf(stdout, "--> %s\n", GetParam().second.c_str());
 

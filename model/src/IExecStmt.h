@@ -22,14 +22,11 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDE_API_IEXECSTMT_H_
-#define INCLUDE_API_IEXECSTMT_H_
+#pragma once
 #include <vector>
 #include "IExpr.h"
 #include "IImportFunc.h"
 #include "IFieldRef.h"
-
-namespace psi_api {
 
 class IExecStmt {
 public:
@@ -47,8 +44,4 @@ public:
 
 };
 
-}
 
-
-
-#endif /* INCLUDE_API_IEXECSTMT_H_ */

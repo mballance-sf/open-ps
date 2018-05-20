@@ -20,7 +20,7 @@
 #include "LFSR.h"
 #include "z3.h"
 
-using namespace psi::apps;
+
 
 class Z3ModelProcessor {
 public:

@@ -15,7 +15,7 @@
 #include "TargetTemplateProcessor.h"
 #include "TestVarValueProvider.h"
 
-using namespace psi_api;
+
 
 static void run_test(
 		const std::map<std::string, VarVal>	&var_map,

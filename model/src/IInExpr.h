@@ -8,7 +8,7 @@
 #include "IExpr.h"
 #include "IOpenRangeList.h"
 
-using namespace psi_api;
+
 
 class IInExpr : public virtual IExpr {
 public:

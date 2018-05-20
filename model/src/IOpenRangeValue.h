@@ -9,7 +9,7 @@
 #define MODEL_SRC_IOPENRANGEVALUE_H_
 #include "IExpr.h"
 
-using namespace psi_api;
+
 
 class IOpenRangeValue {
 public:

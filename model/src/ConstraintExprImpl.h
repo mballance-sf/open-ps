@@ -22,14 +22,11 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_CONSTRAINTEXPRIMPL_H_
-#define IMPL_CONSTRAINTEXPRIMPL_H_
+#pragma once
 #include "IConstraintExpr.h"
 #include "BaseItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ConstraintExprImpl:
 		public virtual IConstraintExpr,
@@ -52,6 +49,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_CONSTRAINTEXPRIMPL_H_ */

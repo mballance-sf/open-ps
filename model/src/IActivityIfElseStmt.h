@@ -27,7 +27,6 @@
 #include "IExpr.h"
 #include "IActivityStmt.h"
 
-namespace psi_api {
 
 class IActivityIfElseStmt : public virtual IActivityStmt {
 
@@ -42,6 +41,5 @@ public:
 	virtual IActivityStmt *getFalse() const = 0;
 
 };
-}
 
 

@@ -11,7 +11,7 @@
 #include "IScopeItem.h"
 #include "IRefType.h"
 
-using namespace psi_api;
+
 
 class UndefinedTypeException : public std::exception {
 public:

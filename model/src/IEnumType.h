@@ -12,7 +12,7 @@
 #include <vector>
 #include "IEnumerator.h"
 
-using namespace psi_api;
+
 
 class IEnumType : public virtual IBaseItem, public virtual INamedItem {
 public:

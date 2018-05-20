@@ -7,15 +7,14 @@
 
 #include "Z3ModelBuilder.h"
 
-Z3ModelBuilder::Z3ModelBuilder() :
-	m_expr_builder(this),
-	m_prefix_valid(false) {
+Z3ModelBuilder::Z3ModelBuilder() : m_prefix_valid(false) {
+	m_expr_builder = new Z3ModelExprBuilder(this);
 
 
 }
 
 Z3ModelBuilder::~Z3ModelBuilder() {
-	// TODO Auto-generated destructor stub
+	delete m_expr_builder;
 }
 
 void Z3ModelBuilder::push_prefix(const std::string &pref) {

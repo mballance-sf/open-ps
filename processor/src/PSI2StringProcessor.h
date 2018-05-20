@@ -22,15 +22,12 @@
  *      Author: ballance
  */
 
-#ifndef SRC_APPS_PSI2STRINGPROCESSOR_H_
-#define SRC_APPS_PSI2STRINGPROCESSOR_H_
+#pragma once
 #include <stdint.h>
 #include <string>
 
 #include "PSIVisitor.h"
 
-namespace psi {
-namespace apps {
 
 class PSI2StringProcessor: public PSIVisitor {
 public:
@@ -66,7 +63,3 @@ protected:
 	std::string					m_content;
 };
 
-} /* namespace apps */
-} /* namespace psi */
-
-#endif /* SRC_APPS_PSI2STRINGPROCESSOR_H_ */

@@ -12,7 +12,7 @@
 #include "ScopeItemImpl.h"
 #include "IExtendComposite.h"
 
-using namespace psi;
+
 
 class ExtendCompositeImpl:
 		public virtual IExtendComposite,

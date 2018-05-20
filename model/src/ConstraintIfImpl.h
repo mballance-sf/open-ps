@@ -22,15 +22,11 @@
  *  Created on: May 4, 2016
  *      Author: ballance
  */
-
-#ifndef IMPL_CONSTRAINTIFIMPL_H_
-#define IMPL_CONSTRAINTIFIMPL_H_
+#pragma once
 #include "IConstraintIf.h"
 #include "BaseItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ConstraintIfImpl :
 		public virtual IConstraintIf,
@@ -58,6 +54,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_CONSTRAINTIFIMPL_H_ */

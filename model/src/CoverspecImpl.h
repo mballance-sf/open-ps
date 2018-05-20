@@ -11,7 +11,7 @@
 #include "ScopeItemImpl.h"
 #include "ICoverspec.h"
 
-using namespace psi;
+
 
 class CoverspecImpl: public virtual BaseItemImpl, public virtual ScopeItemImpl, public virtual ICoverspec {
 public:

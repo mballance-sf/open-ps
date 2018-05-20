@@ -10,7 +10,7 @@
 #include "BaseItemImpl.h"
 #include "IActivityIfElseStmt.h"
 
-using namespace psi;
+
 
 class ActivityIfElseStmtImpl:
 		public virtual BaseItemImpl,

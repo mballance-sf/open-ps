@@ -11,7 +11,7 @@
 #include "RulesItem.h"
 #include "NamedItemImpl.h"
 
-using namespace psi;
+
 
 namespace qpssc {
 

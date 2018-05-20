@@ -23,14 +23,11 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_ILITERAL_H_
-#define SRC_PSI_API_ILITERAL_H_
+#pragma once
 #include <stdint.h>
 #include <string>
 
 #include "IExpr.h"
-
-namespace psi_api {
 
 class ILiteral : public IExpr {
 public:
@@ -57,9 +54,3 @@ public:
 
 };
 
-}
-
-
-
-
-#endif /* SRC_PSI_API_ILITERAL_H_ */

@@ -10,7 +10,7 @@
 #include "IExtend.h"
 #include "IScopeItem.h"
 
-using namespace psi_api;
+
 
 class IExtendComposite :
 		public virtual IExtend,

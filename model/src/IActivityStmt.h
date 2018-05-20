@@ -25,8 +25,6 @@
 #pragma once
 #include "IBaseItem.h"
 
-namespace psi_api {
-
 class IActivityStmt : public virtual IBaseItem {
 public:
 	enum ActivityStmtType {
@@ -58,6 +56,5 @@ public:
 	virtual IActivityStmt *clone() const = 0;
 
 };
-}
 
 

@@ -22,10 +22,7 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IEXPR_H_
-#define SRC_PSI_API_IEXPR_H_
-
-namespace psi_api {
+#pragma once
 
 class IExpr {
 public:
@@ -49,8 +46,3 @@ public:
 
 };
 
-}
-
-
-
-#endif /* SRC_PSI_API_IEXPR_H_ */

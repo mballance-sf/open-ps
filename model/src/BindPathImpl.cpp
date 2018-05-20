@@ -25,7 +25,6 @@
 #include "BindPathImpl.h"
 #include "IBaseItem.h"
 
-namespace psi {
 
 BindPathImpl::BindPathImpl(const std::vector<IBaseItem *> &path) : m_path(path) {
 
@@ -46,4 +45,3 @@ IBindPath *BindPathImpl::clone() const {
 	return new BindPathImpl(path);
 }
 
-} /* namespace psi */

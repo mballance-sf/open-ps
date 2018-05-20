@@ -12,7 +12,7 @@
 #include "IField.h"
 #include "IExpr.h"
 
-using namespace psi_api;
+
 
 class IArrayType : public virtual IBaseItem, public virtual IScopeItem {
 public:

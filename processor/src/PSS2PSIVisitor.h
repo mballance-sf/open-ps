@@ -5,13 +5,12 @@
  *      Author: ballance
  */
 
-#ifndef PSS2PSI_SRC_PSS2PSIVISITOR_H_
-#define PSS2PSI_SRC_PSS2PSIVISITOR_H_
+#pragma once
 #include "PSSBaseVisitor.h"
 #include "IModel.h"
 #include <vector>
 
-using namespace psi_api;
+
 
 class PSS2PSIVisitor : public PSSBaseVisitor {
 public:
@@ -147,4 +146,3 @@ private:
 	IExpr						*m_expr;
 };
 
-#endif /* PSS2PSI_SRC_PSS2PSIVISITOR_H_ */

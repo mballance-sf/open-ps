@@ -22,16 +22,12 @@
  *      Author: ballance
  */
 
-#ifndef SRC_APPS_PSIVISITOR_H_
-#define SRC_APPS_PSIVISITOR_H_
+#pragma once
 #include "IModel.h"
 #include "IBaseItem.h"
 #include <stack>
 
-using namespace psi_api;
 
-namespace psi {
-namespace apps {
 
 class PSIVisitor {
 
@@ -182,7 +178,3 @@ private:
 
 };
 
-} /* namespace apps */
-} /* namespace psi */
-
-#endif /* SRC_APPS_PSIVISITOR_H_ */

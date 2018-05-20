@@ -11,7 +11,7 @@
 #include "IConstraintBlock.h"
 #include "IVariableRef.h"
 
-using namespace psi_api;
+
 
 class IConstraintForeach : public IConstraint {
 public:

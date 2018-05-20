@@ -24,8 +24,6 @@
 
 #include "ExecExprStmtImpl.h"
 
-namespace psi {
-
 ExecExprStmtImpl::ExecExprStmtImpl(
 		IExpr						*lhs,
 		IExecExprStmt::AssignOp		op,
@@ -47,4 +45,3 @@ IExecStmt *ExecExprStmtImpl::clone() const {
 			(getRhs())?getRhs()->clone():0);
 }
 
-} /* namespace psi */

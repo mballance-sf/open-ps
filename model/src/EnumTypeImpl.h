@@ -11,7 +11,7 @@
 #include "BaseItemImpl.h"
 #include "IEnumType.h"
 
-using namespace psi;
+
 
 class EnumTypeImpl : public BaseItemImpl, public virtual IEnumType {
 public:

@@ -11,9 +11,9 @@
 #include "FieldImpl.h"
 #include "IPool.h"
 
-using namespace psi;
 
-class PoolImpl: public IPool, public psi::FieldImpl {
+
+class PoolImpl: public IPool, public FieldImpl {
 public:
 	PoolImpl(
 			const std::string		&name,

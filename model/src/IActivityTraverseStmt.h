@@ -29,8 +29,6 @@
 #include "IVariableRef.h"
 #include "IConstraint.h"
 
-namespace psi_api {
-
 class IActivityTraverseStmt : public virtual IActivityStmt {
 public:
 
@@ -42,5 +40,4 @@ public:
 
 };
 
-}
 

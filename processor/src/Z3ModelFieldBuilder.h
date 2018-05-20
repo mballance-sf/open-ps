@@ -10,7 +10,7 @@
 #include "IField.h"
 #include "PSIVisitor.h"
 
-using namespace psi::apps;
+
 
 class Z3ModelBuilder;
 class Z3ModelFieldBuilder : public virtual PSIVisitor {

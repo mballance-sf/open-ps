@@ -22,17 +22,14 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_EXTENDIMPL_H_
-#define IMPL_EXTENDIMPL_H_
+#pragma once
 #include <vector>
 #include "IExtend.h"
 #include "IField.h"
 #include "BaseItemImpl.h"
 #include "ScopeItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ExtendImpl:
 		public virtual IExtend,
@@ -54,6 +51,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_EXTENDIMPL_H_ */

@@ -5,12 +5,11 @@
  *      Author: ballance
  */
 
-#ifndef PSS2PSI_SRC_PSS2PSI_H_
-#define PSS2PSI_SRC_PSS2PSI_H_
+#pragma once
 #include "IModel.h"
 #include <string>
 
-using namespace psi_api;
+
 
 class PSS2PSI {
 public:
@@ -21,5 +20,4 @@ public:
 	bool process(IModel *model, const std::string &path);
 };
 
-#endif /* PSS2PSI_SRC_PSS2PSI_H_ */
 

@@ -22,11 +22,8 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDE_API_IEXECEXPRSTMT_H_
-#define INCLUDE_API_IEXECEXPRSTMT_H_
+#pragma once
 #include "IExecStmt.h"
-
-namespace psi_api {
 
 class IExecExprStmt : public virtual IExecStmt {
 public:
@@ -51,8 +48,4 @@ public:
 
 };
 
-}
 
-
-
-#endif /* INCLUDE_API_IEXECEXPRSTMT_H_ */

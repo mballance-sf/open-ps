@@ -11,7 +11,7 @@
 #include "INamedItem.h"
 #include "IScopeItem.h"
 
-using namespace psi_api;
+
 
 class ICoverspec : public virtual IBaseItem, public virtual INamedItem, public virtual IScopeItem {
 public:

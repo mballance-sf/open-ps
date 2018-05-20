@@ -22,12 +22,9 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_IMETHOD_CALL_EXPR_H
-#define INCLUDED_IMETHOD_CALL_EXPR_H
+#pragma once
 #include "IExpr.h"
 #include "IRefType.h"
-
-namespace psi_api {
 
 class IMethodCallExpr : public virtual IExpr {
 public:
@@ -43,8 +40,3 @@ public:
 	virtual const std::vector<IExpr *> &getParameters() const = 0;
 };
 
-}
-
-
-
-#endif /* INCLUDED_IMETHOD_CALL_EXPR_H */

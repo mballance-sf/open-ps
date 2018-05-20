@@ -5,15 +5,9 @@
  *      Author: ballance
  */
 
-#ifndef MODEL_SRC_ICHILDITEM_H_
-#define MODEL_SRC_ICHILDITEM_H_
+#pragma once
 
-namespace psi_api {
 class IBaseItem;
-}
-
-using namespace psi_api;
-
 class IChildItem {
 public:
 	virtual ~IChildItem() { }
@@ -29,5 +23,3 @@ public:
 
 
 
-
-#endif /* MODEL_SRC_ICHILDITEM_H_ */

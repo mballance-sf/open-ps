@@ -22,17 +22,15 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_COMPONENTIMPL_H_
-#define IMPL_COMPONENTIMPL_H_
+#pragma once
 #include "IComponent.h"
 #include "IField.h"
 #include "BaseItemImpl.h"
 #include "NamedItemImpl.h"
 #include "ScopeItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
+
 
 class ComponentImpl:
 		public virtual IComponent,
@@ -52,6 +50,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_COMPONENTIMPL_H_ */

@@ -12,7 +12,7 @@
 
 namespace qpssc {
 
-class RulesExecStmtItem: public psi::ExecStmtImpl {
+class RulesExecStmtItem: public ExecStmtImpl {
 public:
 	enum RulesExecStmtType {
 		If

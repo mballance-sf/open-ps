@@ -24,8 +24,6 @@
 
 #include "AttributesImpl.h"
 
-namespace psi {
-
 AttributesImpl::AttributesImpl() {
 	// TODO Auto-generated constructor stub
 
@@ -82,4 +80,3 @@ void AttributesImpl::clearAttribute(const std::string &key) {
 
 std::string AttributesImpl::m_null_attr;
 
-} /* namespace psi */

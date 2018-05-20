@@ -10,7 +10,7 @@
 #include "ScalarTypeImpl.h"
 #include "LiteralImpl.h"
 
-using namespace psi;
+
 
 ArrayTypeImpl::ArrayTypeImpl(
 		IBaseItem				*target,

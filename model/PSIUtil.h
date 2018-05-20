@@ -22,14 +22,11 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_UTIL_PSIUTIL_H_
-#define SRC_PSI_UTIL_PSIUTIL_H_
+#pragma once
 #include "psi_api.h"
 
-using namespace psi_api;
 
-namespace psi {
-namespace apps {
+
 
 class PSIUtil {
 public:
@@ -42,7 +39,4 @@ public:
 	static INamedItem *toNamedItem(IBaseItem *it);
 };
 
-}
-}
 
-#endif /* SRC_PSI_UTIL_PSIUTIL_H_ */

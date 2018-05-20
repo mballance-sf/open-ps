@@ -23,13 +23,10 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_BINDPATHIMPL_H_
-#define IMPL_BINDPATHIMPL_H_
+#pragma once
 #include "IBindPath.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class BindPathImpl: public IBindPath {
 public:
@@ -46,6 +43,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_BINDPATHIMPL_H_ */

@@ -10,7 +10,7 @@
 #include "BaseItemImpl.h"
 #include "IEnumerator.h"
 
-using namespace psi;
+
 
 class EnumeratorImpl: public BaseItemImpl, public virtual IEnumerator {
 public:

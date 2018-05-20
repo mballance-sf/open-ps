@@ -12,8 +12,8 @@
 #include "ScopeItemImpl.h"
 #include "ISymbol.h"
 
-using namespace psi_api;
-using namespace psi;
+
+
 
 class SymbolImpl: public ISymbol,
 	public virtual BaseItemImpl,

@@ -26,8 +26,6 @@
 #include "ComponentImpl.h"
 #include "FieldImpl.h"
 
-namespace psi {
-
 ComponentImpl::ComponentImpl(const std::string &name, IBaseItem *super_type) :
 		BaseItemImpl(IBaseItem::TypeComponent),
 		NamedItemImpl(name), m_super_type(super_type) {
@@ -49,4 +47,3 @@ IBaseItem *ComponentImpl::clone() const {
 	return ret;
 }
 
-} /* namespace psi */

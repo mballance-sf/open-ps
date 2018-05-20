@@ -22,13 +22,10 @@
  *      Author: ballance
  */
 
-#ifndef CONTRIB_API_IMPL_EXECSTMTIMPL_H_
-#define CONTRIB_API_IMPL_EXECSTMTIMPL_H_
+#pragma once
 #include "IExecStmt.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ExecStmtImpl : public virtual IExecStmt {
 public:
@@ -45,6 +42,4 @@ private:
 	IExecStmt::StmtType				m_type;
 };
 
-} /* namespace psi */
 
-#endif /* CONTRIB_API_IMPL_EXECSTMTIMPL_H_ */

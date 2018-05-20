@@ -25,8 +25,6 @@
 #include "BinaryExprImpl.h"
 #include "ExprImpl.h"
 
-namespace psi {
-
 BinaryExprImpl::BinaryExprImpl(
 		IExpr					*lhs,
 		IBinaryExpr::BinOpType	op,
@@ -47,4 +45,3 @@ IExpr *BinaryExprImpl::clone() const {
 	return ret;
 }
 
-} /* namespace psi */

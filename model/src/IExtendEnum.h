@@ -10,7 +10,7 @@
 #include "IExtend.h"
 #include "IEnumerator.h"
 
-using namespace psi_api;
+
 
 class IExtendEnum : public virtual IExtend {
 public:

@@ -25,8 +25,6 @@
 #include "ActionImpl.h"
 #include "FieldImpl.h"
 
-namespace psi {
-
 ActionImpl::ActionImpl(
 		const std::string 	&name,
 		IBaseItem 			*super_type) :
@@ -65,4 +63,3 @@ IBaseItem *ActionImpl::clone() const {
 	return ret;
 }
 
-} /* namespace psi */

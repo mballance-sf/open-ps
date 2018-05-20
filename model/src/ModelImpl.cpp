@@ -59,8 +59,6 @@
 #include <execinfo.h>
 #endif
 
-namespace psi {
-
 ModelImpl::ModelImpl() :
 		BaseItemImpl(IBaseItem::TypeModel),
 		m_global_pkg(""), m_callback_ctxt(0) {
@@ -188,4 +186,3 @@ void ModelImpl::clearAttribute(const std::string &key) {
 }
 
 
-} /* namespace psi */

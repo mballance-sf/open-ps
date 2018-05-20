@@ -66,7 +66,7 @@
 #include "SymbolImpl.h"
 
 
-using namespace psi;
+
 
 ItemFactoryImpl::ItemFactoryImpl() {
 	// TODO Auto-generated constructor stub

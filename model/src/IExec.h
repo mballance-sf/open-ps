@@ -22,16 +22,13 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IEXEC_H_
-#define SRC_PSI_API_IEXEC_H_
+#pragma once
 #include <string>
 #include "IExecCallback.h"
 #include "IExpr.h"
 #include "IExecStmt.h"
 #include "IBaseItem.h"
 #include "IExecReplacementExpr.h"
-
-namespace psi_api {
 
 class IExec :
 		public virtual IBaseItem {
@@ -80,8 +77,4 @@ public:
 	virtual const std::vector<IExecStmt *> &getStmts() const = 0;
 
 };
-}
 
-
-
-#endif /* SRC_PSI_API_IEXEC_H_ */

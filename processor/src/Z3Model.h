@@ -12,11 +12,10 @@
 #include "Z3ModelVar.h"
 #include "LFSR.h"
 #include "IVarValueProvider.h"
-#include "StringTableBuilder.h"
+#include "IStringTable.h"
 #include "z3.h"
 
-class Z3Model : public StringTableBuilder,
-	public virtual IVarValueProvider {
+class Z3Model : public virtual IVarValueProvider {
 
 public:
 	Z3Model();
@@ -39,6 +38,7 @@ private:
 	Z3_solver								m_solver;
 	std::map<std::string, Z3ModelVar *>		m_variables;
 	LFSR									m_lfsr;
+	IStringTable							*m_strtab;
 
 };
 

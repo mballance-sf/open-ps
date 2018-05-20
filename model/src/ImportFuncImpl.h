@@ -22,8 +22,7 @@
  *      Author: ballance
  */
 
-#ifndef CONTRIB_API_IMPL_IMPORTFUNCIMPL_H_
-#define CONTRIB_API_IMPL_IMPORTFUNCIMPL_H_
+#pragma once
 #include <string>
 #include <vector>
 #include "BaseItemImpl.h"
@@ -31,7 +30,6 @@
 #include "IImportFunc.h"
 #include "IField.h"
 
-namespace psi {
 
 class ImportFuncImpl : public IImportFunc,
 	public virtual BaseItemImpl,
@@ -62,6 +60,3 @@ private:
 	IExecCallback				*m_cb;
 };
 
-} /* namespace psi_api */
-
-#endif /* CONTRIB_API_IMPL_IMPORTFUNCIMPL_H_ */

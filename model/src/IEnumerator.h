@@ -11,7 +11,7 @@
 #include "INamedItem.h"
 #include "IExpr.h"
 
-using namespace psi_api;
+
 
 
 class IEnumerator : public virtual IBaseItem, public virtual INamedItem {

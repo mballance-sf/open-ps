@@ -9,7 +9,7 @@
 #define MODEL_SRC_IPOOL_H_
 #include "IField.h"
 
-using namespace psi_api;
+
 
 class IPool : public virtual IField {
 public:

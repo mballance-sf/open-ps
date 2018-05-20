@@ -25,8 +25,6 @@
 #include "ScalarTypeImpl.h"
 #include "IExpr.h"
 
-namespace psi {
-
 ScalarTypeImpl::ScalarTypeImpl(
 		IScalarType::ScalarType			scalar_type,
 		IExpr							*msb,
@@ -48,4 +46,3 @@ IBaseItem *ScalarTypeImpl::clone() const {
 			(getDomain()?getDomain()->clone():0));
 }
 
-} /* namespace psi */

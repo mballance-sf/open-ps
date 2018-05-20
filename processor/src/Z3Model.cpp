@@ -153,7 +153,7 @@ VarVal Z3Model::get_value(const std::string &path) {
 		ret = var->get_val(m_ctxt, m_model);
 
 		if (ret.type == VarVal_String) {
-			ret.s = id2str(ret.ui);
+			ret.s = m_strtab->id2str(ret.ui);
 		}
 	} else {
 		fprintf(stdout, "Error: no variable named %s\n", path.c_str());

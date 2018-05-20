@@ -8,7 +8,7 @@
 #include <stdint.h>
 #pragma once
 
-using namespace psi_api;
+
 
 class IExecReplacementExpr {
 public:

@@ -24,9 +24,6 @@
 
 #include "PSIUtil.h"
 
-namespace psi {
-namespace apps {
-
 PSIUtil::PSIUtil() {
 	// TODO Auto-generated constructor stub
 
@@ -66,5 +63,3 @@ INamedItem *PSIUtil::toNamedItem(IBaseItem *it) {
 	return 0;
 }
 
-}
-}

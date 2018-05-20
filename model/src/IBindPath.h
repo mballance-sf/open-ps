@@ -22,11 +22,8 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IBINDPATH_H_
-#define SRC_PSI_API_IBINDPATH_H_
+#pragma once
 #include <vector>
-
-namespace psi_api {
 
 class IBaseItem;
 class IBindPath {
@@ -39,8 +36,3 @@ public:
 
 };
 
-}
-
-
-
-#endif /* SRC_PSI_API_IBINDPATH_H_ */

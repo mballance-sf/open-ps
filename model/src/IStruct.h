@@ -23,15 +23,12 @@
  *      Author: ballance
  */
 
-#ifndef SRC_API_ISTRUCT_H_
-#define SRC_API_ISTRUCT_H_
+#pragma once
 #include <string>
 #include <vector>
 
 #include "IScopeItem.h"
 #include "INamedItem.h"
-
-namespace psi_api {
 
 	class IStruct :
 			public virtual IBaseItem,
@@ -56,9 +53,3 @@ namespace psi_api {
 			virtual StructType getStructType() const = 0;
 
 	};
-}
-
-
-
-
-#endif /* SRC_API_ISTRUCT_H_ */

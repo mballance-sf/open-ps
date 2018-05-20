@@ -26,7 +26,6 @@
 
 #include "FieldImpl.h"
 
-namespace psi {
 
 ExtendImpl::ExtendImpl(
 		IExtend::ExtendType		type,
@@ -39,4 +38,3 @@ ExtendImpl::~ExtendImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-} /* namespace psi */

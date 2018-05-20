@@ -22,14 +22,10 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_GRAPHBLOCKSTMTIMPL_H_
-#define IMPL_GRAPHBLOCKSTMTIMPL_H_
+#pragma once
 #include "BaseItemImpl.h"
 #include "IActivityBlockStmt.h"
 
-using namespace psi_api;
-
-namespace psi {
 
 
 class ActivityBlockStmtImpl : public virtual BaseItemImpl, public virtual IActivityBlockStmt {
@@ -57,6 +53,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_GRAPHBLOCKSTMTIMPL_H_ */

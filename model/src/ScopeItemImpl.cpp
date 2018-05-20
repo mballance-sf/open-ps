@@ -25,8 +25,6 @@
 #include "ScopeItemImpl.h"
 #include "IField.h"
 
-namespace psi {
-
 ScopeItemImpl::ScopeItemImpl() {
 	// TODO Auto-generated constructor stub
 
@@ -90,5 +88,3 @@ IField *ScopeItemImpl::getField(const std::string &name) {
 	return 0;
 }
 
-
-} /* namespace psi */

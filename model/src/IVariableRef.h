@@ -11,7 +11,7 @@
 #include "IScopeItem.h"
 #include <string>
 
-using namespace psi_api;
+
 
 class IVariableRef : public virtual IExpr {
 public:

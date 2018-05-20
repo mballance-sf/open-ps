@@ -12,7 +12,7 @@
 #include "IOpenRangeList.h"
 #include "IExpr.h"
 
-using namespace psi_api;
+
 
 class IConstraintUnique : public virtual IConstraint {
 public:

@@ -26,15 +26,12 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_ICONSTRAINTBLOCK_H_
-#define SRC_PSI_API_ICONSTRAINTBLOCK_H_
+#pragma once
 #include <vector>
 #include <string>
 
 #include "IConstraint.h"
 #include "INamedItem.h"
-
-namespace psi_api {
 
 class IConstraintBlock :
 		public virtual IConstraint,
@@ -51,9 +48,4 @@ public:
 	virtual const std::vector<IConstraint *> &getConstraints() const = 0;
 
 };
-}
 
-
-
-
-#endif /* SRC_PSI_API_ICONSTRAINTBLOCK_H_ */

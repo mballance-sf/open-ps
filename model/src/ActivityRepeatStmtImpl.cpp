@@ -24,8 +24,6 @@
 
 #include "ActivityRepeatStmtImpl.h"
 
-namespace psi {
-
 ActivityRepeatStmtImpl::ActivityRepeatStmtImpl(
 		RepeatType 		type,
 		IExpr 			*cond,
@@ -46,5 +44,3 @@ IActivityStmt *ActivityRepeatStmtImpl::clone() const {
 			(getCond())?getCond()->clone():0,
 			getBody()->clone());
 }
-
-} /* namespace psi */

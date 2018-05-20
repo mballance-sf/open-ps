@@ -23,16 +23,13 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_BINDIMPL_H_
-#define IMPL_BINDIMPL_H_
+#pragma once
 #include <vector>
 
 #include "IBind.h"
 #include "BaseItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class BindImpl: public virtual IBind, public virtual BaseItemImpl {
 public:
@@ -49,6 +46,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_BINDIMPL_H_ */

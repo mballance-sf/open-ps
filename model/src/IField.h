@@ -23,15 +23,12 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IFIELD_H_
-#define SRC_PSI_API_IFIELD_H_
+#pragma once
 #include <stdint.h>
 #include <string>
 #include "IBaseItem.h"
 #include "IFieldRef.h"
 #include "INamedItem.h"
-
-namespace psi_api {
 
 class IField :
 		public virtual IBaseItem,
@@ -66,10 +63,3 @@ public:
 
 };
 
-
-}
-
-
-
-
-#endif /* SRC_PSI_API_IFIELD_H_ */

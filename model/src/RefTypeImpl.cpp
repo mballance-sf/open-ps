@@ -10,7 +10,7 @@
 RefTypeImpl::RefTypeImpl(
 		IScopeItem						*scope,
 		const std::vector<std::string>	&path) :
-		psi::BaseItemImpl(IBaseItem::TypeRefType),
+		BaseItemImpl(IBaseItem::TypeRefType),
 		m_scope(scope), m_typeid(path), m_target(0) {
 
 }

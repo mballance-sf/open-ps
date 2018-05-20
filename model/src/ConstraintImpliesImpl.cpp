@@ -24,8 +24,6 @@
 
 #include "ConstraintImpliesImpl.h"
 
-namespace psi {
-
 ConstraintImpliesImpl::ConstraintImpliesImpl(
 		IExpr			*cond,
 		IConstraint		*imp
@@ -44,4 +42,3 @@ IBaseItem *ConstraintImpliesImpl::clone() const {
 			dynamic_cast<IConstraint *>(getImp()->clone()));
 }
 
-} /* namespace psi */

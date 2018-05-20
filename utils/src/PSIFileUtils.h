@@ -22,13 +22,11 @@
  *      Author: ballance
  */
 
-#ifndef CONTRIB_APPS_PSIFILEUTILS_H_
-#define CONTRIB_APPS_PSIFILEUTILS_H_
+#pragma once
 #include <stdio.h>
 #include <string>
 #include <stdint.h>
 
-namespace psi {
 
 class PSIFileUtils {
 public:
@@ -42,6 +40,3 @@ public:
 
 };
 
-} /* namespace psi */
-
-#endif /* CONTRIB_APPS_PSIFILEUTILS_H_ */

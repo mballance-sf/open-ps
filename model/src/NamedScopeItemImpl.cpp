@@ -25,7 +25,6 @@
 
 #include "NamedScopeItemImpl.h"
 
-namespace psi {
 
 NamedScopeItemImpl::NamedScopeItemImpl(IBaseItem::ItemType t, const std::string &name) :
 		m_type(t), m_name(name) {
@@ -44,4 +43,3 @@ void NamedScopeItemImpl::add(IBaseItem *item) {
 	}
 }
 
-}

@@ -24,8 +24,6 @@
 
 #include "BaseItemImpl.h"
 
-namespace psi {
-
 BaseItemImpl::BaseItemImpl(IBaseItem::ItemType t) :
 		m_type(t), m_parent(0) {
 	// TODO Auto-generated constructor stub
@@ -45,4 +43,3 @@ void BaseItemImpl::setType(IBaseItem::ItemType t) {
 }
 
 
-} /* namespace psi */

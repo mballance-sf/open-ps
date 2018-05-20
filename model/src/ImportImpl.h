@@ -11,7 +11,7 @@
 #include "IImport.h"
 #include "BaseItemImpl.h"
 
-using namespace psi;
+
 
 class ImportImpl: public BaseItemImpl, public virtual IImport {
 public:

@@ -23,13 +23,11 @@
  *      Author: ballance
  */
 
-#ifndef SRC_API_IBASEITEM_H_
-#define SRC_API_IBASEITEM_H_
+#pragma once
 #include "IAttributes.h"
 #include "IStartLocation.h"
 #include "IChildItem.h"
 
-namespace psi_api {
 	class IItemFactory;
 
 	/**
@@ -85,9 +83,4 @@ namespace psi_api {
 	};
 
 
-}
 
-
-
-
-#endif /* SRC_API_IBASEITEM_H_ */

@@ -18,8 +18,8 @@
 #include "ModelImpl.h"
 
 using namespace antlr4;
-using namespace psi_api;
-using namespace psi::apps;
+
+
 
 TEST(z3_model,smoke) {
 	const char *src = R"(
@@ -43,7 +43,7 @@ TEST(z3_model,smoke) {
 		}
 	)";
 
-	IModel *model = new psi::ModelImpl();
+	IModel *model = new ModelImpl();
 	ResolveRefsProcessor refs_processor;
 	Z3ModelProcessor z3_processor;
 
@@ -85,7 +85,7 @@ TEST(z3_model,hierarchy) {
 		}
 	)";
 
-	IModel *model = new psi::ModelImpl();
+	IModel *model = new ModelImpl();
 	ResolveRefsProcessor refs_processor;
 	Z3ModelProcessor z3_processor;
 

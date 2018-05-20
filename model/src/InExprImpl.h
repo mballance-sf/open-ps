@@ -10,7 +10,7 @@
 #include "ExprImpl.h"
 #include "IInExpr.h"
 
-class InExprImpl: public virtual psi::ExprImpl, virtual public IInExpr {
+class InExprImpl: public virtual ExprImpl, virtual public IInExpr {
 public:
 	InExprImpl(IExpr *lhs, IOpenRangeList *rhs);
 

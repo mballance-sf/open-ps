@@ -21,9 +21,7 @@
  *  Created on: Apr 26, 2016
  *      Author: ballance
  */
-
-#ifndef IMPL_ACTIONIMPL_H_
-#define IMPL_ACTIONIMPL_H_
+#pragma once
 
 #include <string>
 
@@ -34,9 +32,7 @@
 #include "IField.h"
 #include "IItemFactory.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 	class ActionImpl:
 		public virtual IAction,
@@ -70,6 +66,3 @@ namespace psi {
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_ACTIONIMPL_H_ */

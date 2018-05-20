@@ -29,8 +29,6 @@
 #include "LiteralImpl.h"
 #include "RefTypeImpl.h"
 
-namespace psi {
-
 StructImpl::StructImpl(
 		const std::string 		&name,
 		IStruct::StructType		t,
@@ -81,4 +79,3 @@ IBaseItem *StructImpl::clone() const {
 	return ret;
 }
 
-} /* namespace psi */

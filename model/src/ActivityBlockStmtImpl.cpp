@@ -24,8 +24,6 @@
 
 #include "ActivityBlockStmtImpl.h"
 
-namespace psi {
-
 ActivityBlockStmtImpl::ActivityBlockStmtImpl(IActivityBlockStmt::ActivityStmtType type) :
 		BaseItemImpl(IBaseItem::TypeActivityStmt), m_type(type) {
 
@@ -61,5 +59,3 @@ IActivityStmt *ActivityBlockStmtImpl::clone() const {
 
 	return ret;
 }
-
-} /* namespace psi */

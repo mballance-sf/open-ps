@@ -26,9 +26,7 @@
 #include "IExec.h"
 #include "BaseItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ExecImpl :
 		public virtual IExec,
@@ -104,5 +102,4 @@ private:
 
 };
 
-} /* namespace psi */
 

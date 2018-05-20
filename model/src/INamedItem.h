@@ -23,11 +23,8 @@
  *      Author: ballance
  */
 
-#ifndef SRC_API_INAMEDITEM_H_
-#define SRC_API_INAMEDITEM_H_
+#pragma once
 #include <string>
-
-namespace psi_api {
 
 	class INamedItem {
 		public:
@@ -37,8 +34,3 @@ namespace psi_api {
 			virtual const std::string &getName() const = 0;
 
 	};
-}
-
-
-
-#endif /* SRC_API_INAMEDITEM_H_ */

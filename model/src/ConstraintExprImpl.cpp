@@ -24,8 +24,6 @@
 
 #include "ConstraintExprImpl.h"
 
-namespace psi {
-
 ConstraintExprImpl::ConstraintExprImpl(IExpr *expr) :
 		BaseItemImpl(IBaseItem::TypeConstraint), m_expr(expr) { }
 
@@ -37,4 +35,3 @@ IBaseItem *ConstraintExprImpl::clone() const {
 	return new ConstraintExprImpl(getExpr()->clone());
 }
 
-} /* namespace psi */

@@ -23,8 +23,7 @@
  *      Author: ballance
  */
 
-#ifndef SRC_API_IMODEL_H_
-#define SRC_API_IMODEL_H_
+#pragma once
 #include <vector>
 #include <string>
 
@@ -56,8 +55,6 @@
 #include "IRefType.h"
 #include "IVariableRef.h"
 
-namespace psi_api {
-
 	class IModel :
 			public virtual IBaseItem,
 			public virtual IScopeItem {
@@ -73,8 +70,3 @@ namespace psi_api {
 
 	};
 
-}
-
-
-
-#endif /* SRC_API_IMODEL_H_ */

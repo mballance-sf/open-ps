@@ -11,7 +11,7 @@
 #include "BaseItemImpl.h"
 #include "IExtendEnum.h"
 
-using namespace psi;
+
 
 class ExtendEnumImpl:
 		public virtual BaseItemImpl,

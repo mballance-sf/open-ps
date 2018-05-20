@@ -13,8 +13,8 @@
 #include <vector>
 #include <string>
 
-using namespace psi_api;
-using namespace psi::apps;
+
+
 
 class ResolveRefsProcessor:
 		public PSIVisitor,

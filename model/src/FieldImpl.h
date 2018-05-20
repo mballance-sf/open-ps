@@ -23,15 +23,12 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_FIELDIMPL_H_
-#define IMPL_FIELDIMPL_H_
+#pragma once
 #include "IField.h"
 #include "BaseItemImpl.h"
 #include "NamedItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class FieldImpl:
 		public BaseItemImpl,
@@ -66,6 +63,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_FIELDIMPL_H_ */

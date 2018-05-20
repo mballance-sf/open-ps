@@ -22,16 +22,13 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_ISYMBOL_H_
-#define SRC_PSI_API_ISYMBOL_H_
+#pragma once
 #include <string>
 #include "IBaseItem.h"
 #include "IField.h"
 #include "INamedItem.h"
 #include "IScopeItem.h"
 #include "IActivityBlockStmt.h"
-
-namespace psi_api {
 
 class ISymbol :
 		public virtual IBaseItem,
@@ -45,9 +42,4 @@ public:
 	virtual IActivityBlockStmt *getBody() const = 0;
 
 };
-}
 
-
-
-
-#endif /* SRC_PSI_API_ISYMBOL_H_ */

@@ -23,15 +23,12 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_ICOMPONENT_H_
-#define SRC_PSI_API_ICOMPONENT_H_
+#pragma once
 #include <string>
 #include <vector>
 
 #include "IScopeItem.h"
 #include "INamedItem.h"
-
-namespace psi_api {
 
 class IComponent:
 		public virtual IBaseItem,
@@ -43,6 +40,3 @@ class IComponent:
 
 };
 
-} /* namespace psi */
-
-#endif /* SRC_PSI_API_ICOMPONENT_H_ */

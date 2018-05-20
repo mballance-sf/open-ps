@@ -23,8 +23,7 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_STRUCTIMPL_H_
-#define IMPL_STRUCTIMPL_H_
+#pragma once
 #include <string>
 #include <vector>
 
@@ -34,9 +33,7 @@
 #include "ScopeItemImpl.h"
 #include "NamedItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class StructImpl:
 		public virtual IStruct,
@@ -45,24 +42,21 @@ class StructImpl:
 		public virtual NamedItemImpl {
 public:
 
-	StructImpl(const std::string &name, psi_api::IStruct::StructType t, IBaseItem *super_type);
+	StructImpl(const std::string &name, IStruct::StructType t, IBaseItem *super_type);
 
 	virtual ~StructImpl();
 
 	virtual IBaseItem *getSuperType() const { return m_super_type; }
 
-	virtual psi_api::IStruct::StructType getStructType() const {
+	virtual IStruct::StructType getStructType() const {
 		return m_struct_type;
 	}
 
 	virtual IBaseItem *clone() const;
 
 private:
-	psi_api::IStruct::StructType	m_struct_type;
+	IStruct::StructType	m_struct_type;
 	IBaseItem							*m_super_type;
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_STRUCTIMPL_H_ */

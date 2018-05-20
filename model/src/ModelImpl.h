@@ -22,17 +22,14 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_MODELIMPL_H_
-#define IMPL_MODELIMPL_H_
+#pragma once
 #include "PackageImpl.h"
 #include "ItemFactoryImpl.h"
 #include "ILiteral.h"
 #include "IModel.h"
 #include "IStruct.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ModelImpl:
 		public virtual IModel,
@@ -105,6 +102,3 @@ class ModelImpl:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_MODELIMPL_H_ */

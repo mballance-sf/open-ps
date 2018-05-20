@@ -25,7 +25,6 @@
 #include "PSIFileUtils.h"
 #include <stdlib.h>
 
-namespace psi {
 
 PSIFileUtils::PSIFileUtils() {
 	// TODO Auto-generated constructor stub
@@ -91,4 +90,3 @@ std::string PSIFileUtils::expand(const std::string &str) {
 	return ret;
 }
 
-} /* namespace psi */

@@ -24,7 +24,6 @@
 
 #include "ExecStmtImpl.h"
 
-namespace psi {
 
 ExecStmtImpl::ExecStmtImpl(
 		IExecStmt::StmtType		type) : m_type(type) {
@@ -35,4 +34,3 @@ ExecStmtImpl::~ExecStmtImpl() {
 	// TODO Auto-generated destructor stub
 }
 
-} /* namespace psi */

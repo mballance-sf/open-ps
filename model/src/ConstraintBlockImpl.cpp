@@ -25,7 +25,6 @@
 
 #include "ConstraintBlockImpl.h"
 
-namespace psi {
 
 ConstraintBlockImpl::ConstraintBlockImpl(const std::string &name) :
 		BaseItemImpl(IBaseItem::TypeConstraint), NamedItemImpl(name) {
@@ -63,4 +62,3 @@ IBaseItem *ConstraintBlockImpl::clone() const {
 	return ret;
 }
 
-} /* namespace psi */

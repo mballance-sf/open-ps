@@ -22,11 +22,8 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IEXTEND_H_
-#define SRC_PSI_API_IEXTEND_H_
+#pragma once
 #include "IBaseItem.h"
-
-namespace psi_api {
 
 class IExtend :
 		public virtual IBaseItem {
@@ -45,9 +42,3 @@ public:
 
 };
 
-}
-
-
-
-
-#endif /* SRC_PSI_API_IEXTEND_H_ */

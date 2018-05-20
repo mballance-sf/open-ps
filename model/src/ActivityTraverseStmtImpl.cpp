@@ -24,8 +24,6 @@
 
 #include "ActivityTraverseStmtImpl.h"
 
-namespace psi {
-
 ActivityTraverseStmtImpl::ActivityTraverseStmtImpl(
 		IVariableRef		*action,
 		IConstraint			*c) : BaseItemImpl(IBaseItem::TypeActivityStmt) {
@@ -43,4 +41,3 @@ IActivityStmt *ActivityTraverseStmtImpl::clone() const {
 			(getWith())?dynamic_cast<IConstraint *>(getWith()->clone()):0);
 }
 
-} /* namespace psi */

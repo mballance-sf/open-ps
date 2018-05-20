@@ -23,16 +23,13 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_NAMEDITEMIMPL_H_
-#define IMPL_NAMEDITEMIMPL_H_
+#pragma once
 #include <string>
 
 #include "BaseItemImpl.h"
 #include "INamedItem.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class NamedItemImpl : public virtual INamedItem {
 	public:
@@ -52,6 +49,3 @@ class NamedItemImpl : public virtual INamedItem {
 		std::string					m_name;
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_NAMEDITEMIMPL_H_ */

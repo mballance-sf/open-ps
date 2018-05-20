@@ -23,11 +23,8 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_ICONSTRAINT_H_
-#define SRC_PSI_API_ICONSTRAINT_H_
+#pragma once
 #include "IBaseItem.h"
-
-namespace psi_api {
 
 class IConstraint :
 		public virtual IBaseItem {
@@ -51,9 +48,4 @@ public:
 
 };
 
-}
 
-
-
-
-#endif /* SRC_PSI_API_ICONSTRAINT_H_ */

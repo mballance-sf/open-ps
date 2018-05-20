@@ -24,8 +24,6 @@
 
 #include "BindImpl.h"
 
-namespace psi {
-
 BindImpl::BindImpl(const std::vector<IBindPath *> &targets) :
 		BaseItemImpl(IBaseItem::TypeBind), m_targets(targets) {
 
@@ -45,5 +43,3 @@ IBaseItem *BindImpl::clone() const {
 
 	return new BindImpl(targets);
 }
-
-} /* namespace psi */

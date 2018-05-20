@@ -23,14 +23,12 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_LITERALIMPL_H_
-#define IMPL_LITERALIMPL_H_
+#pragma once
 #include <string>
 #include "ILiteral.h"
 
-using namespace psi_api;
 
-namespace psi {
+
 
 class LiteralImpl : public ILiteral {
 public:
@@ -66,6 +64,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_LITERALIMPL_H_ */

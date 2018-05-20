@@ -22,12 +22,9 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_IEXEC_CALLBACK_H
-#define INCLUDED_IEXEC_CALLBACK_H
+#pragma once
 
 #include "ICallbackContext.h"
-
-namespace psi_api {
 
 class IModel;
 class IExecCallback {
@@ -46,8 +43,4 @@ public:
 
 };
 
-}
-
-
-#endif /* INCLUDED_IEXEC_CALLBACK_H */
 

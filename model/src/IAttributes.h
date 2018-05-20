@@ -22,12 +22,10 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_IATTRIBUTES_H
-#define INCLUDED_IATTRIBUTES_H
+#pragma once
 #include <string>
 #include <vector>
 
-namespace psi_api {
 
 class IAttributes {
 public:
@@ -44,8 +42,3 @@ public:
 	virtual void clearAttribute(const std::string &key) = 0;
 
 };
-
-}
-
-
-#endif /* INCLUDED_IATTRIBUTES_H */

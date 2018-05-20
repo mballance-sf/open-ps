@@ -26,8 +26,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-namespace psi {
-namespace apps {
 
 PSI2StringProcessor::PSI2StringProcessor(uint32_t ind_incr) {
 	set_ind_incr(ind_incr);
@@ -104,5 +102,3 @@ void PSI2StringProcessor::dec_indent() {
 	}
 }
 
-} /* namespace apps */
-} /* namespace psi */

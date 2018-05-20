@@ -26,7 +26,7 @@
 #define CONTRIB_API_IMPL_ITEMFACTORYIMPL_H_
 #include "IItemFactory.h"
 
-using namespace psi_api;
+
 
 class ItemFactoryImpl : public virtual IItemFactory {
 public:

@@ -22,15 +22,12 @@
  *      Author: ballance
  */
 
-#ifndef CONTRIB_API_IMPL_ATTRIBUTESIMPL_H_
-#define CONTRIB_API_IMPL_ATTRIBUTESIMPL_H_
+#pragma once
 #include "IAttributes.h"
 #include <map>
 #include <string>
 
-using namespace psi_api;
 
-namespace psi {
 
 class AttributesImpl: public virtual IAttributes {
 public:
@@ -55,6 +52,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* CONTRIB_API_IMPL_ATTRIBUTESIMPL_H_ */

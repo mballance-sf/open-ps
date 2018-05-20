@@ -23,12 +23,10 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_ACTIVITY_BLOCK_STMT_H
-#define INCLUDED_ACTIVITY_BLOCK_STMT_H
+#pragma once
 #include <vector>
 #include "IActivityStmt.h"
 
-namespace psi_api {
 
 class IActivityBlockStmt : public virtual IActivityStmt {
 public:
@@ -40,9 +38,4 @@ public:
 
 };
 
-}
 
-
-
-
-#endif /* INCLUDED_ACTIVITY_BLOCK_STMT_H */

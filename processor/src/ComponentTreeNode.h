@@ -5,15 +5,14 @@
  *      Author: ballance
  */
 
-#ifndef QPSSC_SRC_COMPONENTTREENODE_H_
-#define QPSSC_SRC_COMPONENTTREENODE_H_
+#pragma once
 #include "IComponent.h"
 #include "IModel.h"
 #include <stdint.h>
 #include <string>
 #include <vector>
 
-using namespace psi_api;
+
 
 namespace qpssc {
 
@@ -74,4 +73,3 @@ private:
 
 } /* namespace qpssc */
 
-#endif /* QPSSC_SRC_COMPONENTTREENODE_H_ */

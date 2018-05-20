@@ -22,13 +22,10 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_ICALLBACKCONTEXT_H
-#define INCLUDED_ICALLBACKCONTEXT_H
+#pragma once
 #include <stdint.h>
 #include <string>
 
-
-namespace psi_api {
 
 struct psshandle_s;
 typedef psshandle_s *psshandle_t;
@@ -96,7 +93,4 @@ public:
 
 };
 
-}
 
-
-#endif /* INCLUDED_ICALLBACKCONTEXT_H */

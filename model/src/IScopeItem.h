@@ -23,8 +23,7 @@
  *      Author: ballance
  */
 
-#ifndef SRC_API_ISCOPEITEM_H_
-#define SRC_API_ISCOPEITEM_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -33,7 +32,6 @@
 #include "IStartEndLocation.h"
 #include "IChildItem.h"
 
-namespace psi_api {
 	class IField;
 
 	class IScopeItem :
@@ -54,9 +52,3 @@ namespace psi_api {
 		virtual IField *getField(const std::string &name) = 0;
 
 	};
-}
-
-
-
-
-#endif /* SRC_API_ISCOPEITEM_H_ */

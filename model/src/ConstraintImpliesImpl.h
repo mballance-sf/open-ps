@@ -22,14 +22,11 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_CONSTRAINT_IMPLIES_IMPL_H
-#define INCLUDED_CONSTRAINT_IMPLIES_IMPL_H
+#pragma once
 #include "IConstraintImplies.h"
 #include "BaseItemImpl.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ConstraintImpliesImpl:
 		public virtual IConstraintImplies,
@@ -58,7 +55,4 @@ private:
 	IConstraint				*m_imp;
 };
 
-} /* namespace psi */
-
-#endif /* INCLUDED_CONSTRAINT_IMPLIES_IMPL_H */
 

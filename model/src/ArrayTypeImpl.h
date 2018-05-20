@@ -12,7 +12,7 @@
 #include "ScopeItemImpl.h"
 #include "IArrayType.h"
 
-using namespace psi;
+
 
 class ArrayTypeImpl: public BaseItemImpl,
 	public virtual ScopeItemImpl, public virtual IArrayType {

@@ -26,9 +26,7 @@
 #include "BaseItemImpl.h"
 #include "IActivityTraverseStmt.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ActivityTraverseStmtImpl: public virtual BaseItemImpl, public virtual IActivityTraverseStmt {
 public:

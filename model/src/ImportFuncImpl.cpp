@@ -24,7 +24,6 @@
 
 #include "ImportFuncImpl.h"
 
-namespace psi {
 
 ImportFuncImpl::ImportFuncImpl(
 		const std::string				&name,
@@ -44,4 +43,3 @@ IBaseItem *ImportFuncImpl::clone() const {
 	return new ImportFuncImpl(getName(), getReturn(), getParameters());
 }
 
-} /* namespace psi_api */

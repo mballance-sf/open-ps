@@ -8,7 +8,7 @@
 #include "ExprBaseVisitor.h"
 #include "IItemFactory.h"
 
-using namespace psi_api;
+
 
 class Expr2PSIVisitor : public virtual ExprBaseVisitor {
 public:

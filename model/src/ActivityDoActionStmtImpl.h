@@ -10,7 +10,7 @@
 #include "BaseItemImpl.h"
 #include "IActivityDoActionStmt.h"
 
-using namespace psi;
+
 
 class ActivityDoActionStmtImpl: public virtual BaseItemImpl, public virtual IActivityDoActionStmt {
 public:

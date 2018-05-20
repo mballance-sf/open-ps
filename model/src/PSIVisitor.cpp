@@ -28,10 +28,6 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-using namespace psi;
-
-namespace psi {
-namespace apps {
 
 PSIVisitor::PSIVisitor() : m_removed(false) {
 	m_debug = true;
@@ -725,5 +721,3 @@ void PSIVisitor::debug(const char *fmt, ...) {
 	va_end(ap);
 }
 
-} /* namespace apps */
-} /* namespace psi */

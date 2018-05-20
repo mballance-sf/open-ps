@@ -23,15 +23,12 @@
  *      Author: ballance
  */
 
-#ifndef SRC_API_IPACKAGE_H_
-#define SRC_API_IPACKAGE_H_
+#pragma once
 #include <string>
 #include <vector>
 
 #include "IScopeItem.h"
 #include "INamedItem.h"
-
-namespace psi_api {
 
 class IAction;
 class IStruct;
@@ -58,10 +55,3 @@ class IPackage :
 
 };
 
-
-}
-
-
-
-
-#endif /* SRC_API_IPACKAGE_H_ */

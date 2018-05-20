@@ -1,5 +1,5 @@
 /*
- * Z3ModelExprBuilder.h
+ * Z3ModelBuildExpr.h
  *
  *  Created on: May 18, 2018
  *      Author: ballance
@@ -9,15 +9,15 @@
 #include "PSIVisitor.h"
 #include "Z3ExprTerm.h"
 
-using namespace psi::apps;
+
 
 class Z3ModelBuilder;
 
-class Z3ModelExprBuilder : public virtual PSIVisitor {
+class Z3ModelBuildExpr : public virtual PSIVisitor {
 public:
-	Z3ModelExprBuilder(Z3ModelBuilder *builder);
+	Z3ModelBuildExpr(Z3ModelBuilder *builder);
 
-	virtual ~Z3ModelExprBuilder();
+	virtual ~Z3ModelBuildExpr();
 
 	Z3ExprTerm build(IExpr *expr);
 

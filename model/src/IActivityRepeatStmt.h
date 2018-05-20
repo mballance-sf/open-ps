@@ -26,8 +26,6 @@
 #include "IExpr.h"
 #include "IActivityStmt.h"
 
-namespace psi_api {
-
 class IActivityRepeatStmt : public virtual IActivityStmt, public virtual IScopeItem {
 public:
 
@@ -49,5 +47,4 @@ public:
 	virtual IActivityStmt *getBody() const = 0;
 
 };
-}
 

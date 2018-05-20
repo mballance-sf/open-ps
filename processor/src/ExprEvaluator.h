@@ -12,8 +12,8 @@
 #include "IVarValueProvider.h"
 #include "PSIVisitor.h"
 
-using namespace psi_api;
-using namespace psi::apps;
+
+
 
 class ExprEvaluator : public virtual PSIVisitor {
 public:

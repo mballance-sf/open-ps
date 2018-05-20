@@ -22,13 +22,10 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_EXPRIMPL_H_
-#define IMPL_EXPRIMPL_H_
+#pragma once
 #include "IExpr.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class ExprImpl: public virtual IExpr {
 public:
@@ -45,6 +42,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_EXPRIMPL_H_ */

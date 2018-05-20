@@ -10,8 +10,8 @@
 #include "IBaseItem.h"
 #include "BaseItemImpl.h"
 
-using namespace psi_api;
-using namespace psi;
+
+
 
 namespace qpssc {
 

@@ -22,14 +22,11 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_NAMEDSCOPEITEMIMPL_H_
-#define IMPL_NAMEDSCOPEITEMIMPL_H_
+#pragma once
 #include "INamedItem.h"
 #include "IScopeItem.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class NamedScopeItemImpl : public virtual INamedItem, public IScopeItem {
 
@@ -52,6 +49,4 @@ protected:
 	std::vector<IBaseItem *>	m_children;
 
 };
-}
 
-#endif /* IMPL_NAMEDSCOPEITEMIMPL_H_ */

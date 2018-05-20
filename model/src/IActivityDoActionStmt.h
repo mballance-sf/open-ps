@@ -11,7 +11,7 @@
 #include "IBaseItem.h"
 #include "IConstraintBlock.h"
 
-using namespace psi_api;
+
 
 class IActivityDoActionStmt : public virtual IBaseItem, public virtual IActivityStmt {
 public:

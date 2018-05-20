@@ -12,7 +12,7 @@
 #include "BaseItemImpl.h"
 
 
-class RefTypeImpl: public psi::BaseItemImpl,
+class RefTypeImpl: public BaseItemImpl,
 	public virtual IRefType {
 public:
 	RefTypeImpl(

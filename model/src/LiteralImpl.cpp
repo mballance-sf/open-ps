@@ -26,7 +26,6 @@
 
 #include "LiteralImpl.h"
 
-namespace psi {
 
 LiteralImpl::LiteralImpl(int64_t v) :
 		m_literalType(LiteralInt), m_intval(v) { }
@@ -58,4 +57,3 @@ IExpr *LiteralImpl::clone() const {
 	return 0;
 }
 
-} /* namespace psi */

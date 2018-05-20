@@ -23,15 +23,12 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_METHOD_CALL_EXPR_IMPL_H
-#define INCLUDED_METHOD_CALL_EXPR_IMPL_H
+#pragma once
 
 #include "ExprImpl.h"
 #include "BaseItemImpl.h"
 #include "IMethodCallExpr.h"
 #include <vector>
-
-namespace psi {
 
 class MethodCallExprImpl:
 		public virtual ExprImpl,
@@ -55,6 +52,3 @@ private:
 	std::vector<IExpr *>			m_parameters;
 };
 
-} /* namespace psi */
-
-#endif /* INCLUDED_METHOD_CALL_EXPR_IMPL_H */

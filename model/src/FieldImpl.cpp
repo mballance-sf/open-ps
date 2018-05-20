@@ -24,8 +24,6 @@
 
 #include "FieldImpl.h"
 
-namespace psi {
-
 FieldImpl::FieldImpl(
 		const std::string		&name,
 		IBaseItem				*field_type,
@@ -46,4 +44,3 @@ IBaseItem *FieldImpl::clone() const {
 			(getArrayDim())?getArrayDim()->clone():0);
 }
 
-} /* namespace psi */

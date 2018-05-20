@@ -22,12 +22,9 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IFIELDREF_H_
-#define SRC_PSI_API_IFIELDREF_H_
+#pragma once
 #include <vector>
 #include "IExpr.h"
-
-namespace psi_api {
 
 class IField;
 class IFieldRef : public IExpr {
@@ -46,10 +43,3 @@ public:
 
 };
 
-
-}
-
-
-
-
-#endif /* SRC_PSI_API_IFIELDREF_H_ */

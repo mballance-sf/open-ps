@@ -11,7 +11,7 @@
 #include "IModelProcessor.h"
 #include "PSIVisitor.h"
 
-using namespace psi::apps;
+
 
 namespace qpssc {
 

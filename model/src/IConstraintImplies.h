@@ -22,12 +22,9 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDE_API_ICONSTRAINTIMPLIES_H_
-#define INCLUDE_API_ICONSTRAINTIMPLIES_H_
+#pragma once
 #include "IConstraint.h"
 #include "IExpr.h"
-
-namespace psi_api {
 
 class IConstraintImplies : public IConstraint {
 public:
@@ -40,8 +37,3 @@ public:
 
 };
 
-}
-
-
-
-#endif /* INCLUDE_API_ICONSTRAINTIMPLIES_H_ */

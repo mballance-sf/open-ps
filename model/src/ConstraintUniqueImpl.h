@@ -11,7 +11,7 @@
 #include "IConstraintUnique.h"
 #include "BaseItemImpl.h"
 
-using namespace psi;
+
 
 class ConstraintUniqueImpl: public virtual IConstraintUnique, public virtual BaseItemImpl {
 public:

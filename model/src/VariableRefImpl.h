@@ -11,7 +11,7 @@
 #include "ExprImpl.h"
 #include "IVariableRef.h"
 
-class VariableRefImpl: public psi::ExprImpl, public virtual IVariableRef {
+class VariableRefImpl: public ExprImpl, public virtual IVariableRef {
 public:
 	VariableRefImpl(
 			IBaseItem			*scope,

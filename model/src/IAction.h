@@ -32,7 +32,6 @@
 #include "IActivityStmt.h"
 #include "INamedItem.h"
 
-namespace psi_api {
 	/**
 	 * Specifies the API to an action declaration
 	 */
@@ -58,7 +57,6 @@ namespace psi_api {
 			virtual void setActivity(IActivityStmt *activity) = 0;
 
 	};
-}
 
 
 

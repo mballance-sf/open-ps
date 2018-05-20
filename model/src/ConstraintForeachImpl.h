@@ -11,7 +11,7 @@
 #include "IConstraintForeach.h"
 #include "BaseItemImpl.h"
 
-using namespace psi;
+
 
 class ConstraintForeachImpl:
 		public virtual IConstraintForeach,

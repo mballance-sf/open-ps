@@ -22,14 +22,10 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_BINARYEXPRIMPL_H_
-#define IMPL_BINARYEXPRIMPL_H_
+#pragma once
 
 #include "IBinaryExpr.h"
 
-using namespace psi_api;
-
-namespace psi {
 
 class BinaryExprImpl: public IBinaryExpr {
 public:
@@ -58,6 +54,3 @@ private:
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_BINARYEXPRIMPL_H_ */

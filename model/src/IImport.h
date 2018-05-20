@@ -10,7 +10,7 @@
 #include "IBaseItem.h"
 #include "INamedItem.h"
 
-using namespace psi_api;
+
 
 class IImport : public virtual IBaseItem {
 public:

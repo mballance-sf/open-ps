@@ -27,7 +27,6 @@
 #include "IAction.h"
 #include "IStruct.h"
 
-namespace psi {
 
 PackageImpl::PackageImpl(const std::string &name, IBaseItem *parent) :
 		BaseItemImpl(IBaseItem::TypePackage),
@@ -50,4 +49,3 @@ IPackage *PackageImpl::clone() const {
 	return ret;
 }
 
-} /* namespace psi */

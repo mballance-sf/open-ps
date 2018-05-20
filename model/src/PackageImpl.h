@@ -23,8 +23,7 @@
  *      Author: ballance
  */
 
-#ifndef IMPL_PACKAGEIMPL_H_
-#define IMPL_PACKAGEIMPL_H_
+#pragma once
 #include <vector>
 
 #include "BaseItemImpl.h"
@@ -34,9 +33,7 @@
 #include "IPackage.h"
 #include "IStruct.h"
 
-using namespace psi_api;
 
-namespace psi {
 
 class PackageImpl :
 		public virtual IPackage,
@@ -58,6 +55,3 @@ class PackageImpl :
 
 };
 
-} /* namespace psi */
-
-#endif /* IMPL_PACKAGEIMPL_H_ */

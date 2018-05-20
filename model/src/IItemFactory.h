@@ -21,8 +21,7 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_ITEM_FACTORY_H
-#define INCLUDED_ITEM_FACTORY_H
+#pragma once
 #include <vector>
 #include <string>
 #include <stdint.h>
@@ -66,8 +65,6 @@
 #include "IRefType.h"
 #include "IVariableRef.h"
 #include "ISymbol.h"
-
-namespace psi_api {
 
 class IItemFactory {
 public:
@@ -301,8 +298,3 @@ public:
 	 */
 };
 
-}
-
-
-
-#endif /* INCLUDE_API_IITEMFACTORY_H_ */

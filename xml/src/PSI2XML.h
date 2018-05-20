@@ -34,7 +34,7 @@
 #include "IModel.h"
 #include "IBaseItem.h"
 
-using namespace psi_api;
+
 
 namespace psi {
 namespace apps {

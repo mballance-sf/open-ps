@@ -25,7 +25,6 @@
 
 #include "MethodCallExprImpl.h"
 
-namespace psi {
 
 MethodCallExprImpl::MethodCallExprImpl(
 		IRefType					*func,
@@ -50,4 +49,3 @@ IExpr *MethodCallExprImpl::clone() const {
 	return new MethodCallExprImpl(getFunc(), parameters);
 }
 
-} /* namespace psi */

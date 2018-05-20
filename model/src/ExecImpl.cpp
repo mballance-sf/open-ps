@@ -24,8 +24,6 @@
 
 #include "ExecImpl.h"
 
-namespace psi {
-
 ExecImpl::ExecImpl(
 		ExecKind									kind,
 		const std::string							&language,
@@ -97,4 +95,3 @@ IBaseItem *ExecImpl::clone() const {
 	return ret;
 }
 
-} /* namespace psi */

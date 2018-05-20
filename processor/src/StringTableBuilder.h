@@ -14,8 +14,8 @@
 #include <string>
 #include <stdint.h>
 
-using namespace psi_api;
-using namespace psi::apps;
+
+
 
 class StringTable;
 

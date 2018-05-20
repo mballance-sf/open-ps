@@ -22,12 +22,9 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_IBIND_H_
-#define SRC_PSI_API_IBIND_H_
+#pragma once
 #include "IBaseItem.h"
 #include "IBindPath.h"
-
-namespace psi_api {
 
 class IBind : public virtual IBaseItem {
 public:
@@ -39,9 +36,5 @@ public:
 
 };
 
-}
 
 
-
-
-#endif /* SRC_PSI_API_IBIND_H_ */

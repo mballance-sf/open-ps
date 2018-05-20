@@ -22,15 +22,12 @@
  *      Author: ballance
  */
 
-#ifndef INCLUDED_IMPORT_FUNC_H
-#define INCLUDED_IMPORT_FUNC_H
+#pragma once
 #include <vector>
 #include "IBaseItem.h"
 #include "IExecCallback.h"
 #include "INamedItem.h"
 #include "IField.h"
-
-namespace psi_api {
 
 class IImportFunc : public virtual IBaseItem, public virtual INamedItem {
 public:
@@ -47,9 +44,3 @@ public:
 
 };
 
-
-}
-
-
-
-#endif /* INCLUDE_API_IIMPORTFUNC_H_ */

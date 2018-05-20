@@ -1,28 +1,28 @@
 /*
- * Z3ModelExprBuilder.cpp
+ * Z3ModelBuildExpr.cpp
  *
  *  Created on: May 18, 2018
  *      Author: ballance
  */
 
-#include "Z3ModelExprBuilder.h"
 #include "Z3ModelBuilder.h"
+#include "Z3ModelBuildExpr.h"
 
-Z3ModelExprBuilder::Z3ModelExprBuilder(Z3ModelBuilder *builder) : m_builder(builder) {
+Z3ModelBuildExpr::Z3ModelBuildExpr(Z3ModelBuilder *builder) : m_builder(builder) {
 	// TODO Auto-generated constructor stub
 
 }
 
-Z3ModelExprBuilder::~Z3ModelExprBuilder() {
+Z3ModelBuildExpr::~Z3ModelBuildExpr() {
 	// TODO Auto-generated destructor stub
 }
 
-Z3ExprTerm Z3ModelExprBuilder::build(IExpr *expr) {
+Z3ExprTerm Z3ModelBuildExpr::build(IExpr *expr) {
 	visit_expr(expr);
 	return m_expr;
 }
 
-void Z3ModelExprBuilder::visit_binary_expr(IBinaryExpr *be) {
+void Z3ModelBuildExpr::visit_binary_expr(IBinaryExpr *be) {
 	visit_expr(be->getLHS());
 	Z3ExprTerm lhs = m_expr;
 	visit_expr(be->getRHS());
@@ -270,14 +270,15 @@ void Z3ModelExprBuilder::visit_binary_expr(IBinaryExpr *be) {
 	}
 }
 
-void Z3ModelExprBuilder::visit_literal_expr(ILiteral *l) {
+void Z3ModelBuildExpr::visit_literal_expr(ILiteral *l) {
 	switch (l->getLiteralType()) {
 	case ILiteral::LiteralString:
 		m_expr = Z3ExprTerm(
 				Z3_mk_int(m_builder->ctxt(),
-				m_strtab.str2id(l->getString()),
-				Z3_mk_bv_sort(m_builder->ctxt(), m_strtab.bits())),
-				m_strtab.bits(),
+						m_builder->strtab()->str2id(l->getString()),
+						Z3_mk_bv_sort(m_builder->ctxt(),
+								m_builder->strtab()->bits())),
+				m_builder->strtab()->bits(),
 				false);
 		break;
 	case ILiteral::LiteralBool:
@@ -313,7 +314,7 @@ void Z3ModelExprBuilder::visit_literal_expr(ILiteral *l) {
 	}
 }
 
-void Z3ModelExprBuilder::visit_variable_ref(IVariableRef *ref) {
+void Z3ModelBuildExpr::visit_variable_ref(IVariableRef *ref) {
 	// Determine the full name of the variable
 	std::string name = ref->toString();
 	fprintf(stdout, "Ref: %s prefix: %s\n",
@@ -330,7 +331,7 @@ void Z3ModelExprBuilder::visit_variable_ref(IVariableRef *ref) {
 	fprintf(stdout, "m_expr=%p\n", m_expr);
 }
 
-Z3ExprTerm Z3ModelExprBuilder::upsize(
+Z3ExprTerm Z3ModelBuildExpr::upsize(
 		const Z3ExprTerm		&target,
 		uint32_t				bits) {
 

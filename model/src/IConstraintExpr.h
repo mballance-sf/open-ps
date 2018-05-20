@@ -24,12 +24,9 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_ICONSTRAINTEXPR_H_
-#define SRC_PSI_API_ICONSTRAINTEXPR_H_
+#pragma once
 #include "IConstraint.h"
 #include "IExpr.h"
-
-namespace psi_api {
 
 class IConstraintExpr : public IConstraint {
 
@@ -40,8 +37,4 @@ public:
 	virtual IExpr *getExpr() const = 0;
 
 };
-}
 
-
-
-#endif /* SRC_PSI_API_ICONSTRAINTEXPR_H_ */

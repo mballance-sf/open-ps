@@ -23,13 +23,10 @@
  *      Author: ballance
  */
 
-#ifndef SRC_PSI_API_ISCALARTYPE_H_
-#define SRC_PSI_API_ISCALARTYPE_H_
+#pragma once
 #include <stdint.h>
 #include "IBaseItem.h"
 #include "IOpenRangeList.h"
-
-namespace psi_api {
 
 class IExpr;
 class IScalarType : public virtual IBaseItem {
@@ -58,9 +55,3 @@ public:
 	virtual IOpenRangeList *getDomain() const = 0;
 
 };
-}
-
-
-
-
-#endif /* SRC_PSI_API_ISCALARTYPE_H_ */
