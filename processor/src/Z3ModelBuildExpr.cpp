@@ -275,10 +275,10 @@ void Z3ModelBuildExpr::visit_literal_expr(ILiteral *l) {
 	case ILiteral::LiteralString:
 		m_expr = Z3ExprTerm(
 				Z3_mk_int(m_builder->ctxt(),
-						m_builder->strtab()->str2id(l->getString()),
+						m_builder->strtab().str2id(l->getString()),
 						Z3_mk_bv_sort(m_builder->ctxt(),
-								m_builder->strtab()->bits())),
-				m_builder->strtab()->bits(),
+								m_builder->strtab().bits())),
+				m_builder->strtab().bits(),
 				false);
 		break;
 	case ILiteral::LiteralBool:
@@ -318,16 +318,12 @@ void Z3ModelBuildExpr::visit_variable_ref(IVariableRef *ref) {
 	// Determine the full name of the variable
 	std::string name = ref->toString();
 	fprintf(stdout, "Ref: %s prefix: %s\n",
-			name.c_str(), prefix().c_str());
-	std::string full_name = prefix() + "." + name;
+			name.c_str(), m_builder->prefix().c_str());
+	std::string full_name = m_builder->prefix() + "." + name;
 
-	std::map<std::string, Z3ModelVar *>::iterator v =
-			m_variables.find(full_name);
+	Z3ModelVar *var = m_builder->get_variable(full_name);
 
-	m_expr = Z3ExprTerm(
-			v->second->var(),
-			v->second->bits(),
-			true); // TODO: signed nature?
+	m_expr = Z3ExprTerm(var->var(), var->bits(), var->is_signed());
 	fprintf(stdout, "m_expr=%p\n", m_expr);
 }
 

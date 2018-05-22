@@ -6,15 +6,41 @@
  */
 
 #include "Z3ModelBuilder.h"
+#include "StringTableBuilder.h"
 
-Z3ModelBuilder::Z3ModelBuilder() : m_prefix_valid(false) {
-	m_expr_builder = new Z3ModelExprBuilder(this);
+Z3ModelBuilder::Z3ModelBuilder() : m_prefix_valid(false),
+	m_expr_builder(this),
+	m_field_builder(this),
+	m_constraint_builder(this),
+	m_strtab(0),
+	m_z3_model(0) {
 
 
 }
 
 Z3ModelBuilder::~Z3ModelBuilder() {
-	delete m_expr_builder;
+}
+
+Z3ModelH Z3ModelBuilder::build(
+		IModel			*model,
+		IComponent		*root_component,
+		IAction			*root_action
+		) {
+
+	StringTableBuilder strtab_builder;
+	m_strtab = strtab_builder.build(root_component, root_action);
+
+	m_z3_model = new Z3Model(m_strtab, root_action);
+
+	return Z3ModelH(m_z3_model);
+}
+
+void Z3ModelBuilder::add_variable(Z3ModelVar *var) {
+	m_z3_model->add_variable(var);
+}
+
+Z3ModelVar *Z3ModelBuilder::get_variable(const std::string &name) {
+	return m_z3_model->get_variable(name);
 }
 
 void Z3ModelBuilder::push_prefix(const std::string &pref) {

@@ -1,5 +1,5 @@
 /*
- * Z3ModelConstraintBuilder.h
+ * Z3ModelBuildConstraint.h
  *
  *  Created on: May 18, 2018
  *      Author: ballance
@@ -12,11 +12,11 @@
 class Z3ModelBuilder;
 
 
-class Z3ModelConstraintBuilder : public PSIVisitor {
+class Z3ModelBuildConstraint : public PSIVisitor {
 public:
-	Z3ModelConstraintBuilder(Z3ModelBuilder *builder);
+	Z3ModelBuildConstraint(Z3ModelBuilder *builder);
 
-	virtual ~Z3ModelConstraintBuilder();
+	virtual ~Z3ModelBuildConstraint();
 
 	Z3ExprTerm build(IConstraint *c);
 

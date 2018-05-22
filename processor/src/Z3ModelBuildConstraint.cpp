@@ -1,30 +1,30 @@
 /*
- * Z3ModelConstraintBuilder.cpp
+ * Z3ModelBuildConstraint.cpp
  *
  *  Created on: May 18, 2018
  *      Author: ballance
  */
 
-#include "Z3ModelConstraintBuilder.h"
+#include "Z3ModelBuildConstraint.h"
 #include "Z3ModelBuilder.h"
 
-Z3ModelConstraintBuilder::Z3ModelConstraintBuilder(Z3ModelBuilder *builder) : m_builder(builder) {
+Z3ModelBuildConstraint::Z3ModelBuildConstraint(Z3ModelBuilder *builder) : m_builder(builder) {
 	// TODO Auto-generated constructor stub
 
 }
 
-Z3ModelConstraintBuilder::~Z3ModelConstraintBuilder() {
+Z3ModelBuildConstraint::~Z3ModelBuildConstraint() {
 	// TODO Auto-generated destructor stub
 }
 
-Z3ExprTerm Z3ModelConstraintBuilder::build(IConstraint *c) {
+Z3ExprTerm Z3ModelBuildConstraint::build(IConstraint *c) {
 	visit_constraint_stmt(c);
 	return m_expr;
 }
 
 
-void Z3ModelConstraintBuilder::visit_constraint_expr_stmt(IConstraintExpr *c) {
-	m_expr = m_builder->expr_builder()->build(c->getExpr());
+void Z3ModelBuildConstraint::visit_constraint_expr_stmt(IConstraintExpr *c) {
+	m_expr = m_builder->expr_builder().build(c->getExpr());
 
 //	if (m_builder->expr_depth() == 0) {
 //		if (m_expr.expr()) {
@@ -40,9 +40,9 @@ void Z3ModelConstraintBuilder::visit_constraint_expr_stmt(IConstraintExpr *c) {
 //	fprintf(stdout, "constraint statement: %p\n", m_expr);
 }
 
-void Z3ModelConstraintBuilder::visit_constraint_if_stmt(IConstraintIf *c) {
-	m_builder->inc_expr_depth();
-	Z3ExprTerm iff = m_builder->expr_builder()->build(c->getCond());
+void Z3ModelBuildConstraint::visit_constraint_if_stmt(IConstraintIf *c) {
+//	m_builder->inc_expr_depth();
+	Z3ExprTerm iff = m_builder->expr_builder().build(c->getCond());
 	visit_constraint_stmt(c->getTrue());
 	Z3ExprTerm case_true = m_expr;
 
@@ -76,7 +76,7 @@ void Z3ModelConstraintBuilder::visit_constraint_if_stmt(IConstraintIf *c) {
 //				m_builder->solver(), ast);
 	}
 
-	m_builder->dec_expr_depth();
+//	m_builder->dec_expr_depth();
 }
 
 

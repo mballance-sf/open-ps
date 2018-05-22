@@ -43,9 +43,9 @@ bool Z3ModelProcessor::run() {
 		return false;
 	}
 
-	exec_action(
-			m_root_action->getName(),
-			m_root_action);
+//	exec_action(
+//			m_root_action->getName(),
+//			m_root_action);
 
 	return true;
 }
@@ -166,7 +166,7 @@ void Z3ModelProcessor::exec_activity_traverse_stmt(
 
 	std::string this_ctxt = context + "." + ref->getId();
 
-	exec_action(this_ctxt, action);
+//	exec_action(this_ctxt, action);
 }
 
 void Z3ModelProcessor::exec_activity_repeat_stmt(

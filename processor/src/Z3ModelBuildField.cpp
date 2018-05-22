@@ -1,26 +1,26 @@
 /*
- * Z3ModelFieldBuilder.cpp
+ * Z3ModelBuildField.cpp
  *
  *  Created on: May 18, 2018
  *      Author: ballance
  */
 
-#include "Z3ModelFieldBuilder.h"
 #include "Z3ModelBuilder.h"
 #include "z3.h"
 #include <math.h>
 #include <limits.h>
+#include "Z3ModelBuildField.h"
 
-Z3ModelFieldBuilder::Z3ModelFieldBuilder(Z3ModelBuilder *builder) : m_builder(builder) {
+Z3ModelBuildField::Z3ModelBuildField(Z3ModelBuilder *builder) : m_builder(builder) {
 	// TODO Auto-generated constructor stub
 
 }
 
-Z3ModelFieldBuilder::~Z3ModelFieldBuilder() {
+Z3ModelBuildField::~Z3ModelBuildField() {
 	// TODO Auto-generated destructor stub
 }
 
-void Z3ModelFieldBuilder::visit_field(IField *f) {
+void Z3ModelBuildField::visit_field(IField *f) {
 	fprintf(stdout, "visit_field: %s\n", f->getName().c_str());
 
 	if (f->getDataType()->getType() == IBaseItem::TypeScalar) {
@@ -74,7 +74,7 @@ void Z3ModelFieldBuilder::visit_field(IField *f) {
 	}
 }
 
-uint32_t Z3ModelFieldBuilder::compute_bits(IScalarType *t) {
+uint32_t Z3ModelBuildField::compute_bits(IScalarType *t) {
 	uint32_t ret = 32;
 
 	switch (t->getScalarType()) {
@@ -113,7 +113,7 @@ uint32_t Z3ModelFieldBuilder::compute_bits(IScalarType *t) {
 		} break;
 
 		case IScalarType::ScalarType_String: {
-			ret = m_builder->strtab()->bits();
+			ret = m_builder->strtab().bits();
 			fprintf(stdout, "String bits: %d\n", ret);
 		} break;
 
@@ -126,7 +126,7 @@ uint32_t Z3ModelFieldBuilder::compute_bits(IScalarType *t) {
 	return ret;
 }
 
-bool Z3ModelFieldBuilder::compute_sign(IScalarType *t) {
+bool Z3ModelBuildField::compute_sign(IScalarType *t) {
 	bool is_signed = true;
 
 	switch (t->getScalarType()) {
@@ -155,7 +155,7 @@ bool Z3ModelFieldBuilder::compute_sign(IScalarType *t) {
 
 
 
-void Z3ModelFieldBuilder::compute_domain(Z3ModelVar &var) {
+void Z3ModelBuildField::compute_domain(Z3ModelVar &var) {
 	if (var.is_signed()) {
 		int64_t min = LLONG_MIN;
 		int64_t max = LLONG_MAX;

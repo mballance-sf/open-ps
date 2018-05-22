@@ -15,14 +15,14 @@ StringTableBuilder::StringTableBuilder() {
 StringTableBuilder::~StringTableBuilder() {
 }
 
-IStringTable *StringTableBuilder::build(
+IStringTableH StringTableBuilder::build(
 		IComponent		*c,
 		IAction			*a) {
 	m_strtab = new StringTable();
 	visit_component(c);
 	visit_action(a);
 
-	return m_strtab;
+	return IStringTableH(m_strtab);
 }
 
 void StringTableBuilder::visit_literal_expr(ILiteral *l) {

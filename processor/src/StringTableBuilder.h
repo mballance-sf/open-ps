@@ -25,7 +25,7 @@ public:
 
 	virtual ~StringTableBuilder();
 
-	IStringTable *build(IComponent *c, IAction *a);
+	IStringTableH build(IComponent *c, IAction *a);
 
 protected:
 

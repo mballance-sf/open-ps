@@ -8,8 +8,12 @@
 #include "Z3Model.h"
 #include "SolverErrorException.h"
 
-Z3Model::Z3Model() {
+Z3Model::Z3Model(
+		const IStringTableH &strtab,
+		IAction				*entry) {
 
+	m_strtab = strtab;
+	m_entry = entry;
 	m_model = 0;
 	m_cfg = Z3_mk_config();
 	m_ctxt = Z3_mk_context(m_cfg);
@@ -24,6 +28,18 @@ Z3Model::Z3Model() {
 Z3Model::~Z3Model() {
 	Z3_del_config(m_cfg);
 	Z3_del_context(m_ctxt);
+
+	for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
+			it != m_variables.end(); it++) {
+		delete it->second;
+	}
+}
+
+void Z3Model::init() {
+	for (std::map<std::string, Z3ModelVar *>::iterator it=m_variables.begin();
+			it != m_variables.end(); it++) {
+		it->second->reset();
+	}
 }
 
 bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
@@ -135,11 +151,29 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 	m_model = Z3_solver_get_model(m_ctxt, m_solver);
 	Z3_model_inc_ref(m_ctxt, m_model);
 
+	// Fix the value of variables we just solved
+	for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
+		it!=vars.end(); it++) {
+		if (!(*it)->fixed()) {
+			(*it)->set_val((*it)->get_val(m_ctxt, m_model).ui);
+		}
+	}
+
 	return true;
 }
 
 bool Z3Model::check() {
 	return (Z3_solver_check(m_ctxt, m_solver) == Z3_L_TRUE);
+}
+
+void Z3Model::add_variable(Z3ModelVar *var) {
+	m_variables[var->name()] = var;
+}
+
+Z3ModelVar *Z3Model::get_variable(const std::string &name) {
+	std::map<std::string, Z3ModelVar *>::iterator it = m_variables.find(name);
+
+	return it->second;
 }
 
 VarVal Z3Model::get_value(const std::string &path) {

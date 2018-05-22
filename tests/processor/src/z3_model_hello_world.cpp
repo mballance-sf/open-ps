@@ -13,10 +13,11 @@
 #include "PSSLexer.h"
 #include "PSSParser.h"
 #include "PSIVisitor.h"
-#include "Z3ModelProcessor.h"
 #include "TestExecListener.h"
 #include "EntryFinder.h"
 #include "ModelImpl.h"
+#include "Z3ModelBuilder.h"
+#include "Z3ModelEvaluator.h"
 #include <ctype.h>
 
 using namespace antlr4;
@@ -32,7 +33,6 @@ static void run_test(
 		const std::string		&expected) {
 	IModel *model = new ModelImpl();
 	ResolveRefsProcessor refs_processor;
-	Z3ModelProcessor z3_processor;
 
 	std::istringstream in(content);
 	ANTLRInputStream input(in);
@@ -53,10 +53,19 @@ static void run_test(
 	ASSERT_TRUE(EntryFinder::find(
 			model, root_component, root_action, entry));
 
+	Z3ModelBuilder model_builder;
+	Z3ModelH z3_model = model_builder.build(model,
+			std::get<0>(entry), std::get<1>(entry));
+
+	Z3ModelEvaluator model_evaluator(z3_model);
+
+	TestExecListener exec_listener(z3_model.get());
+
+	model_evaluator.eval(&exec_listener);
+
 	// TODO:
 //	z3_processor.build(std::get<0>(entry), std::get<1>(entry));
 //
-//	TestExecListener exec_listener(&z3_processor);
 //	z3_processor.set_exec_listener(&exec_listener);
 //
 //	z3_processor.run();

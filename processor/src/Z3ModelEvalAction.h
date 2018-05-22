@@ -18,9 +18,7 @@ public:
 
 	void eval_action(
 			const std::string		&context,
-			IAction 				*action) {
-
-	}
+			IAction 				*action);
 
 private:
 	Z3ModelEvaluator			*m_evaluator;

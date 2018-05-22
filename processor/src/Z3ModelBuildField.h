@@ -1,5 +1,5 @@
 /*
- * Z3ModelFieldBuilder.h
+ * Z3ModelBuildField.h
  *
  *  Created on: May 18, 2018
  *      Author: ballance
@@ -13,11 +13,11 @@
 
 
 class Z3ModelBuilder;
-class Z3ModelFieldBuilder : public virtual PSIVisitor {
+class Z3ModelBuildField : public virtual PSIVisitor {
 public:
-	Z3ModelFieldBuilder(Z3ModelBuilder *builder);
+	Z3ModelBuildField(Z3ModelBuilder *builder);
 
-	virtual ~Z3ModelFieldBuilder();
+	virtual ~Z3ModelBuildField();
 
 	Z3ModelVar *build(IField *field);
 

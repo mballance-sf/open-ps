@@ -7,6 +7,7 @@
 #pragma once
 #include <stdint.h>
 #include <string>
+#include <memory>
 
 class IStringTable {
 public:
@@ -22,5 +23,7 @@ public:
 	virtual uint32_t bits() const = 0;
 
 };
+
+typedef std::shared_ptr<IStringTable> IStringTableH;
 
 
