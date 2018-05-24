@@ -7,6 +7,7 @@
 
 #include "Z3ModelEvalAction.h"
 #include "Z3ModelEvaluator.h"
+#include "ExprEvaluator.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -57,7 +58,7 @@ void Z3ModelEvalAction::eval_action(IAction	*action) {
 	}
 
 	// Initialize variables in this scope and sub-scopes
-	init_variables(action);
+	m_evaluator->var_initializer().init(action);
 
 	// Collect variables to solve for
 	rand_vars.clear();
@@ -102,8 +103,9 @@ void Z3ModelEvalAction::eval_action(IAction	*action) {
 			fprintf(stdout, "Warning: no exec listener\n");
 		}
 	} else if (action->getActivity()) {
-		fprintf(stdout, "TODO: exec_activity_stmt\n");
-//		exec_activity_stmt(context, action->getActivity());
+		fprintf(stdout, "--> visit_activity\n");
+		visit_activity(action->getActivity());
+		fprintf(stdout, "<-- visit_activity\n");
 	} else {
 		fprintf(stdout, "Note: this is a boring action with no exec and no activity\n");
 	}
@@ -142,6 +144,65 @@ void Z3ModelEvalAction::collect_rand_variables(
 		}
 	}
 }
+
+void Z3ModelEvalAction::visit_activity_if_else_stmt(IActivityIfElseStmt *stmt) {
+	fprintf(stdout, "TODO: activity_if_else_stmt\n");
+}
+
+void Z3ModelEvalAction::visit_activity_parallel_block_stmt(IActivityBlockStmt *block) {
+	fprintf(stdout, "TODO: activity_parallel_block_stmt\n");
+}
+
+void Z3ModelEvalAction::visit_activity_repeat_stmt(IActivityRepeatStmt *repeat) {
+	fprintf(stdout, "--> visit_activity_repeat_stmt\n");
+
+	switch (repeat->getRepeatType()) {
+	case IActivityRepeatStmt::RepeatType_Count: {
+		ExprEvaluator eval(m_evaluator->model());
+		VarVal cond = eval.eval(
+				m_evaluator->name_provider().name(),
+				repeat->getCond());
+
+		for (uint32_t i=0; i<cond.ui; i++) {
+			visit_activity_stmt(repeat->getBody());
+		}
+	} break;
+	default: {
+		fprintf(stdout, "Error: unsupported repeat type %d\n",
+				repeat->getRepeatType());
+	}
+	}
+
+	fprintf(stdout, "<-- visit_activity_repeat_stmt\n");
+}
+
+void Z3ModelEvalAction::visit_activity_schedule_block_stmt(IActivityBlockStmt *s) {
+	fprintf(stdout, "TODO: activity_schedule_block_stmt\n");
+}
+
+void Z3ModelEvalAction::visit_activity_select_stmt(IActivityBlockStmt *s) {
+	fprintf(stdout, "TODO: activity_schedule_select_stmt\n");
+}
+
+void Z3ModelEvalAction::visit_activity_traverse_stmt(IActivityTraverseStmt *stmt) {
+	fprintf(stdout, "--> visit_activity_traverse_stmt\n");
+
+	IVariableRef *ref = stmt->getAction();
+	IField *action_f = dynamic_cast<IField *>(ref->getTarget());
+	IRefType *type_r = dynamic_cast<IRefType *>(action_f->getDataType());
+	IAction *action = dynamic_cast<IAction *>(type_r->getTargetType());
+
+	m_evaluator->name_provider().enter(action_f);
+	eval_action(action);
+	m_evaluator->name_provider().leave(action_f);
+
+	fprintf(stdout, "<-- visit_activity_traverse_stmt\n");
+}
+
+void Z3ModelEvalAction::visit_activity_do_action_stmt(IActivityDoActionStmt *stmt) {
+	fprintf(stdout, "TODO: activity_do_action_stmt\n");
+}
+
 
 void Z3ModelEvalAction::init_variables(IAction	*action) {
 	fprintf(stdout, "TODO: initialize actions\n");

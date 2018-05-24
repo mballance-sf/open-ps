@@ -12,6 +12,7 @@
 Z3ModelEvaluator::Z3ModelEvaluator(const Z3ModelH &model) :
 	m_model(model),
 	m_eval_action(this),
+	m_var_initializer(this),
 	m_exec_listener(0) {
 
 }
