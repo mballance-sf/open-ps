@@ -195,65 +195,39 @@ void Z3ModelBuildExpr::visit_binary_expr(IBinaryExpr *be) {
 		}
 	} break;
 	case IBinaryExpr::BinOp_LE: {
-		uint32_t bits;
-		if (lhs.size() != rhs.size()) {
-			if (lhs.size() < rhs.size()) {
-				// upsize lhs
-				lhs = upsize(lhs, rhs.size());
-				bits = rhs.size();
-			} else {
-				// upsize rhs
-				rhs = upsize(rhs, lhs.size());
-				bits = lhs.size();
-			}
-		} else {
-			bits = lhs.size();
-		}
+		size_terms(lhs, rhs);
 		if (lhs.is_signed() && rhs.is_signed()) {
 			m_expr = Z3ExprTerm(
 					Z3_mk_bvsle(m_builder->ctxt(),
 							lhs.expr(),
 							rhs.expr()),
-							bits,
+							lhs.size(),
 							lhs.is_signed());
 		} else {
 			m_expr = Z3ExprTerm(
 					Z3_mk_bvule(m_builder->ctxt(),
 							lhs.expr(),
 							rhs.expr()),
-							bits,
+							lhs.size(),
 							lhs.is_signed());
 		}
 	} break;
 
 	case IBinaryExpr::BinOp_LT: {
-		uint32_t bits;
-		if (lhs.size() != rhs.size()) {
-			if (lhs.size() < rhs.size()) {
-				// upsize lhs
-				lhs = upsize(lhs, rhs.size());
-				bits = rhs.size();
-			} else {
-				// upsize rhs
-				rhs = upsize(rhs, lhs.size());
-				bits = lhs.size();
-			}
-		} else {
-			bits = lhs.size();
-		}
+		size_terms(lhs, rhs);
 		if (lhs.is_signed() && rhs.is_signed()) {
 			m_expr = Z3ExprTerm(
 					Z3_mk_bvslt(m_builder->ctxt(),
 							lhs.expr(),
 							rhs.expr()),
-							bits,
+							lhs.size(),
 							lhs.is_signed());
 		} else {
 			m_expr = Z3ExprTerm(
 					Z3_mk_bvult(m_builder->ctxt(),
 							lhs.expr(),
 							rhs.expr()),
-							bits,
+							lhs.size(),
 							lhs.is_signed());
 		}
 	} break;
@@ -267,6 +241,68 @@ void Z3ModelBuildExpr::visit_binary_expr(IBinaryExpr *be) {
 	default:
 		fprintf(stdout, "Error: unhandled binary expr %d\n",
 				be->getBinOpType());
+	}
+}
+
+void Z3ModelBuildExpr::visit_in_expr(IInExpr *in) {
+	std::vector<Z3_ast> terms;
+
+	visit_expr(in->getLhs());
+	Z3ExprTerm var = m_expr;
+
+	for (uint32_t i=0; i<in->getRhs()->ranges().size(); i++) {
+		IOpenRangeValue *rv = in->getRhs()->ranges().at(i);
+
+		visit_expr(rv->getLHS());
+		Z3ExprTerm lhs = m_expr;
+
+		if (rv->getRHS()) {
+			// bi-directional
+			Z3ExprTerm var_l = var;
+			Z3ExprTerm var_r = var;
+			visit_expr(rv->getRHS());
+			Z3ExprTerm rhs = m_expr;
+			Z3_ast t[2];
+
+			size_terms(var_l, lhs);
+			size_terms(var_r, rhs);
+
+			if (var_l.is_signed() || lhs.is_signed()) {
+				t[0] = Z3_mk_bvsge(m_builder->ctxt(), var_l.expr(), lhs.expr());
+			} else {
+				t[0] = Z3_mk_bvuge(m_builder->ctxt(), var_l.expr(), lhs.expr());
+			}
+
+			if (var_r.is_signed() || rhs.is_signed()) {
+				t[1] = Z3_mk_bvsle(m_builder->ctxt(), var_r.expr(), rhs.expr());
+			} else {
+				t[1] = Z3_mk_bvule(m_builder->ctxt(), var_r.expr(), rhs.expr());
+			}
+
+			terms.push_back(Z3_mk_and(m_builder->ctxt(), 2, t));
+		} else {
+			// unidirectional
+			Z3ExprTerm var_t = var;
+			size_terms(var_t, lhs);
+
+			terms.push_back(Z3_mk_eq(m_builder->ctxt(),
+					var_t.expr(),
+					lhs.expr()));
+		}
+	}
+
+	if (terms.size() > 1) {
+		m_expr = Z3ExprTerm(
+				Z3_mk_or(m_builder->ctxt(),
+						terms.size(), terms.data()),
+				1,
+				false);
+	} else {
+		// Just move the single term over
+		m_expr = Z3ExprTerm(
+				terms.at(0),
+				1,
+				false);
 	}
 }
 
@@ -318,13 +354,28 @@ void Z3ModelBuildExpr::visit_variable_ref(IVariableRef *ref) {
 	// Determine the full name of the variable
 	std::string name = ref->toString();
 	fprintf(stdout, "Ref: %s prefix: %s\n",
-			name.c_str(), m_builder->prefix().c_str());
-	std::string full_name = m_builder->prefix() + "." + name;
+			name.c_str(), m_builder->name_provider().name().c_str());
+	std::string full_name = m_builder->name_provider().name() + "." + name;
 
 	Z3ModelVar *var = m_builder->get_variable(full_name);
 
 	m_expr = Z3ExprTerm(var->var(), var->bits(), var->is_signed());
 	fprintf(stdout, "m_expr=%p\n", m_expr);
+}
+
+void Z3ModelBuildExpr::size_terms(
+		Z3ExprTerm &lhs,
+		Z3ExprTerm &rhs) {
+
+	if (lhs.size() != rhs.size()) {
+		if (lhs.size() < rhs.size()) {
+			// upsize lhs
+			lhs = upsize(lhs, rhs.size());
+		} else {
+			// upsize rhs
+			rhs = upsize(rhs, lhs.size());
+		}
+	}
 }
 
 Z3ExprTerm Z3ModelBuildExpr::upsize(

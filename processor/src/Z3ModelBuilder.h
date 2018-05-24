@@ -13,6 +13,7 @@
 #include "Z3ModelBuildExpr.h"
 #include "Z3ModelBuildField.h"
 #include "Z3ModelBuildConstraint.h"
+#include "ModelNameProvider.h"
 #include "z3.h"
 #include <memory>
 
@@ -37,9 +38,17 @@ public:
 		return m_constraint_builder;
 	}
 
-	Z3_context ctxt() const { return 0; } // TODO:
+	ModelNameProvider &name_provider() {
+		return m_name_provider;
+	}
 
-	Z3_solver solver() const { return 0; } // TODO:
+	virtual void visit_constraint(IConstraintBlock *c);
+
+	virtual void visit_field(IField *f);
+
+	Z3_context ctxt() const;
+
+	Z3_solver solver() const;
 
 	IStringTable &strtab() { return *m_strtab; } // TODO:
 
@@ -53,17 +62,12 @@ public:
 
 	uint32_t expr_depth() const;
 
-	void push_prefix(const std::string &pref);
-
-	void pop_prefix();
-
-	const std::string &prefix();
-
 private:
 	Z3ModelBuildExpr				m_expr_builder;
 	Z3ModelBuildField				m_field_builder;
 	Z3ModelBuildConstraint			m_constraint_builder;
 	IStringTableH					m_strtab;
+	ModelNameProvider				m_name_provider;
 	Z3Model							*m_z3_model;
 	std::vector<std::string>		m_prefix_v;
 	std::string						m_prefix;

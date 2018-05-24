@@ -19,7 +19,7 @@ public:
 
 	virtual ~Z3ModelBuildField();
 
-	Z3ModelVar *build(IField *field);
+	void build(IField *field);
 
 protected:
 

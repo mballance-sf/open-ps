@@ -27,7 +27,19 @@ void Z3ModelEvaluator::eval(IExecListener *l) {
 	m_model->init();
 
 	IAction *entry = m_model->entry();
-	m_eval_action.eval_action(entry->getName(), entry);
+	m_name_provider.enter(entry->getName());
+	m_eval_action.eval_action(entry);
+	m_name_provider.leave(entry->getName());
 }
 
+Z3ModelVar *Z3ModelEvaluator::get_variable(const std::string &name) {
+	return m_model->get_variable(name);
+}
 
+const VarVal &Z3ModelEvaluator::get_val(Z3ModelVar *var) {
+	return m_model->get_val(var);
+}
+
+bool Z3ModelEvaluator::solve(const std::vector<Z3ModelVar *> &vars) {
+	return m_model->solve(vars);
+}

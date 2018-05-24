@@ -24,6 +24,14 @@ public:
 
 	virtual void visit_constraint_if_stmt(IConstraintIf *c) override;
 
+	virtual void visit_constraint_implies_stmt(IConstraintImplies *c) override;
+
+	virtual void visit_constraint_foreach_stmt(IConstraintForeach *c) override;
+
+	virtual void visit_constraint_unique_stmt(IConstraintUnique *c) override;
+
+	virtual void visit_constraint_block(IConstraintBlock *block) override;
+
 
 private:
 	Z3ModelBuilder				*m_builder;

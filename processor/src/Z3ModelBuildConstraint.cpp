@@ -79,4 +79,56 @@ void Z3ModelBuildConstraint::visit_constraint_if_stmt(IConstraintIf *c) {
 //	m_builder->dec_expr_depth();
 }
 
+void Z3ModelBuildConstraint::visit_constraint_implies_stmt(IConstraintImplies *c) {
+	Z3ExprTerm cond = m_builder->expr_builder().build(c->getCond());
+	Z3ExprTerm rhs = build(c->getImp());
+
+	m_expr = Z3ExprTerm(Z3_mk_implies(m_builder->ctxt(),
+			cond.expr(),
+			rhs.expr()),
+			1, // TODO:
+			true);
+}
+
+void Z3ModelBuildConstraint::visit_constraint_foreach_stmt(IConstraintForeach *c) {
+	fprintf(stdout, "TODO: visit_constraint_foreach_stmt\n");
+}
+
+void Z3ModelBuildConstraint::visit_constraint_unique_stmt(IConstraintUnique *c) {
+	std::vector<Z3_ast> u_l;
+
+	for (uint32_t i=0; i<c->getTarget()->ranges().size(); i++) {
+		Z3ExprTerm e = m_builder->expr_builder().build(
+				c->getTarget()->ranges().at(i)->getLHS());
+		u_l.push_back(e.expr());
+	}
+
+	m_expr = Z3ExprTerm(
+			Z3_mk_distinct(m_builder->ctxt(), u_l.size(), u_l.data()),
+			1,
+			false);
+}
+
+void Z3ModelBuildConstraint::visit_constraint_block(IConstraintBlock *block) {
+	std::vector<Z3_ast> c_l;
+
+	for (uint32_t i=0; i<block->getConstraints().size(); i++) {
+		visit_constraint_stmt(block->getConstraints().at(i));
+		Z3_ast e = m_expr.expr();
+		Z3_sort s = Z3_get_sort(m_builder->ctxt(), e);
+		Z3_sort_kind sk = Z3_get_sort_kind(m_builder->ctxt(), s);
+
+		fprintf(stdout, "Sort Kind: %d\n", sk);
+
+		// TODO: construct a bool if needed
+		c_l.push_back(e);
+	}
+
+	m_expr = Z3ExprTerm(Z3_mk_and(m_builder->ctxt(),
+					c_l.size(),
+					c_l.data()),
+			1, // TODO:
+			false);
+}
+
 

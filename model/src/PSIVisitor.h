@@ -59,6 +59,12 @@ protected:
 
 	virtual void visit_constraint_if_stmt(IConstraintIf *c);
 
+	virtual void visit_constraint_implies_stmt(IConstraintImplies *c);
+
+	virtual void visit_constraint_foreach_stmt(IConstraintForeach *c);
+
+	virtual void visit_constraint_unique_stmt(IConstraintUnique *c);
+
 	virtual void visit_constraint_block(IConstraintBlock *block);
 
 	virtual void visit_coverspec(ICoverspec *coverspec);

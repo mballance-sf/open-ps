@@ -117,6 +117,22 @@ void PSIVisitor::visit_constraint_stmt(IConstraint *c) {
 	case IConstraint::ConstraintType_If:
 		visit_constraint_if_stmt(dynamic_cast<IConstraintIf *>(c));
 		break;
+
+	case IConstraint::ConstraintType_Implies:
+		visit_constraint_implies_stmt(dynamic_cast<IConstraintImplies *>(c));
+		break;
+
+	case IConstraint::ConstraintType_Foreach:
+		visit_constraint_foreach_stmt(dynamic_cast<IConstraintForeach *>(c));
+		break;
+
+	case IConstraint::ConstraintType_Unique:
+		visit_constraint_unique_stmt(dynamic_cast<IConstraintUnique *>(c));
+		break;
+
+	default:
+		fprintf(stdout, "Error: unsupported constraint stmt %d\n",
+				c->getConstraintType());
 	}
 }
 
@@ -132,6 +148,21 @@ void PSIVisitor::visit_constraint_if_stmt(IConstraintIf *c) {
 	if (c->getFalse()) {
 		visit_constraint_stmt(c->getFalse());
 	}
+}
+
+void PSIVisitor::visit_constraint_implies_stmt(IConstraintImplies *c) {
+	visit_expr(c->getCond());
+	visit_constraint_stmt(c->getImp());
+}
+
+void PSIVisitor::visit_constraint_foreach_stmt(IConstraintForeach *c) {
+	// TODO: IVariableRef
+
+	visit_constraint_stmt(c->getBody());
+}
+
+void PSIVisitor::visit_constraint_unique_stmt(IConstraintUnique *c) {
+	visit_open_range_list(c->getTarget());
 }
 
 void PSIVisitor::visit_constraint_block(IConstraintBlock *block) {

@@ -28,6 +28,14 @@ public:
 
 	void init();
 
+	Z3_context ctxt() const { return m_ctxt; }
+
+	Z3_solver solver() const { return m_solver; }
+
+	const VarVal &get_val(Z3ModelVar *var);
+
+	std::string toString();
+
 	bool solve(const std::vector<Z3ModelVar *> &vars);
 
 	bool check();

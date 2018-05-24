@@ -20,11 +20,18 @@ Z3ModelBuildField::~Z3ModelBuildField() {
 	// TODO Auto-generated destructor stub
 }
 
+void Z3ModelBuildField::build(IField *f) {
+	visit_field(f);
+}
+
 void Z3ModelBuildField::visit_field(IField *f) {
 	fprintf(stdout, "visit_field: %s\n", f->getName().c_str());
+	fflush(stdout);
+
+	m_builder->name_provider().enter(f);
 
 	if (f->getDataType()->getType() == IBaseItem::TypeScalar) {
-		std::string id = m_builder->prefix() + "." + f->getName();
+		std::string id = m_builder->name_provider().name();
 		uint32_t bits = compute_bits(
 				dynamic_cast<IScalarType *>(f->getDataType()));
 		VarValType type;
@@ -38,6 +45,7 @@ void Z3ModelBuildField::visit_field(IField *f) {
 		}
 
 		fprintf(stdout, "Note: scalar variable %s\n", id.c_str());
+		fflush(stdout);
 
 		Z3_ast var = Z3_mk_const(m_builder->ctxt(),
 				Z3_mk_string_symbol(m_builder->ctxt(), id.c_str()),
@@ -48,7 +56,6 @@ void Z3ModelBuildField::visit_field(IField *f) {
 
 	} else if (f->getDataType()->getType() == IBaseItem::TypeRefType) {
 		IRefType *ref = dynamic_cast<IRefType *>(f->getDataType());
-		m_builder->push_prefix(f->getName());
 		switch (ref->getTargetType()->getType()) {
 		case IBaseItem::TypeStruct:
 			visit_struct(dynamic_cast<IStruct *>(ref->getTargetType()));
@@ -59,7 +66,6 @@ void Z3ModelBuildField::visit_field(IField *f) {
 		default:
 			fprintf(stdout, "Error: unknown composite type\n");
 		}
-		m_builder->pop_prefix();
 	} else if (f->getDataType()->getType() == IBaseItem::TypeComponent) {
 		if (dynamic_cast<IAction *>(f->getParent())) {
 			// Ignore component-type fields in action, since this
@@ -72,6 +78,8 @@ void Z3ModelBuildField::visit_field(IField *f) {
 		fprintf(stdout, "Error: unknown data type %d\n",
 				f->getDataType()->getType());
 	}
+
+	m_builder->name_provider().leave(f);
 }
 
 uint32_t Z3ModelBuildField::compute_bits(IScalarType *t) {

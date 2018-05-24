@@ -23,11 +23,17 @@ public:
 
 	virtual void visit_binary_expr(IBinaryExpr *be) override;
 
+	virtual void visit_in_expr(IInExpr *in);
+
 	virtual void visit_literal_expr(ILiteral *l) override;
 
 	virtual void visit_variable_ref(IVariableRef *ref) override;
 
 	Z3ExprTerm upsize(const Z3ExprTerm &target, uint32_t bits);
+
+private:
+
+	void size_terms(Z3ExprTerm &lhs, Z3ExprTerm &rhs);
 
 private:
 	Z3ModelBuilder					*m_builder;

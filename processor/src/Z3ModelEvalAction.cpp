@@ -5,10 +5,19 @@
  *      Author: ballance
  */
 
-#include <vector>
-#include "Z3ModelVar.h"
-#include "IExec.h"
 #include "Z3ModelEvalAction.h"
+#include "Z3ModelEvaluator.h"
+
+#include <cstdint>
+#include <cstdio>
+#include <iterator>
+#include <vector>
+
+#include "IBaseItem.h"
+#include "IExec.h"
+#include "IField.h"
+#include "IScalarType.h"
+#include "Z3ModelVar.h"
 
 Z3ModelEvalAction::Z3ModelEvalAction(Z3ModelEvaluator *evaluator) {
 	m_evaluator = evaluator;
@@ -18,14 +27,13 @@ Z3ModelEvalAction::~Z3ModelEvalAction() {
 	// TODO Auto-generated destructor stub
 }
 
-void Z3ModelEvalAction::eval_action(
-		const std::string		&context,
-		IAction 				*action) {
+void Z3ModelEvalAction::eval_action(IAction	*action) {
 	std::vector<Z3ModelVar *> reset_vars;
 	std::vector<Z3ModelVar *> rand_vars;
 	IExec *pre_solve=0;
 	IExec *post_solve=0;
 	IExec *body=0;
+	std::string context = m_evaluator->name_provider().name();
 
 	fprintf(stdout, "--> exec_action %s\n", context.c_str());
 
@@ -48,6 +56,13 @@ void Z3ModelEvalAction::eval_action(
 		fprintf(stdout, "TODO: support pre-solve exec\n");
 	}
 
+	// Initialize variables in this scope and sub-scopes
+	init_variables(action);
+
+	// Collect variables to solve for
+	rand_vars.clear();
+	collect_rand_variables(rand_vars, action);
+
 //	collect_variables(reset_vars, context, action);
 //
 //	// Collect variables that will be randomized in this action
@@ -60,38 +75,75 @@ void Z3ModelEvalAction::eval_action(
 //		(*it)->reset();
 //	}
 //
-//	// Solve for the random variables
-//	if (rand_vars.size() > 0) {
-//		if (!solve(rand_vars)) {
-//			fprintf(stdout, "Error: solve failed\n");
-//		}
-//		// Now, lock down the values of the random variables
-//		for (std::vector<Z3ModelVar *>::const_iterator it=rand_vars.begin();
-//				it!=rand_vars.end(); it++) {
-//			const VarVal &val = (*it)->get_val(m_ctxt, m_model);
-//			fprintf(stdout, "%s = %lld\n",
-//					(*it)->name().c_str(),
-//					val.ui);
+	// Solve for the random variables
+	if (rand_vars.size() > 0) {
+		if (!m_evaluator->solve(rand_vars)) {
+			fprintf(stdout, "Error: solve failed\n");
+		}
+
+		for (std::vector<Z3ModelVar *>::const_iterator it=rand_vars.begin();
+				it!=rand_vars.end(); it++) {
+			const VarVal &val = m_evaluator->get_val(*it);
+			fprintf(stdout, "%s = %lld\n",
+					(*it)->name().c_str(),
+					val.ui);
 //			(*it)->set_val(val.ui);
-//		}
-//	}
-//
-//	if (post_solve) {
-//		fprintf(stdout, "TODO: support post-solve exec\n");
-//	}
-//
-//	if (body) {
-//		if (m_exec_listener) {
-//			m_exec_listener->exec(context, body);
-//		} else {
-//			fprintf(stdout, "Warning: no exec listener\n");
-//		}
-//	} else if (action->getActivity()) {
+		}
+	}
+
+	if (post_solve) {
+		fprintf(stdout, "TODO: support post-solve exec\n");
+	}
+
+	if (body) {
+		if (m_evaluator->exec_listener()) {
+			m_evaluator->exec_listener()->exec(context, body);
+		} else {
+			fprintf(stdout, "Warning: no exec listener\n");
+		}
+	} else if (action->getActivity()) {
+		fprintf(stdout, "TODO: exec_activity_stmt\n");
 //		exec_activity_stmt(context, action->getActivity());
-//	} else {
-//		fprintf(stdout, "Note: this is a boring action with no exec and no activity\n");
-//	}
+	} else {
+		fprintf(stdout, "Note: this is a boring action with no exec and no activity\n");
+	}
 
 	fprintf(stdout, "<-- exec_action\n");
+}
+
+void Z3ModelEvalAction::collect_rand_variables(
+		std::vector<Z3ModelVar *>		&vars,
+		IAction							*action) {
+
+	for (uint32_t i=0; i<action->getItems().size(); i++) {
+		IBaseItem *item = action->getItems().at(i);
+
+		if (dynamic_cast<IField *>(item)) {
+			IField *field = dynamic_cast<IField *>(item);
+			m_evaluator->name_provider().enter(field);
+			fprintf(stdout, "collect_variables: field=%s\n", field->getName().c_str());
+
+			if (dynamic_cast<IScalarType *>(field->getDataType())) {
+				// scalar field
+				std::string varname = m_evaluator->name_provider().name();
+				Z3ModelVar *var = m_evaluator->get_variable(varname);
+
+				if (var) {
+					fprintf(stdout, "Add var %s\n", var->name().c_str());
+					vars.push_back(var);
+				} else {
+					fprintf(stdout, "Error: failed to find variable %s\n", varname.c_str());
+				}
+			} else {
+				// composite or user-defined field
+				fprintf(stdout, "TODO: composite variable\n");
+			}
+			m_evaluator->name_provider().leave(field);
+		}
+	}
+}
+
+void Z3ModelEvalAction::init_variables(IAction	*action) {
+	fprintf(stdout, "TODO: initialize actions\n");
 }
 

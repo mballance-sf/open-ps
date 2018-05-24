@@ -42,6 +42,25 @@ void Z3Model::init() {
 	}
 }
 
+const VarVal &Z3Model::get_val(Z3ModelVar *var) {
+	return var->get_val(m_ctxt, m_model);
+}
+
+std::string Z3Model::toString() {
+	std::string ret;
+
+	Z3_ast_vector v = Z3_solver_get_assertions(m_ctxt, m_solver);
+	Z3_ast_vector_inc_ref(m_ctxt, v);
+	for (uint32_t i=0; i<Z3_ast_vector_size(m_ctxt, v); i++) {
+		Z3_ast ast = Z3_ast_vector_get(m_ctxt, v, i);
+		ret += Z3_ast_to_string(m_ctxt, ast);
+		ret += "\n";
+	}
+	Z3_ast_vector_dec_ref(m_ctxt, v);
+
+	return ret;
+}
+
 bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 	if (m_model) {
 		Z3_model_dec_ref(m_ctxt, m_model);
@@ -53,6 +72,14 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 
 	Z3_lbool result = Z3_solver_check(m_ctxt, m_solver);
 	if (result != Z3_L_TRUE) {
+		Z3_ast_vector v = Z3_solver_get_assertions(m_ctxt, m_solver);
+		Z3_ast_vector_inc_ref(m_ctxt, v);
+		for (uint32_t i=0; i<Z3_ast_vector_size(m_ctxt, v); i++) {
+			Z3_ast ast = Z3_ast_vector_get(m_ctxt, v, i);
+			std::string ast_s = Z3_ast_to_string(m_ctxt, ast);
+			fprintf(stdout, "Ast:\n%s\n", ast_s.c_str());
+		}
+		Z3_ast_vector_dec_ref(m_ctxt, v);
 		return false;
 	};
 
