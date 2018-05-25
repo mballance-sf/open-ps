@@ -186,6 +186,10 @@ end_exec:
 	run_test(src, "top", "entry", expected);
 }
 
+TEST(z3_model,subsys_reg_block) {
+	run_test_file("")
+}
+
 static void run_test(
 		const std::string		&content,
 		const std::string		&root_component,

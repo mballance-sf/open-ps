@@ -17,6 +17,8 @@ public:
 
 	void init(IAction *action);
 
+	void init(IField *action);
+
 	void init(IActivityStmt *stmt);
 
 private:
