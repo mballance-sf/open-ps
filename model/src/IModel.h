@@ -26,6 +26,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "IAction.h"
 #include "IActivityTraverseStmt.h"
@@ -69,4 +70,6 @@
 			virtual ICallbackContext *getCallbackContext() = 0;
 
 	};
+
+	typedef std::shared_ptr<IModel> IModelPtr;
 

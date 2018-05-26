@@ -22,8 +22,7 @@
 #include "ModelNameProvider.h"
 
 ModelNameProvider::ModelNameProvider() {
-	// TODO Auto-generated constructor stub
-
+	m_name_valid = false;
 }
 
 ModelNameProvider::~ModelNameProvider() {
@@ -31,12 +30,14 @@ ModelNameProvider::~ModelNameProvider() {
 }
 
 void ModelNameProvider::enter(const std::string &name) {
-	m_names.push_back(name);
+	m_name_valid = false;
+	m_scopes.push_back(ScopeInfo(name));
 }
 
 void ModelNameProvider::leave(const std::string &name) {
-	if (m_names.size() > 0) {
-		m_names.pop_back();
+	if (m_scopes.size() > 0) {
+		m_name_valid = false;
+		m_scopes.pop_back();
 	} else {
 		fprintf(stdout, "Error: leave(%s) with 0-size stack\n",
 				name.c_str());
@@ -44,27 +45,29 @@ void ModelNameProvider::leave(const std::string &name) {
 }
 
 void ModelNameProvider::enter(IField *field) {
-	m_names.push_back(field->getName());
+	m_name_valid = false;
+	m_scopes.push_back(ScopeInfo(field->getName()));
 }
 
 void ModelNameProvider::leave(IField *field) {
-	if (m_names.size() > 0) {
-		m_names.pop_back();
+	if (m_scopes.size() > 0) {
+		m_name_valid = false;
+		m_scopes.pop_back();
 	} else {
 		fprintf(stdout, "Error: leave(field=%s) with 0-size stack\n",
 				field->getName().c_str());
 	}
 }
 
-std::string ModelNameProvider::name() {
-	std::string name;
-
-	for (uint32_t i=0; i<m_names.size(); i++) {
-		name.append(m_names.at(i));
-		if (i+1 < m_names.size()) {
-			name.append(".");
+const std::string &ModelNameProvider::name() {
+	if (!m_name_valid) {
+		for (uint32_t i=0; i<m_scopes.size(); i++) {
+			m_name.append(m_scopes.at(i).m_name);
+			if (i+1 < m_scopes.size()) {
+				m_name.append(".");
+			}
 		}
+		m_name_valid = true;
 	}
-
-	return name;
+	return m_name;
 }

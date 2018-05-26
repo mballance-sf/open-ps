@@ -1,8 +1,5 @@
 /*
- * PSI2XML.h
- *
- * Copyright 2016 Mentor Graphics Corporation
- * All Rights Reserved Worldwide
+ * Model2XML.h
  *
  * Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in
@@ -24,9 +21,7 @@
  *  Created on: May 3, 2016
  *      Author: ballance
  */
-
-#ifndef SRC_APPS_PSI2XML_H_
-#define SRC_APPS_PSI2XML_H_
+#pragma once
 #include <string>
 #include <vector>
 #include <stdint.h>
@@ -39,11 +34,11 @@
 namespace psi {
 namespace apps {
 
-class PSI2XML {
+class Model2XML {
 public:
-	PSI2XML();
+	Model2XML();
 
-	virtual ~PSI2XML();
+	virtual ~Model2XML();
 
 	void setUseFixedInlineAddr() { m_fixed_inline_addr = true; }
 
@@ -127,4 +122,4 @@ private:
 }
 }
 
-#endif /* SRC_APPS_PSI2XML_H_ */
+#endif /* SRC_APPS_Model2XML_H_ */

@@ -32,11 +32,8 @@
 #include "ModelImpl.h"
 #include "Z3ModelBuilder.h"
 #include "Z3ModelEvaluator.h"
+#include "OPSC.h"
 #include <ctype.h>
-
-using namespace antlr4;
-
-
 
 static std::string strip_ws(const std::string &str);
 
@@ -201,7 +198,7 @@ end_exec:
 }
 
 TEST(z3_model,subsys_reg_block) {
-	run_test_file("")
+//	run_test_file("")
 }
 
 static void run_test(
@@ -209,31 +206,21 @@ static void run_test(
 		const std::string		&root_component,
 		const std::string		&root_action,
 		const std::string		&expected) {
-	IModel *model = new ModelImpl();
-	ResolveRefsProcessor refs_processor;
+	OPSC opsc;
 
 	std::istringstream in(content);
-	ANTLRInputStream input(in);
-	PSSLexer lexer(&input);
 
-	CommonTokenStream tokens(&lexer);
-	PSSParser parser(&tokens);
-	PSSParser::ModelContext *ctxt = parser.model();
+	ASSERT_TRUE(opsc.parse(in, "hello_world.pss")); // TODO:
 
-	ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
+	ASSERT_TRUE(opsc.link());
 
-	PSS2PSIVisitor pss2psi(model, "hello_world.pss");
-	pss2psi.visitModel(ctxt);
-
-	ASSERT_TRUE(refs_processor.process(model));
-
-	std::tuple<IComponent *, IAction *> entry;
-	ASSERT_TRUE(EntryFinder::find(
-			model, root_component, root_action, entry));
+	ASSERT_TRUE(opsc.elab(root_component, root_action));
 
 	Z3ModelBuilder model_builder;
-	Z3ModelH z3_model = model_builder.build(model,
-			std::get<0>(entry), std::get<1>(entry));
+	Z3ModelH z3_model = model_builder.build(
+			opsc.model().get(),
+			opsc.root_comp(),
+			opsc.root_action());
 
 	Z3ModelEvaluator model_evaluator(z3_model);
 

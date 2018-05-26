@@ -1,5 +1,5 @@
 /*
- * PSI2XML.cpp
+ * Model2XML.cpp
  *
  * Copyright 2016 Mentor Graphics Corporation
  * All Rights Reserved Worldwide
@@ -23,7 +23,8 @@
  *      Author: ballance
  */
 
-#include "PSI2XML.h"
+#include "Model2XML.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -31,23 +32,23 @@
 namespace psi {
 namespace apps {
 
-PSI2XML::PSI2XML() : m_ind_incr(4), m_fixed_inline_addr(false) {
+Model2XML::Model2XML() : m_ind_incr(4), m_fixed_inline_addr(false) {
 	// TODO Auto-generated constructor stub
 
 }
 
-PSI2XML::~PSI2XML() {
+Model2XML::~Model2XML() {
 	// TODO Auto-generated destructor stub
 }
 
-const std::string &PSI2XML::traverse(IModel *model) {
+const std::string &Model2XML::traverse(IModel *model) {
 	m_content.clear();
 
 	println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	enter("model \n"
 			"  xmlns:pss=\"http://accellera.org/PSS\"\n"
 			"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-			"  xsi:schemaLocation=\"http://accellera.org/PSS PSSModel.xsd\"");
+			"  xsi:schemaLocation=\"http://accellera.org/PSS/PSSModel.xsd\"");
 
 	std::vector<IBaseItem *>::const_iterator it=model->getItems().begin();
 
@@ -92,7 +93,7 @@ const std::string &PSI2XML::traverse(IModel *model) {
 	return m_content;
 }
 
-void PSI2XML::process_pkg(IPackage *pkg) {
+void Model2XML::process_pkg(IPackage *pkg) {
 	if (pkg->getName() != "") {
 		enter("package name=\"" + pkg->getName() + "\"");
 	}
@@ -137,7 +138,7 @@ void PSI2XML::process_pkg(IPackage *pkg) {
 	}
 }
 
-void PSI2XML::process_action(IAction *a) {
+void Model2XML::process_action(IAction *a) {
 	IAction *super_a = a->getSuperType();
 
 	enter("action name=\"" + a->getName() + "\"");
@@ -155,7 +156,7 @@ void PSI2XML::process_action(IAction *a) {
 	exit("action");
 }
 
-void PSI2XML::process_struct(IStruct *str) {
+void Model2XML::process_struct(IStruct *str) {
 	IStruct *super_s = 0; // TODO: super-type
 	std::string tag = "struct name=\"" + str->getName() + "\"";
 
@@ -178,7 +179,7 @@ void PSI2XML::process_struct(IStruct *str) {
 	exit("struct");
 }
 
-void PSI2XML::process_bind(IBind *b) {
+void Model2XML::process_bind(IBind *b) {
 	enter("bind");
 
 	for (std::vector<IBindPath *>::const_iterator it=b->getTargets().begin();
@@ -189,7 +190,7 @@ void PSI2XML::process_bind(IBind *b) {
 	exit("bind");
 }
 
-void PSI2XML::process_body(
+void Model2XML::process_body(
 		const std::vector<IBaseItem *>  &items,
 		const std::string				&ctxt) {
 	std::vector<IBaseItem *>::const_iterator it = items.begin();
@@ -236,7 +237,7 @@ void PSI2XML::process_body(
 	}
 }
 
-void PSI2XML::process_component(IComponent *c) {
+void Model2XML::process_component(IComponent *c) {
 
 	enter(std::string("component name=\"") + c->getName() + "\"");
 
@@ -249,7 +250,7 @@ void PSI2XML::process_component(IComponent *c) {
 	exit("component");
 }
 
-void PSI2XML::process_comp_pkg_body(const std::vector<IBaseItem *> &items) {
+void Model2XML::process_comp_pkg_body(const std::vector<IBaseItem *> &items) {
 	std::vector<IBaseItem *>::const_iterator it=items.begin();
 
 	for (; it!=items.end(); it++) {
@@ -266,7 +267,7 @@ void PSI2XML::process_comp_pkg_body(const std::vector<IBaseItem *> &items) {
 
 }
 
-void PSI2XML::process_constraint_set(IConstraint *c, const char *tag) {
+void Model2XML::process_constraint_set(IConstraint *c, const char *tag) {
 	if (tag) {
 		enter(tag);
 	}
@@ -286,7 +287,7 @@ void PSI2XML::process_constraint_set(IConstraint *c, const char *tag) {
 	}
 }
 
-void PSI2XML::process_constraint(IConstraint *c) {
+void Model2XML::process_constraint(IConstraint *c) {
 	switch (c->getConstraintType()) {
 	case IConstraint::ConstraintType_Block: {
 		IConstraintBlock *b = dynamic_cast<IConstraintBlock *>(c);
@@ -339,7 +340,7 @@ void PSI2XML::process_constraint(IConstraint *c) {
 	}
 }
 
-void PSI2XML::process_constraint_block(IConstraintBlock *block) {
+void Model2XML::process_constraint_block(IConstraintBlock *block) {
 	std::vector<IConstraint *>::const_iterator it = block->getConstraints().begin();
 
 	if (block->getName() == "") {
@@ -356,7 +357,7 @@ void PSI2XML::process_constraint_block(IConstraintBlock *block) {
 	exit("constraint");
 }
 
-void PSI2XML::process_exec(IExec *exec) {
+void Model2XML::process_exec(IExec *exec) {
 	std::string kind_s = "UNKNOWN";
 
 	enter("exec");
@@ -472,7 +473,7 @@ void PSI2XML::process_exec(IExec *exec) {
 	exit("exec");
 }
 
-void PSI2XML::process_expr(IExpr *e, const char *tag) {
+void Model2XML::process_expr(IExpr *e, const char *tag) {
 	if (!e) {
 		fprintf(stdout, "Error: null expression\n");
 		return;
@@ -573,7 +574,7 @@ void PSI2XML::process_expr(IExpr *e, const char *tag) {
 	}
 }
 
-void PSI2XML::process_extend(IExtend *e) {
+void Model2XML::process_extend(IExtend *e) {
 	enter("extend");
 	type2hierarchical_id(e->getTarget(), "type");
 
@@ -591,7 +592,7 @@ void PSI2XML::process_extend(IExtend *e) {
 	exit("extend");
 }
 
-void PSI2XML::process_field(IField *f) {
+void Model2XML::process_field(IField *f) {
 	char msb_s[64], lsb_s[64];
 	std::string tag = std::string("field name=\"") + f->getName() + "\"";
 
@@ -627,7 +628,7 @@ void PSI2XML::process_field(IField *f) {
 	exit("field");
 }
 
-void PSI2XML::process_graph(IActivityStmt *activity) {
+void Model2XML::process_graph(IActivityStmt *activity) {
 	std::vector<IActivityStmt *>::const_iterator it;
 
 	enter("activity");
@@ -637,7 +638,7 @@ void PSI2XML::process_graph(IActivityStmt *activity) {
 	exit("activity");
 }
 
-void PSI2XML::process_graph_stmt(IActivityStmt *stmt, const char *tag) {
+void Model2XML::process_graph_stmt(IActivityStmt *stmt, const char *tag) {
 
 	if (tag) {
 		enter(tag);
@@ -729,7 +730,7 @@ void PSI2XML::process_graph_stmt(IActivityStmt *stmt, const char *tag) {
 	}
 }
 
-void PSI2XML::process_graph_block_stmt(IActivityBlockStmt *block, const char *tag) {
+void Model2XML::process_graph_block_stmt(IActivityBlockStmt *block, const char *tag) {
 	std::vector<IActivityStmt *>::const_iterator it;
 
 	if (tag) {
@@ -745,7 +746,7 @@ void PSI2XML::process_graph_block_stmt(IActivityBlockStmt *block, const char *ta
 	}
 }
 
-void PSI2XML::process_import_func(IImportFunc *f, const std::string &tag) {
+void Model2XML::process_import_func(IImportFunc *f, const std::string &tag) {
 	std::string tag_s = tag + " name=\"" + f->getName() + "\"";
 
 	enter(tag_s);
@@ -776,7 +777,7 @@ void PSI2XML::process_import_func(IImportFunc *f, const std::string &tag) {
 	exit(tag);
 }
 
-std::string PSI2XML::type2string(IBaseItem *it) {
+std::string Model2XML::type2string(IBaseItem *it) {
 	std::string ret;
 
 	while (it) {
@@ -797,7 +798,7 @@ std::string PSI2XML::type2string(IBaseItem *it) {
 	return ret;
 }
 
-void PSI2XML::type2hierarchical_id(IBaseItem *it, const std::string &tag) {
+void Model2XML::type2hierarchical_id(IBaseItem *it, const std::string &tag) {
 	std::vector<INamedItem *> p;
 
 	enter(tag);
@@ -823,7 +824,7 @@ void PSI2XML::type2hierarchical_id(IBaseItem *it, const std::string &tag) {
 	exit(tag);
 }
 
-void PSI2XML::type2data_type(IBaseItem *dt_i, const std::string &tag) {
+void Model2XML::type2data_type(IBaseItem *dt_i, const std::string &tag) {
 	println("<" + tag + ">");
 	inc_indent();
 
@@ -873,7 +874,7 @@ void PSI2XML::type2data_type(IBaseItem *dt_i, const std::string &tag) {
 	println("</" + tag + ">");
 }
 
-void PSI2XML::process_fieldref(IFieldRef *ref, const std::string &tag) {
+void Model2XML::process_fieldref(IFieldRef *ref, const std::string &tag) {
 	enter(tag);
 
 	for (std::vector<IField *>::const_iterator it=ref->getFieldPath().begin();
@@ -884,7 +885,7 @@ void PSI2XML::process_fieldref(IFieldRef *ref, const std::string &tag) {
 	exit(tag);
 }
 
-void PSI2XML::to_hierarchical_id(const std::vector<IBaseItem *> &path, const char *tag) {
+void Model2XML::to_hierarchical_id(const std::vector<IBaseItem *> &path, const char *tag) {
 	if (tag) {
 		enter(tag);
 	}
@@ -904,7 +905,7 @@ void PSI2XML::to_hierarchical_id(const std::vector<IBaseItem *> &path, const cha
 	}
 }
 
-std::string PSI2XML::path2string(IFieldRef *f) {
+std::string Model2XML::path2string(IFieldRef *f) {
 	std::string ret;
 	std::vector<IField *>::const_iterator it;
 
@@ -920,17 +921,17 @@ std::string PSI2XML::path2string(IFieldRef *f) {
 	return ret;
 }
 
-void PSI2XML::enter(const std::string &t) {
+void Model2XML::enter(const std::string &t) {
 	println(std::string("<pss:" + t + ">"));
 	inc_indent();
 }
 
-void PSI2XML::exit(const std::string &t) {
+void Model2XML::exit(const std::string &t) {
 	dec_indent();
 	println(std::string("</pss:" + t + ">"));
 }
 
-void PSI2XML::error(const char *fmt, ...) {
+void Model2XML::error(const char *fmt, ...) {
 	va_list ap;
 
 	va_start(ap, fmt);
@@ -940,19 +941,19 @@ void PSI2XML::error(const char *fmt, ...) {
 	va_end(ap);
 }
 
-void PSI2XML::println(const std::string &str) {
+void Model2XML::println(const std::string &str) {
 	m_content.append(m_ind);
 	m_content.append(str);
 	m_content.append("\n");
 }
 
-void PSI2XML::inc_indent() {
+void Model2XML::inc_indent() {
 	for (int i=0; i<m_ind_incr; i++) {
 		m_ind.append(" ");
 	}
 }
 
-void PSI2XML::dec_indent() {
+void Model2XML::dec_indent() {
 	if (m_ind.size() > m_ind_incr) {
 		m_ind.resize(m_ind.size()-m_ind_incr);
 	} else {
@@ -960,7 +961,7 @@ void PSI2XML::dec_indent() {
 	}
 }
 
-INamedItem *PSI2XML::toNamedItem(IBaseItem *it) {
+INamedItem *Model2XML::toNamedItem(IBaseItem *it) {
 	switch (it->getType()) {
 	case IBaseItem::TypeAction: return dynamic_cast<IAction *>(it);
 	case IBaseItem::TypeComponent: return dynamic_cast<IComponent *>(it);

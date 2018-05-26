@@ -22,6 +22,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include "IField.h"
 #include "IAction.h"
 
@@ -38,10 +39,24 @@ public:
 	void enter(IField *field);
 	void leave(IField *field);
 
-	std::string name();
+	const std::string &name();
 
 private:
-	std::vector<std::string>			m_names;
+	class ScopeInfo {
+	public:
+		ScopeInfo(const std::string name, int32_t idx=-1) {
+			m_name = name;
+			m_idx = idx;
+		}
+	public:
+		std::string		m_name;
+		int32_t			m_idx;
+	};
+
+private:
+	std::string							m_name;
+	bool								m_name_valid;
+	std::vector<ScopeInfo>				m_scopes;
 
 };
 

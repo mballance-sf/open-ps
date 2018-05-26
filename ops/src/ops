@@ -30,4 +30,4 @@ fi
 
 export LD_LIBRARY_PATH=${OPS_HOME}/${OPS_PLATFORM}/lib:${LD_LIBRARY_PATH}
 
-exec ${OPS_HOME}/${OPS_PLATFORM}/bin/ops "$@"
+exec ${OPS_HOME}/${OPS_PLATFORM}/bin/ops ${1+"$@"}
