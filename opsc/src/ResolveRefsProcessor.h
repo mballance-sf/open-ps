@@ -23,7 +23,7 @@
 #define PROCESSOR_SRC_RESOLVEREFSPROCESSOR_H_
 
 #include "IModelProcessor.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include <vector>
 #include <string>
 
@@ -31,7 +31,7 @@
 
 
 class ResolveRefsProcessor:
-		public PSIVisitor,
+		public ModelVisitor,
 		public virtual qpssc::IModelProcessor {
 public:
 	ResolveRefsProcessor();

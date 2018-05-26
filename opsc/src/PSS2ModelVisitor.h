@@ -1,5 +1,5 @@
 /*
- * PSS2PSIVisitor.h
+ * PSS2ModelVisitor.h
  *
  * Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in
@@ -26,12 +26,12 @@
 
 
 
-class PSS2PSIVisitor : public PSSBaseVisitor {
+class PSS2ModelVisitor : public PSSBaseVisitor {
 public:
 
-	PSS2PSIVisitor(IModel *model, const std::string &path);
+	PSS2ModelVisitor(IModel *model, const std::string &path);
 
-	virtual ~PSS2PSIVisitor();
+	virtual ~PSS2ModelVisitor();
 
 	antlrcpp::Any visitModel(PSSParser::ModelContext *ctx) override;
 	antlrcpp::Any visitPackage_declaration(PSSParser::Package_declarationContext *ctx) override;

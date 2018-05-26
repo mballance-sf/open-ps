@@ -24,6 +24,7 @@ MK_INCLUDES += $(TESTS_PARSER_DIR)/../../parser/src/pss-parser.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../processor/processor.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../opsc/opsc.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../pss-cpp/pss-cpp.mk
+MK_INCLUDES += $(TESTS_PARSER_DIR)/../../xml/xml.mk
 ifeq (true,$(BUILD))
 endif
 
@@ -70,6 +71,7 @@ __run: unittest$(EXEEXT)
 unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
 		$(PROCESSOR_DEPS) \
 		$(OPSC_DEPS) \
+		$(XML_DEPS) \
 		$(MODEL_DEPS) \
 		$(ANTLR4_DEPS) \
 		gtest-all.o gtest_main.o

@@ -23,7 +23,7 @@
 #include <sstream>
 #include "ExprLexer.h"
 #include "ExprParser.h"
-#include "Expr2PSIVisitor.h"
+#include "Expr2ModelVisitor.h"
 
 using namespace antlrcpp;
 using namespace antlr4;
@@ -79,7 +79,7 @@ std::vector<IExecReplacementExpr *> TargetTemplateBuilder::build(
 
 				ExprParser::EntryContext *ctxt = parser.entry();
 
-				Expr2PSIVisitor visitor(factory, scope);
+				Expr2ModelVisitor visitor(factory, scope);
 
 				fprintf(stdout, "--> process expression\n");
 				IExpr *target_expr = visitor.visit(ctxt);

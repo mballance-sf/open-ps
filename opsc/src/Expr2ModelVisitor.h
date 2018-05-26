@@ -1,5 +1,5 @@
 /*
- * Expr2PSIVisitor.h
+ * Expr2ModelVisitor.h
  *
  * Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in
@@ -24,11 +24,11 @@
 
 
 
-class Expr2PSIVisitor : public virtual ExprBaseVisitor {
+class Expr2ModelVisitor : public virtual ExprBaseVisitor {
 public:
-	Expr2PSIVisitor(IItemFactory *factory, IBaseItem *scope);
+	Expr2ModelVisitor(IItemFactory *factory, IBaseItem *scope);
 
-	virtual ~Expr2PSIVisitor();
+	virtual ~Expr2ModelVisitor();
 
 	virtual antlrcpp::Any visitEntry(ExprParser::EntryContext *ctx) override;
 

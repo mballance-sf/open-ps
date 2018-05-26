@@ -42,7 +42,7 @@ bool TypeExtensionProcessor::process(IModel *model) {
 void TypeExtensionProcessor::visit_package(IPackage *pkg) {
 	if (pkg->getName() == "" || pkg->hasAttribute("REFERENCED")) {
 		fprintf(stdout, "Visiting package %s\n", pkg->getName().c_str());
-		PSIVisitor::visit_package(pkg);
+		ModelVisitor::visit_package(pkg);
 	}
 }
 

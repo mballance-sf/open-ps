@@ -22,22 +22,22 @@
  *      Author: ballance
  */
 
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "ModelImpl.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
 
 
-PSIVisitor::PSIVisitor() : m_removed(false) {
+ModelVisitor::ModelVisitor() : m_removed(false) {
 	m_debug = true;
 }
 
-PSIVisitor::~PSIVisitor() {
+ModelVisitor::~ModelVisitor() {
 	// TODO Auto-generated destructor stub
 }
 
-void PSIVisitor::visit_model(IModel *model) {
+void ModelVisitor::visit_model(IModel *model) {
 	ModelImpl *model_i = dynamic_cast<ModelImpl *>(model);
 	push_scope(model);
 	m_removed = false;
@@ -46,7 +46,7 @@ void PSIVisitor::visit_model(IModel *model) {
 	m_removed = false;
 }
 
-void PSIVisitor::visit_package(IPackage *pkg) {
+void ModelVisitor::visit_package(IPackage *pkg) {
 	std::vector<IBaseItem *>::const_iterator it=pkg->getItems().begin();
 
 	push_scope(pkg);
@@ -54,7 +54,7 @@ void PSIVisitor::visit_package(IPackage *pkg) {
 	pop_scope();
 }
 
-void PSIVisitor::visit_action(IAction *a) {
+void ModelVisitor::visit_action(IAction *a) {
 
 	if (a->getSuperType()) {
 		visit_ref_type(dynamic_cast<IRefType *>(a->getSuperType()));
@@ -71,11 +71,11 @@ void PSIVisitor::visit_action(IAction *a) {
 	m_removed = false;
 }
 
-void PSIVisitor::visit_bind(IBind *b) {
+void ModelVisitor::visit_bind(IBind *b) {
 
 }
 
-void PSIVisitor::visit_struct(IStruct *str) {
+void ModelVisitor::visit_struct(IStruct *str) {
 	m_removed = false;
 
 	if (str->getSuperType()) {
@@ -89,7 +89,7 @@ void PSIVisitor::visit_struct(IStruct *str) {
 	m_removed = false;
 }
 
-void PSIVisitor::visit_component(IComponent *c) {
+void ModelVisitor::visit_component(IComponent *c) {
 
 	// TODO: visit super
 	push_scope(c);
@@ -97,14 +97,14 @@ void PSIVisitor::visit_component(IComponent *c) {
 	pop_scope();
 }
 
-void PSIVisitor::visit_constraint(IConstraintBlock *c) {
+void ModelVisitor::visit_constraint(IConstraintBlock *c) {
 	for (std::vector<IConstraint *>::const_iterator it=c->getConstraints().begin();
 			it!=c->getConstraints().end(); it++) {
 		visit_constraint_stmt(*it);
 	}
 }
 
-void PSIVisitor::visit_constraint_stmt(IConstraint *c) {
+void ModelVisitor::visit_constraint_stmt(IConstraint *c) {
 	switch (c->getConstraintType()) {
 	case IConstraint::ConstraintType_Block: {
 		visit_constraint_block(dynamic_cast<IConstraintBlock *>(c));
@@ -136,11 +136,11 @@ void PSIVisitor::visit_constraint_stmt(IConstraint *c) {
 	}
 }
 
-void PSIVisitor::visit_constraint_expr_stmt(IConstraintExpr *c) {
+void ModelVisitor::visit_constraint_expr_stmt(IConstraintExpr *c) {
 	visit_expr(c->getExpr());
 }
 
-void PSIVisitor::visit_constraint_if_stmt(IConstraintIf *c) {
+void ModelVisitor::visit_constraint_if_stmt(IConstraintIf *c) {
 	visit_expr(c->getCond());
 
 	visit_constraint_stmt(c->getTrue());
@@ -150,22 +150,22 @@ void PSIVisitor::visit_constraint_if_stmt(IConstraintIf *c) {
 	}
 }
 
-void PSIVisitor::visit_constraint_implies_stmt(IConstraintImplies *c) {
+void ModelVisitor::visit_constraint_implies_stmt(IConstraintImplies *c) {
 	visit_expr(c->getCond());
 	visit_constraint_stmt(c->getImp());
 }
 
-void PSIVisitor::visit_constraint_foreach_stmt(IConstraintForeach *c) {
+void ModelVisitor::visit_constraint_foreach_stmt(IConstraintForeach *c) {
 	// TODO: IVariableRef
 
 	visit_constraint_stmt(c->getBody());
 }
 
-void PSIVisitor::visit_constraint_unique_stmt(IConstraintUnique *c) {
+void ModelVisitor::visit_constraint_unique_stmt(IConstraintUnique *c) {
 	visit_open_range_list(c->getTarget());
 }
 
-void PSIVisitor::visit_constraint_block(IConstraintBlock *block) {
+void ModelVisitor::visit_constraint_block(IConstraintBlock *block) {
 	std::vector<IConstraint *>::const_iterator it = block->getConstraints().begin();
 
 	for (; it!=block->getConstraints().end(); it++) {
@@ -174,11 +174,11 @@ void PSIVisitor::visit_constraint_block(IConstraintBlock *block) {
 	}
 }
 
-void PSIVisitor::visit_coverspec(ICoverspec *coverspec) {
+void ModelVisitor::visit_coverspec(ICoverspec *coverspec) {
 	// TODO:
 }
 
-void PSIVisitor::visit_exec(IExec *e) {
+void ModelVisitor::visit_exec(IExec *e) {
 	switch (e->getExecType()) {
 	case IExec::TargetTemplate: {
 		for (uint32_t i=0; i<e->getTargetTemplateReplacements().size(); i++) {
@@ -196,7 +196,7 @@ void PSIVisitor::visit_exec(IExec *e) {
 	}
 }
 
-void PSIVisitor::visit_exec_stmt(IExecStmt *e) {
+void ModelVisitor::visit_exec_stmt(IExecStmt *e) {
 	switch (e->getStmtType()) {
 	case IExecStmt::StmtType_Expr: {
 		visit_exec_expr_stmt(dynamic_cast<IExecExprStmt *>(e));
@@ -225,11 +225,11 @@ void PSIVisitor::visit_exec_stmt(IExecStmt *e) {
 //	}
 }
 
-void PSIVisitor::visit_exec_call_stmt(IMethodCallExpr *s) {
+void ModelVisitor::visit_exec_call_stmt(IMethodCallExpr *s) {
 //	fprintf(stdout, "visit_exec_call_stmt %p\n", s->getFunc());
 }
 
-void PSIVisitor::visit_exec_expr_stmt(IExecExprStmt *s) {
+void ModelVisitor::visit_exec_expr_stmt(IExecExprStmt *s) {
 	if (s->getLhs()) {
 		visit_expr(s->getLhs());
 	}
@@ -238,15 +238,15 @@ void PSIVisitor::visit_exec_expr_stmt(IExecExprStmt *s) {
 	}
 }
 
-void PSIVisitor::visit_exec_vendor_stmt(IExecStmt *s) {
+void ModelVisitor::visit_exec_vendor_stmt(IExecStmt *s) {
 	// NOP
 }
 
-void PSIVisitor::visit_target_template_replacement(IExecReplacementExpr *r) {
+void ModelVisitor::visit_target_template_replacement(IExecReplacementExpr *r) {
 	visit_expr(r->getExpr());
 }
 
-void PSIVisitor::visit_expr(IExpr *e) {
+void ModelVisitor::visit_expr(IExpr *e) {
 	if (!e) {
 		fprintf(stdout, "Error: null expression\n");
 		e->getType();
@@ -277,7 +277,7 @@ void PSIVisitor::visit_expr(IExpr *e) {
 	}
 }
 
-void PSIVisitor::visit_extend(IExtend *e) {
+void ModelVisitor::visit_extend(IExtend *e) {
 	push_scope(e);
 	visit_item(e->getTarget());
 
@@ -297,39 +297,39 @@ void PSIVisitor::visit_extend(IExtend *e) {
 	pop_scope();
 }
 
-void PSIVisitor::visit_extend_composite(IExtendComposite *e) {
+void ModelVisitor::visit_extend_composite(IExtendComposite *e) {
 	push_scope(e);
 	visit_scope(e);
 	pop_scope();
 }
 
-void PSIVisitor::visit_extend_enum(IExtendEnum *e) {
+void ModelVisitor::visit_extend_enum(IExtendEnum *e) {
 	// Nothing do to
 }
 
-void PSIVisitor::visit_binary_expr(IBinaryExpr *be) {
+void ModelVisitor::visit_binary_expr(IBinaryExpr *be) {
 	visit_expr(be->getLHS());
 	visit_expr(be->getRHS());
 }
 
-void PSIVisitor::visit_fieldref_expr(IFieldRef *ref) {
+void ModelVisitor::visit_fieldref_expr(IFieldRef *ref) {
 
 }
 
-void PSIVisitor::visit_in_expr(IInExpr *in) {
+void ModelVisitor::visit_in_expr(IInExpr *in) {
 	visit_expr(in->getLhs());
 	visit_open_range_list(in->getRhs());
 }
 
-void PSIVisitor::visit_enum_type(IEnumType *e) {
+void ModelVisitor::visit_enum_type(IEnumType *e) {
 
 }
 
-void PSIVisitor::visit_literal_expr(ILiteral *l) {
+void ModelVisitor::visit_literal_expr(ILiteral *l) {
 
 }
 
-void PSIVisitor::visit_method_call(IMethodCallExpr *c) {
+void ModelVisitor::visit_method_call(IMethodCallExpr *c) {
 	if (m_debug) {
 		debug("--> visit_method_call %s", c->getFunc()->toString().c_str());
 	}
@@ -345,14 +345,14 @@ void PSIVisitor::visit_method_call(IMethodCallExpr *c) {
 	}
 }
 
-void PSIVisitor::visit_open_range_list(IOpenRangeList *range_l) {
+void ModelVisitor::visit_open_range_list(IOpenRangeList *range_l) {
 	for (std::vector<IOpenRangeValue *>::const_iterator it=range_l->ranges().begin();
 			it!=range_l->ranges().end(); it++) {
 		visit_open_range_value(*it);
 	}
 }
 
-void PSIVisitor::visit_open_range_value(IOpenRangeValue *range_v) {
+void ModelVisitor::visit_open_range_value(IOpenRangeValue *range_v) {
 	if (range_v->getLHS()) {
 		visit_expr(range_v->getLHS());
 	}
@@ -361,7 +361,7 @@ void PSIVisitor::visit_open_range_value(IOpenRangeValue *range_v) {
 	}
 }
 
-void PSIVisitor::visit_field(IField *f) {
+void ModelVisitor::visit_field(IField *f) {
 	// Visiting the component type of a 'comp'
 	// field results in recursion
 	if (f->getName() != "comp") {
@@ -369,7 +369,7 @@ void PSIVisitor::visit_field(IField *f) {
 	}
 }
 
-void PSIVisitor::visit_activity(IActivityStmt *activity) {
+void ModelVisitor::visit_activity(IActivityStmt *activity) {
 	if (activity->getStmtType() == IActivityStmt::ActivityStmt_Block) {
 		IActivityBlockStmt *b = dynamic_cast<IActivityBlockStmt *>(activity);
 		push_graph(b);
@@ -383,7 +383,7 @@ void PSIVisitor::visit_activity(IActivityStmt *activity) {
 	}
 }
 
-void PSIVisitor::visit_activity_stmt(IActivityStmt *stmt) {
+void ModelVisitor::visit_activity_stmt(IActivityStmt *stmt) {
 	push_graph(stmt);
 
 	switch (stmt->getStmtType()) {
@@ -426,7 +426,7 @@ void PSIVisitor::visit_activity_stmt(IActivityStmt *stmt) {
 	pop_graph();
 }
 
-void PSIVisitor::visit_activity_parallel_block_stmt(IActivityBlockStmt *block) {
+void ModelVisitor::visit_activity_parallel_block_stmt(IActivityBlockStmt *block) {
 	std::vector<IActivityStmt *>::const_iterator it;
 
 	for (it=block->getStmts().begin(); it!=block->getStmts().end(); it++) {
@@ -434,13 +434,13 @@ void PSIVisitor::visit_activity_parallel_block_stmt(IActivityBlockStmt *block) {
 	}
 }
 
-void PSIVisitor::visit_activity_repeat_stmt(IActivityRepeatStmt *repeat) {
+void ModelVisitor::visit_activity_repeat_stmt(IActivityRepeatStmt *repeat) {
 	push_scope(repeat);
 	visit_activity_stmt(repeat->getBody());
 	pop_scope();
 }
 
-void PSIVisitor::visit_activity_schedule_block_stmt(IActivityBlockStmt *block) {
+void ModelVisitor::visit_activity_schedule_block_stmt(IActivityBlockStmt *block) {
 	std::vector<IActivityStmt *>::const_iterator it;
 
 	for (it=block->getStmts().begin(); it!=block->getStmts().end(); it++) {
@@ -448,7 +448,7 @@ void PSIVisitor::visit_activity_schedule_block_stmt(IActivityBlockStmt *block) {
 	}
 }
 
-void PSIVisitor::visit_activity_if_else_stmt(IActivityIfElseStmt *stmt) {
+void ModelVisitor::visit_activity_if_else_stmt(IActivityIfElseStmt *stmt) {
 	visit_expr(stmt->getCond());
 	visit_activity_stmt(stmt->getTrue());
 	if (stmt->getFalse()) {
@@ -456,11 +456,11 @@ void PSIVisitor::visit_activity_if_else_stmt(IActivityIfElseStmt *stmt) {
 	}
 }
 
-void PSIVisitor::visit_activity_select_stmt(IActivityBlockStmt *s) {
+void ModelVisitor::visit_activity_select_stmt(IActivityBlockStmt *s) {
 	visit_activity_block_stmt(s);
 }
 
-void PSIVisitor::visit_activity_traverse_stmt(IActivityTraverseStmt *t) {
+void ModelVisitor::visit_activity_traverse_stmt(IActivityTraverseStmt *t) {
 	push_scope(t);
 	visit_variable_ref(t->getAction());
 	if (t->getWith()) {
@@ -469,7 +469,7 @@ void PSIVisitor::visit_activity_traverse_stmt(IActivityTraverseStmt *t) {
 	pop_scope();
 }
 
-void PSIVisitor::visit_activity_do_action_stmt(IActivityDoActionStmt *stmt) {
+void ModelVisitor::visit_activity_do_action_stmt(IActivityDoActionStmt *stmt) {
 	push_scope(stmt);
 	visit_ref_type(dynamic_cast<IRefType *>(stmt->getTargetType()));
 	if (stmt->getConstraint()) {
@@ -478,21 +478,21 @@ void PSIVisitor::visit_activity_do_action_stmt(IActivityDoActionStmt *stmt) {
 	pop_scope();
 }
 
-void PSIVisitor::visit_import(IImport *imp) {
+void ModelVisitor::visit_import(IImport *imp) {
 	if (imp->getTargetType()) {
 		visit_item(imp->getTargetType());
 	}
 }
 
-void PSIVisitor::visit_import_func(IImportFunc *f) {
+void ModelVisitor::visit_import_func(IImportFunc *f) {
 	// NOP
 }
 
-void PSIVisitor::visit_vendor_item(IBaseItem *it) {
+void ModelVisitor::visit_vendor_item(IBaseItem *it) {
 
 }
 
-void PSIVisitor::visit_activity_block_stmt(IActivityBlockStmt *block) {
+void ModelVisitor::visit_activity_block_stmt(IActivityBlockStmt *block) {
 	std::vector<IActivityStmt *>::const_iterator it;
 
 	for (it=block->getStmts().begin(); it!=block->getStmts().end(); it++) {
@@ -500,11 +500,11 @@ void PSIVisitor::visit_activity_block_stmt(IActivityBlockStmt *block) {
 	}
 }
 
-void PSIVisitor::remove() {
+void ModelVisitor::remove() {
 	m_removed = true;
 }
 
-void PSIVisitor::visit_scope(IScopeItem *s) {
+void ModelVisitor::visit_scope(IScopeItem *s) {
 	ScopeItemImpl *s_i = dynamic_cast<ScopeItemImpl *>(s);
 	m_removed = false;
 
@@ -527,7 +527,7 @@ void PSIVisitor::visit_scope(IScopeItem *s) {
 	m_removed = false;
 }
 
-void PSIVisitor::visit_item(IBaseItem *it) {
+void ModelVisitor::visit_item(IBaseItem *it) {
 	switch (it->getType()) {
 	case IBaseItem::TypePackage:
 		visit_package(dynamic_cast<IPackage *>(it));
@@ -611,17 +611,17 @@ void PSIVisitor::visit_item(IBaseItem *it) {
 	}
 }
 
-void PSIVisitor::visit_ref_type(IRefType *ref) {
+void ModelVisitor::visit_ref_type(IRefType *ref) {
 
 }
 
-void PSIVisitor::visit_symbol(ISymbol *sym) {
+void ModelVisitor::visit_symbol(ISymbol *sym) {
 	push_scope(sym);
 	visit_activity_stmt(sym->getBody());
 	pop_scope();
 }
 
-void PSIVisitor::visit_variable_ref(IVariableRef *ref) {
+void ModelVisitor::visit_variable_ref(IVariableRef *ref) {
 	if (ref->getIndexLhs()) {
 		visit_expr(ref->getIndexLhs());
 	}
@@ -633,7 +633,7 @@ void PSIVisitor::visit_variable_ref(IVariableRef *ref) {
 	}
 }
 
-std::string PSIVisitor::type2string(IBaseItem *it) {
+std::string ModelVisitor::type2string(IBaseItem *it) {
 	std::string ret;
 
 	while (it) {
@@ -654,7 +654,7 @@ std::string PSIVisitor::type2string(IBaseItem *it) {
 	return ret;
 }
 
-std::string PSIVisitor::path2string(IFieldRef *f) {
+std::string ModelVisitor::path2string(IFieldRef *f) {
 	std::string ret;
 	std::vector<IField *>::const_iterator it;
 
@@ -670,7 +670,7 @@ std::string PSIVisitor::path2string(IFieldRef *f) {
 	return ret;
 }
 
-std::string PSIVisitor::path2string(const std::vector<IField *> &path) {
+std::string ModelVisitor::path2string(const std::vector<IField *> &path) {
 	std::string ret;
 	std::vector<IField *>::const_iterator it;
 
@@ -686,26 +686,26 @@ std::string PSIVisitor::path2string(const std::vector<IField *> &path) {
 	return ret;
 }
 
-void PSIVisitor::push_scope(IBaseItem *scope) {
+void ModelVisitor::push_scope(IBaseItem *scope) {
 	m_scope_stack.push_back(scope);
 	if (dynamic_cast<IScopeItem *>(scope)) {
 		m_decl_scopes.push_back(dynamic_cast<IScopeItem *>(scope));
 	}
 }
 
-const std::vector<IBaseItem *> &PSIVisitor::scopes() const {
+const std::vector<IBaseItem *> &ModelVisitor::scopes() const {
 	return m_scope_stack;
 }
 
-const std::vector<IScopeItem *> &PSIVisitor::get_decl_scopes() const {
+const std::vector<IScopeItem *> &ModelVisitor::get_decl_scopes() const {
 	return m_decl_scopes;
 }
 
-IBaseItem *PSIVisitor::scope() const {
+IBaseItem *ModelVisitor::scope() const {
 	return m_scope_stack.back();
 }
 
-IBaseItem *PSIVisitor::pop_scope() {
+IBaseItem *ModelVisitor::pop_scope() {
 	IBaseItem *ret = m_scope_stack.back();
 	m_scope_stack.pop_back();
 
@@ -716,17 +716,17 @@ IBaseItem *PSIVisitor::pop_scope() {
 	return ret;
 }
 
-void PSIVisitor::push_graph(IActivityStmt *it) {
+void ModelVisitor::push_graph(IActivityStmt *it) {
 	m_graph_stack.push_back(it);
 }
 
-void PSIVisitor::pop_graph() {
+void ModelVisitor::pop_graph() {
 	if (m_graph_stack.size() > 0) {
 		m_graph_stack.pop_back();
 	}
 }
 
-IActivityStmt *PSIVisitor::graph_parent(IActivityStmt *it) {
+IActivityStmt *ModelVisitor::graph_parent(IActivityStmt *it) {
 	if (it) {
 		for (int32_t i=m_graph_stack.size()-1; i>=0; i--) {
 			if (m_graph_stack.at(i) == it && i>0) {
@@ -741,7 +741,7 @@ IActivityStmt *PSIVisitor::graph_parent(IActivityStmt *it) {
 	return 0;
 }
 
-void PSIVisitor::debug(const char *fmt, ...) {
+void ModelVisitor::debug(const char *fmt, ...) {
 	va_list ap;
 
 	va_start(ap, fmt);

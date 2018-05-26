@@ -26,7 +26,7 @@
 #include "Z3Model.h"
 #include "Z3ModelVar.h"
 #include "Z3ExprTerm.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "StringTableBuilder.h"
 #include "SolverErrorException.h"
 #include "IVarValueProvider.h"

@@ -20,10 +20,10 @@
  */
 
 #pragma once
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 
 class Z3ModelEvaluator;
-class Z3ModelEvalVarInit : public virtual PSIVisitor {
+class Z3ModelEvalVarInit : public virtual ModelVisitor {
 public:
 	Z3ModelEvalVarInit(Z3ModelEvaluator *evaluator);
 

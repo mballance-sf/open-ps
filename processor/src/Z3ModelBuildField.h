@@ -22,12 +22,12 @@
 #pragma once
 #include "Z3ModelVar.h"
 #include "IField.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 
 
 
 class Z3ModelBuilder;
-class Z3ModelBuildField : public virtual PSIVisitor {
+class Z3ModelBuildField : public virtual ModelVisitor {
 public:
 	Z3ModelBuildField(Z3ModelBuilder *builder);
 

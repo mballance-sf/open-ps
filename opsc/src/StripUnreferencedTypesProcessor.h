@@ -23,7 +23,7 @@
 #define SRC_STRIPUNREFERENCEDTYPESPROCESSOR_H_
 
 #include "IModelProcessor.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 
 
 
@@ -31,7 +31,7 @@ namespace qpssc {
 
 class StripUnreferencedTypesProcessor:
 		public virtual IModelProcessor,
-		public virtual PSIVisitor {
+		public virtual ModelVisitor {
 public:
 	StripUnreferencedTypesProcessor();
 

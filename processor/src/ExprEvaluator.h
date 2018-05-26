@@ -24,12 +24,12 @@
 #include <vector>
 #include "IExpr.h"
 #include "IVarValueProvider.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 
 
 
 
-class ExprEvaluator : public virtual PSIVisitor {
+class ExprEvaluator : public virtual ModelVisitor {
 public:
 
 

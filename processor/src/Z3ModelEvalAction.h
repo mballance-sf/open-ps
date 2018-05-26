@@ -21,12 +21,12 @@
 
 #pragma once
 #include "IAction.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include <string>
 
 class Z3ModelEvaluator;
 class Z3ModelVar;
-class Z3ModelEvalAction : public virtual PSIVisitor {
+class Z3ModelEvalAction : public virtual ModelVisitor {
 public:
 	Z3ModelEvalAction(Z3ModelEvaluator *evaluator);
 

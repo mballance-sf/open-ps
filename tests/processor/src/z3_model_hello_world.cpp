@@ -22,11 +22,11 @@
 #include <cstdio>
 #include <iostream>
 #include <stdint.h>
-#include "PSS2PSIVisitor.h"
+#include "PSS2ModelVisitor.h"
 #include "ResolveRefsProcessor.h"
 #include "PSSLexer.h"
 #include "PSSParser.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "TestExecListener.h"
 #include "EntryFinder.h"
 #include "ModelImpl.h"

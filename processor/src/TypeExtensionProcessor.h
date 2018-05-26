@@ -22,7 +22,7 @@
 #ifndef SRC_TYPEEXTENSIONPROCESSOR_H_
 #define SRC_TYPEEXTENSIONPROCESSOR_H_
 #include "IModelProcessor.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 
 
 
@@ -30,7 +30,7 @@ namespace qpssc {
 
 class TypeExtensionProcessor :
 		public virtual IModelProcessor,
-		public virtual PSIVisitor {
+		public virtual ModelVisitor {
 
 public:
 	TypeExtensionProcessor();

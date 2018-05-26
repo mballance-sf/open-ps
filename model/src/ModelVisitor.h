@@ -29,13 +29,13 @@
 
 
 
-class PSIVisitor {
+class ModelVisitor {
 
 public:
 
-	PSIVisitor();
+	ModelVisitor();
 
-	virtual ~PSIVisitor();
+	virtual ~ModelVisitor();
 
 	virtual void visit_model(IModel *model);
 

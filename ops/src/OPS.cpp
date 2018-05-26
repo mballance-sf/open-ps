@@ -25,7 +25,7 @@
 #include <fstream>
 #include <stdint.h>
 
-#include "../../processor/src/PSS2PSIVisitor.h"
+#include "../../processor/src/PSS2ModelVisitor.h"
 #include "PSSLexer.h"
 #include "PSSParser.h"
 #include "ModelImpl.h"
@@ -71,7 +71,7 @@ bool OPS::parse() {
 				break;
 			}
 
-			PSS2PSIVisitor pss2psi_visitor(m_model, (*it));
+			PSS2ModelVisitor pss2psi_visitor(m_model, (*it));
 			pss2psi_visitor.visitModel(ctxt);
 
 		} else {

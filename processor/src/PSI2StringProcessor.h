@@ -26,10 +26,10 @@
 #include <stdint.h>
 #include <string>
 
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 
 
-class PSI2StringProcessor: public PSIVisitor {
+class PSI2StringProcessor: public ModelVisitor {
 public:
 	PSI2StringProcessor(uint32_t ind_incr=4);
 

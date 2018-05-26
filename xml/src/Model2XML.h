@@ -31,9 +31,6 @@
 
 
 
-namespace psi {
-namespace apps {
-
 class Model2XML {
 public:
 	Model2XML();
@@ -119,7 +116,4 @@ private:
 
 };
 
-}
-}
 
-#endif /* SRC_APPS_Model2XML_H_ */

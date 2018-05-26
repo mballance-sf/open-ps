@@ -29,8 +29,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-namespace psi {
-namespace apps {
 
 Model2XML::Model2XML() : m_ind_incr(4), m_fixed_inline_addr(false) {
 	// TODO Auto-generated constructor stub
@@ -972,5 +970,3 @@ INamedItem *Model2XML::toNamedItem(IBaseItem *it) {
 	return 0;
 }
 
-}
-}

@@ -23,7 +23,7 @@
 #define SRC_MARKREFERENCEDTYPESPROCESSOR_H_
 
 #include "IModelProcessor.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 
 
 
@@ -32,7 +32,7 @@ namespace qpssc {
 
 class MarkReferencedTypesProcessor:
 		public virtual IModelProcessor,
-		public virtual PSIVisitor {
+		public virtual ModelVisitor {
 public:
 	MarkReferencedTypesProcessor();
 

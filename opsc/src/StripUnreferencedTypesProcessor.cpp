@@ -56,7 +56,7 @@ void StripUnreferencedTypesProcessor::visit_component(IComponent *c) {
 }
 
 void StripUnreferencedTypesProcessor::visit_package(IPackage *pkg) {
-	PSIVisitor::visit_package(pkg);
+	ModelVisitor::visit_package(pkg);
 
 	if (pkg->getItems().size() == 0) {
 		// Empty package

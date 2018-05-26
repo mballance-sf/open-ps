@@ -12,7 +12,7 @@
 #include "PSSBaseVisitor.h"
 #include <cstdio>
 #include <iostream>
-#include "PSS2PSIVisitor.h"
+#include "PSS2ModelVisitor.h"
 #include "ResolveRefsProcessor.h"
 #include "EntryFinder.h"
 
@@ -30,7 +30,7 @@ OPSC::~OPSC() {
 bool OPSC::parse(
 		std::istream		&in,
 		const std::string	&path) {
-	PSS2PSIVisitor visitor(m_model.get(), path);
+	PSS2ModelVisitor visitor(m_model.get(), path);
 	ANTLRInputStream input(in);
 	PSSLexer lexer(&input);
 

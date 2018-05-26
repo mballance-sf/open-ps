@@ -21,7 +21,7 @@
 
 #ifndef PROCESSOR_SRC_STRINGTABLEBUILDER_H_
 #define PROCESSOR_SRC_STRINGTABLEBUILDER_H_
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "IModel.h"
 #include "IStringTable.h"
 #include <map>
@@ -33,7 +33,7 @@
 
 class StringTable;
 
-class StringTableBuilder: public virtual PSIVisitor {
+class StringTableBuilder: public virtual ModelVisitor {
 public:
 	StringTableBuilder();
 

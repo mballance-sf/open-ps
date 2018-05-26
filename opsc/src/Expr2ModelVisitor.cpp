@@ -1,5 +1,5 @@
 /*
- * Expr2PSIVisitor.cpp
+ * Expr2ModelVisitor.cpp
  *
  * Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in
@@ -19,21 +19,21 @@
  *      Author: ballance
  */
 
-#include "Expr2PSIVisitor.h"
+#include "Expr2ModelVisitor.h"
 #include <stdarg.h>
 
-Expr2PSIVisitor::Expr2PSIVisitor(
+Expr2ModelVisitor::Expr2ModelVisitor(
 		IItemFactory 	*factory,
 		IBaseItem		*scope) : m_factory(factory), m_scope(scope) {
 	// TODO Auto-generated constructor stub
 
 }
 
-Expr2PSIVisitor::~Expr2PSIVisitor() {
+Expr2ModelVisitor::~Expr2ModelVisitor() {
 	// TODO Auto-generated destructor stub
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitEntry(ExprParser::EntryContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitEntry(ExprParser::EntryContext *ctx) {
 	IExpr *ret = 0;
 
 	enter("visitEntry");
@@ -43,7 +43,7 @@ antlrcpp::Any Expr2PSIVisitor::visitEntry(ExprParser::EntryContext *ctx) {
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitOpen_range_list(ExprParser::Open_range_listContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitOpen_range_list(ExprParser::Open_range_listContext *ctx) {
 	IOpenRangeList *ret = 0;
 	std::vector<IOpenRangeValue *> ranges;
 
@@ -59,7 +59,7 @@ antlrcpp::Any Expr2PSIVisitor::visitOpen_range_list(ExprParser::Open_range_listC
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitOpen_range_value(ExprParser::Open_range_valueContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitOpen_range_value(ExprParser::Open_range_valueContext *ctx) {
 	IOpenRangeValue *ret = 0;
 	IExpr *lhs=0, *rhs=0;
 
@@ -77,7 +77,7 @@ antlrcpp::Any Expr2PSIVisitor::visitOpen_range_value(ExprParser::Open_range_valu
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitExpression(ExprParser::ExpressionContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitExpression(ExprParser::ExpressionContext *ctx) {
 	bool is_bin_op;
 	IExpr *ret = 0;
 
@@ -188,11 +188,11 @@ antlrcpp::Any Expr2PSIVisitor::visitExpression(ExprParser::ExpressionContext *ct
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitConditional_expr(ExprParser::Conditional_exprContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitConditional_expr(ExprParser::Conditional_exprContext *ctx) {
 	return (IExpr *)0;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitStatic_ref_path(ExprParser::Static_ref_pathContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitStatic_ref_path(ExprParser::Static_ref_pathContext *ctx) {
 	IExpr *ret = 0;
 	enter("visitStatic_ref_path");
 	todo("visitStatic_ref_path");
@@ -201,7 +201,7 @@ antlrcpp::Any Expr2PSIVisitor::visitStatic_ref_path(ExprParser::Static_ref_pathC
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitVariable_ref_path(ExprParser::Variable_ref_pathContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitVariable_ref_path(ExprParser::Variable_ref_pathContext *ctx) {
 	IExpr *ret = 0;
 
 	enter("visitVariable_ref_path");
@@ -237,7 +237,7 @@ antlrcpp::Any Expr2PSIVisitor::visitVariable_ref_path(ExprParser::Variable_ref_p
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitBool_literal(ExprParser::Bool_literalContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitBool_literal(ExprParser::Bool_literalContext *ctx) {
 	IExpr *ret = 0;
 
 	enter("visitBool_literal");
@@ -247,7 +247,7 @@ antlrcpp::Any Expr2PSIVisitor::visitBool_literal(ExprParser::Bool_literalContext
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitNumber(ExprParser::NumberContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitNumber(ExprParser::NumberContext *ctx) {
 	IExpr *ret = 0;
 
 	enter("visitNumber");
@@ -270,7 +270,7 @@ antlrcpp::Any Expr2PSIVisitor::visitNumber(ExprParser::NumberContext *ctx) {
 	return ret;
 }
 
-antlrcpp::Any Expr2PSIVisitor::visitString(ExprParser::StringContext *ctx) {
+antlrcpp::Any Expr2ModelVisitor::visitString(ExprParser::StringContext *ctx) {
 	IExpr *ret = 0;
 
 	enter("visitString");
@@ -281,7 +281,7 @@ antlrcpp::Any Expr2PSIVisitor::visitString(ExprParser::StringContext *ctx) {
 	return ret;
 }
 
-void Expr2PSIVisitor::enter(const char *fmt, ...) {
+void Expr2ModelVisitor::enter(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	fprintf(stdout, "--> ");
@@ -290,7 +290,7 @@ void Expr2PSIVisitor::enter(const char *fmt, ...) {
 	va_end(ap);
 }
 
-void Expr2PSIVisitor::leave(const char *fmt, ...) {
+void Expr2ModelVisitor::leave(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	fprintf(stdout, "<-- ");
@@ -299,7 +299,7 @@ void Expr2PSIVisitor::leave(const char *fmt, ...) {
 	va_end(ap);
 }
 
-void Expr2PSIVisitor::error(const char *fmt, ...) {
+void Expr2ModelVisitor::error(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	fprintf(stdout, "Error: ");
@@ -308,7 +308,7 @@ void Expr2PSIVisitor::error(const char *fmt, ...) {
 	va_end(ap);
 }
 
-void Expr2PSIVisitor::todo(const char *fmt, ...) {
+void Expr2ModelVisitor::todo(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	fprintf(stdout, "TODO: ");

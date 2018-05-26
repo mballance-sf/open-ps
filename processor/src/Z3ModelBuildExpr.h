@@ -20,14 +20,14 @@
  */
 
 #pragma once
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "Z3ExprTerm.h"
 
 
 
 class Z3ModelBuilder;
 
-class Z3ModelBuildExpr : public virtual PSIVisitor {
+class Z3ModelBuildExpr : public virtual ModelVisitor {
 public:
 	Z3ModelBuildExpr(Z3ModelBuilder *builder);
 

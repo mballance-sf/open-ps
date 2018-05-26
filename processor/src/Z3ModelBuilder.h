@@ -21,7 +21,7 @@
 #pragma once
 #include "Z3Model.h"
 #include "IModel.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "IStringTable.h"
 #include "StringTable.h"
 #include "Z3ModelBuildExpr.h"
@@ -32,7 +32,7 @@
 #include <memory>
 
 
-class Z3ModelBuilder : public virtual PSIVisitor {
+class Z3ModelBuilder : public virtual ModelVisitor {
 public:
 	Z3ModelBuilder();
 

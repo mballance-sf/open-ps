@@ -22,11 +22,11 @@
 #include <cstdio>
 #include <iostream>
 #include <stdint.h>
-#include "PSS2PSIVisitor.h"
+#include "PSS2ModelVisitor.h"
 #include "ResolveRefsProcessor.h"
 #include "PSSLexer.h"
 #include "PSSParser.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "EntryFinder.h"
 #include "ModelImpl.h"
 
@@ -70,7 +70,7 @@ using namespace antlr4;
 //
 //	ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
 //
-//	PSS2PSIVisitor pss2psi(model, "smoke");
+//	PSS2ModelVisitor pss2psi(model, "smoke");
 //	pss2psi.visitModel(ctxt);
 //
 //	ASSERT_TRUE(refs_processor.process(model));
@@ -112,7 +112,7 @@ using namespace antlr4;
 //
 //	ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
 //
-//	PSS2PSIVisitor pss2psi(model, "smoke");
+//	PSS2ModelVisitor pss2psi(model, "smoke");
 //	pss2psi.visitModel(ctxt);
 //
 //	ASSERT_TRUE(refs_processor.process(model));

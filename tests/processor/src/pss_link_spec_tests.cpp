@@ -26,11 +26,11 @@
 #include <fstream>
 #include <stdint.h>
 
-#include "PSS2PSIVisitor.h"
+#include "PSS2ModelVisitor.h"
 #include "ResolveRefsProcessor.h"
 #include "PSSLexer.h"
 #include "PSSParser.h"
-#include "PSIVisitor.h"
+#include "ModelVisitor.h"
 #include "ModelImpl.h"
 
 using namespace antlr4;
@@ -47,7 +47,7 @@ typedef std::pair<std::string, std::string> TestParam;
 
 class pss_processor : public testing::TestWithParam<TestParam> {};
 
-class CheckRefsResolvedVisitor : public PSIVisitor {
+class CheckRefsResolvedVisitor : public ModelVisitor {
 public:
 
 	virtual void visit_ref_type(IRefType *ref) {
@@ -89,7 +89,7 @@ TEST_P(pss_processor,spec_examples) {
 
 		ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
 
-		PSS2PSIVisitor pss2psi(model, GetParam().second);
+		PSS2ModelVisitor pss2psi(model, GetParam().second);
 		pss2psi.visitModel(ctxt);
 
 //		GTEST_TEST_BOOLEAN_()
