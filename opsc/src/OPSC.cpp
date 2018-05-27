@@ -84,7 +84,7 @@ bool OPSC::elab(
 	m_root_comp = std::get<0>(entry);
 	m_root_action = std::get<1>(entry);
 
-	return false;
+	return true;
 }
 
 bool OPSC::write(std::ostream &out) {

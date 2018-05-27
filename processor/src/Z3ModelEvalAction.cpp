@@ -194,8 +194,15 @@ void Z3ModelEvalAction::visit_activity_schedule_block_stmt(IActivityBlockStmt *s
 	fprintf(stdout, "TODO: activity_schedule_block_stmt\n");
 }
 
-void Z3ModelEvalAction::visit_activity_select_stmt(IActivityBlockStmt *s) {
-	fprintf(stdout, "TODO: activity_schedule_select_stmt\n");
+void Z3ModelEvalAction::visit_activity_select_stmt(IActivitySelectStmt *s) {
+	m_evaluator->name_provider().enter(s);
+	Z3ModelVar *select_var = m_evaluator->get_variable(
+			m_evaluator->name_provider().name() + ".__select_idx");
+	fprintf(stdout, "TODO: activity_select_stmt %p\n", select_var);
+	m_evaluator->solve(select_var);
+	fprintf(stdout, "  select: %lld\n", m_evaluator->get_val(select_var).si);
+
+	m_evaluator->name_provider().leave(s);
 }
 
 void Z3ModelEvalAction::visit_activity_traverse_stmt(IActivityTraverseStmt *stmt) {

@@ -160,6 +160,14 @@ public:
 			IActivityRepeatStmt::RepeatType type,
 			IExpr *expr, IActivityStmt *body);
 
+	virtual IActivitySelectStmt *mkActivitySelectStmt(
+			const std::vector<IActivitySelectBranchStmt *> &branches);
+
+	virtual IActivitySelectBranchStmt *mkActivitySelectBranchStmt(
+			IActivityStmt			*stmt,
+			IExpr					*guard,
+			IExpr					*weight);
+
 	virtual IOpenRangeValue *mkOpenRangeValue(
 			IExpr 					*lhs,
 			IExpr 					*rhs,

@@ -46,6 +46,8 @@
 #include "ActivityRepeatStmtImpl.h"
 #include "ActivityDoActionStmtImpl.h"
 #include "ActivityIfElseStmtImpl.h"
+#include "ActivitySelectStmtImpl.h"
+#include "ActivitySelectBranchStmtImpl.h"
 #include "ActivityTraverseStmtImpl.h"
 #include "BinaryExprImpl.h"
 #include "InExprImpl.h"
@@ -251,6 +253,18 @@ IActivityIfElseStmt *ItemFactoryImpl::mkActivityIfElseStmt(
 			IActivityStmt	*true_stmt,
 			IActivityStmt	*false_stmt) {
 	return new ActivityIfElseStmtImpl(cond, true_stmt, false_stmt);
+}
+
+IActivitySelectStmt *ItemFactoryImpl::mkActivitySelectStmt(
+			const std::vector<IActivitySelectBranchStmt *> &branches) {
+	return new ActivitySelectStmtImpl(branches);
+}
+
+IActivitySelectBranchStmt *ItemFactoryImpl::mkActivitySelectBranchStmt(
+			IActivityStmt			*stmt,
+			IExpr					*guard,
+			IExpr					*weight) {
+	return new ActivitySelectBranchStmtImpl(stmt, guard, weight);
 }
 
 IActivityTraverseStmt *ItemFactoryImpl::mkActivityTraverseStmt(

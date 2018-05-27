@@ -36,19 +36,19 @@ public:
 
 protected:
 
-	virtual void visit_activity_if_else_stmt(IActivityIfElseStmt *stmt);
+	virtual void visit_activity_if_else_stmt(IActivityIfElseStmt *stmt) override;
 
-	virtual void visit_activity_parallel_block_stmt(IActivityBlockStmt *block);
+	virtual void visit_activity_parallel_block_stmt(IActivityBlockStmt *block) override;
 
-	virtual void visit_activity_repeat_stmt(IActivityRepeatStmt *repeat);
+	virtual void visit_activity_repeat_stmt(IActivityRepeatStmt *repeat) override;
 
-	virtual void visit_activity_schedule_block_stmt(IActivityBlockStmt *s);
+	virtual void visit_activity_schedule_block_stmt(IActivityBlockStmt *s) override;
 
-	virtual void visit_activity_select_stmt(IActivityBlockStmt *s);
+	virtual void visit_activity_select_stmt(IActivitySelectStmt *s) override;
 
-	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t);
+	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t) override;
 
-	virtual void visit_activity_do_action_stmt(IActivityDoActionStmt *stmt);
+	virtual void visit_activity_do_action_stmt(IActivityDoActionStmt *stmt) override;
 
 
 private:

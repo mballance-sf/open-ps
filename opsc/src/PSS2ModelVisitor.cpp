@@ -328,25 +328,26 @@ antlrcpp::Any PSS2ModelVisitor::visitActivity_select_stmt(PSSParser::Activity_se
 
 	enter("visitActivity_select_stmt");
 
-	IActivityBlockStmt *select = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Select);
+	std::vector<IActivitySelectBranchStmt *> branches;
 
 	for (uint32_t i=0; i<ctx->select_branch().size(); i++) {
-		todo("Support select condition and guard");
+		IExpr *guard = 0;
+		IExpr *weight = 0;
 		IActivityStmt *stmt = ctx->select_branch(i)->activity_stmt()->accept(this);
 
-		if (dynamic_cast<IActivityBlockStmt *>(stmt) &&
-				dynamic_cast<IActivityBlockStmt *>(stmt)->getStmtType() == IActivityBlockStmt::ActivityStmt_Block) {
-			select->add(stmt);
-		} else {
-			IActivityBlockStmt *stmt_b = m_factory->mkActivityBlockStmt(IActivityStmt::ActivityStmt_Block);
-			if (stmt) {
-				stmt_b->add(stmt);
-			} else {
-				error("null select statement");
+		if (ctx->select_branch(i)->select_guard_weight()) {
+			if (ctx->select_branch(i)->select_guard_weight()->guard) {
+				guard = ctx->select_branch(i)->select_guard_weight()->guard->accept(this);
 			}
-			select->add(stmt_b);
+			if (ctx->select_branch(i)->select_guard_weight()->weight) {
+				weight = ctx->select_branch(i)->select_guard_weight()->weight->accept(this);
+			}
 		}
+
+		IActivitySelectBranchStmt *branch = m_factory->mkActivitySelectBranchStmt(
+				stmt, guard, weight);
 	}
+	IActivitySelectStmt *select = m_factory->mkActivitySelectStmt(branches);
 
 	ret = select;
 

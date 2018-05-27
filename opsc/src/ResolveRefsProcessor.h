@@ -19,8 +19,7 @@
  *      Author: ballance
  */
 
-#ifndef PROCESSOR_SRC_RESOLVEREFSPROCESSOR_H_
-#define PROCESSOR_SRC_RESOLVEREFSPROCESSOR_H_
+#pragma once
 
 #include "IModelProcessor.h"
 #include "ModelVisitor.h"
@@ -87,4 +86,3 @@ private:
 
 };
 
-#endif /* PROCESSOR_SRC_RESOLVEREFSPROCESSOR_H_ */

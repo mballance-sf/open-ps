@@ -51,6 +51,8 @@
 #include "IActivityIfElseStmt.h"
 #include "IActivityTraverseStmt.h"
 #include "IActivityRepeatStmt.h"
+#include "IActivitySelectStmt.h"
+#include "IActivitySelectBranchStmt.h"
 #include "ILiteral.h"
 #include "IArrayType.h"
 #include "IScalarType.h"
@@ -233,6 +235,14 @@ public:
 	virtual IActivityRepeatStmt *mkActivityRepeatStmt(
 			IActivityRepeatStmt::RepeatType type,
 			IExpr *expr, IActivityStmt *body) = 0;
+
+	virtual IActivitySelectStmt *mkActivitySelectStmt(
+			const std::vector<IActivitySelectBranchStmt *> &branches) = 0;
+
+	virtual IActivitySelectBranchStmt *mkActivitySelectBranchStmt(
+			IActivityStmt			*stmt,
+			IExpr					*guard,
+			IExpr					*weight) = 0;
 
 	virtual ILiteral *mkIntLiteral(int64_t v) = 0;
 

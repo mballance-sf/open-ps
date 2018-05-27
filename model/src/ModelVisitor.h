@@ -121,7 +121,9 @@ protected:
 
 	virtual void visit_activity_schedule_block_stmt(IActivityBlockStmt *s);
 
-	virtual void visit_activity_select_stmt(IActivityBlockStmt *s);
+	virtual void visit_activity_select_stmt(IActivitySelectStmt *s);
+
+	virtual void visit_activity_select_branch_stmt(IActivitySelectBranchStmt *s);
 
 	virtual void visit_activity_traverse_stmt(IActivityTraverseStmt *t);
 

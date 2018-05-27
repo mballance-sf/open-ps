@@ -38,6 +38,16 @@ void Z3ModelBuildField::build(IField *f) {
 	visit_field(f);
 }
 
+Z3ModelVar *Z3ModelBuildField::mkIntVar(const std::string &id) {
+	Z3_ast var = Z3_mk_const(m_builder->ctxt(),
+			Z3_mk_string_symbol(m_builder->ctxt(), id.c_str()),
+			Z3_mk_bv_sort(m_builder->ctxt(), 32));
+	Z3ModelVar *ret = new Z3ModelVar(id, var, 32, VarVal_Int);
+	m_builder->add_variable(ret);
+
+	return ret;
+}
+
 void Z3ModelBuildField::visit_field(IField *f) {
 	fprintf(stdout, "visit_field: %s\n", f->getName().c_str());
 	fflush(stdout);

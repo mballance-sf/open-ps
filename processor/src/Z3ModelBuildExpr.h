@@ -43,6 +43,18 @@ public:
 
 	virtual void visit_variable_ref(IVariableRef *ref) override;
 
+	Z3ExprTerm mk_and(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_ge(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_gt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_bool(bool v);
+
+	Z3ExprTerm mk_int(int32_t v, uint32_t bits=32);
+
+	Z3ExprTerm mk_var(Z3ModelVar *var);
+
 	Z3ExprTerm upsize(const Z3ExprTerm &target, uint32_t bits);
 
 private:

@@ -52,6 +52,8 @@ public:
 
 	bool solve(const std::vector<Z3ModelVar *> &vars);
 
+	bool solve(Z3ModelVar *var);
+
 private:
 	Z3ModelH					m_model;
 	Z3ModelEvalAction			m_eval_action;

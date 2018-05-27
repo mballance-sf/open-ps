@@ -38,15 +38,15 @@ public:
 
 	virtual ~MarkReferencedTypesProcessor();
 
-	virtual bool process(IModel *model);
+	virtual bool process(IModel *model) override;
 
-	virtual void visit_action(IAction *a);
+	virtual void visit_action(IAction *a) override;
 
-	virtual void visit_struct(IStruct *str);
+	virtual void visit_struct(IStruct *str) override;
 
-	virtual void visit_component(IComponent *c);
+	virtual void visit_component(IComponent *c) override;
 
-	virtual void visit_field(IField *f);
+	virtual void visit_field(IField *f) override;
 
 };
 

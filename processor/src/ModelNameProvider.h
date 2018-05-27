@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include "IField.h"
 #include "IAction.h"
+#include "IActivitySelectStmt.h"
 
 
 class ModelNameProvider {
@@ -36,12 +37,20 @@ public:
 	void enter(const std::string &name);
 	void leave(const std::string &name);
 
+	void enter(IActivitySelectStmt *s);
+	void leave(IActivitySelectStmt *s);
+
+	void enter(IActivitySelectBranchStmt *s);
+	void leave(IActivitySelectBranchStmt *s);
+
 	void enter(IField *field);
 	void leave(IField *field);
 
 	const std::string &name();
 
 private:
+	void leave();
+
 	class ScopeInfo {
 	public:
 		ScopeInfo(const std::string name, int32_t idx=-1) {

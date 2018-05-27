@@ -58,3 +58,7 @@ const VarVal &Z3ModelEvaluator::get_val(Z3ModelVar *var) {
 bool Z3ModelEvaluator::solve(const std::vector<Z3ModelVar *> &vars) {
 	return m_model->solve(vars);
 }
+
+bool Z3ModelEvaluator::solve(Z3ModelVar *var) {
+	return m_model->solve(var);
+}

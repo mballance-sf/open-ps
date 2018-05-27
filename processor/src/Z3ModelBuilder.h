@@ -24,6 +24,7 @@
 #include "ModelVisitor.h"
 #include "IStringTable.h"
 #include "StringTable.h"
+#include "Z3ModelBuildAction.h"
 #include "Z3ModelBuildExpr.h"
 #include "Z3ModelBuildField.h"
 #include "Z3ModelBuildConstraint.h"
@@ -44,6 +45,8 @@ public:
 			IComponent	*root_component,
 			IAction		*root_action);
 
+	Z3ModelBuildAction &action_builder() { return m_action_builder; }
+
 	Z3ModelBuildExpr &expr_builder() { return m_expr_builder; }
 
 	Z3ModelBuildField &field_builder() { return m_field_builder; }
@@ -56,9 +59,9 @@ public:
 		return m_name_provider;
 	}
 
-	virtual void visit_constraint(IConstraintBlock *c);
+	virtual void visit_constraint(IConstraintBlock *c) override;
 
-	virtual void visit_field(IField *f);
+	virtual void visit_field(IField *f) override;
 
 	Z3_context ctxt() const;
 
@@ -77,6 +80,7 @@ public:
 	uint32_t expr_depth() const;
 
 private:
+	Z3ModelBuildAction				m_action_builder;
 	Z3ModelBuildExpr				m_expr_builder;
 	Z3ModelBuildField				m_field_builder;
 	Z3ModelBuildConstraint			m_constraint_builder;

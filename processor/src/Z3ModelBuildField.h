@@ -35,6 +35,8 @@ public:
 
 	void build(IField *field);
 
+	Z3ModelVar *mkIntVar(const std::string &name);
+
 protected:
 
 	virtual void visit_field(IField *f) override;

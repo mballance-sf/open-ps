@@ -35,13 +35,28 @@ void ModelNameProvider::enter(const std::string &name) {
 }
 
 void ModelNameProvider::leave(const std::string &name) {
-	if (m_scopes.size() > 0) {
-		m_name_valid = false;
-		m_scopes.pop_back();
-	} else {
-		fprintf(stdout, "Error: leave(%s) with 0-size stack\n",
-				name.c_str());
+	leave();
+}
+
+void ModelNameProvider::enter(IActivitySelectStmt *s) {
+	if (m_scopes.back().m_idx != -1) {
+		m_scopes.back().m_idx++;
 	}
+	m_scopes.push_back(ScopeInfo("select", 0));
+}
+
+void ModelNameProvider::leave(IActivitySelectStmt *s) {
+	leave();
+}
+
+void ModelNameProvider::enter(IActivitySelectBranchStmt *s) {
+	// TODO: need uniquified id
+	m_scopes.back().m_idx++;
+	m_scopes.push_back(ScopeInfo("branch"));
+}
+
+void ModelNameProvider::leave(IActivitySelectBranchStmt *s) {
+	leave();
 }
 
 void ModelNameProvider::enter(IField *field) {
@@ -50,24 +65,35 @@ void ModelNameProvider::enter(IField *field) {
 }
 
 void ModelNameProvider::leave(IField *field) {
-	if (m_scopes.size() > 0) {
-		m_name_valid = false;
-		m_scopes.pop_back();
-	} else {
-		fprintf(stdout, "Error: leave(field=%s) with 0-size stack\n",
-				field->getName().c_str());
-	}
+	leave();
 }
 
 const std::string &ModelNameProvider::name() {
 	if (!m_name_valid) {
+		int32_t last_idx = -1;
+		m_name.clear();
 		for (uint32_t i=0; i<m_scopes.size(); i++) {
+			if (last_idx != -1) {
+				char buf[64];
+				sprintf(buf, "%d_");
+				m_name.append(buf);
+			}
 			m_name.append(m_scopes.at(i).m_name);
 			if (i+1 < m_scopes.size()) {
 				m_name.append(".");
 			}
+			last_idx = m_scopes.at(i).m_idx;
 		}
 		m_name_valid = true;
 	}
 	return m_name;
+}
+
+void ModelNameProvider::leave() {
+	if (m_scopes.size() > 0) {
+		m_name_valid = false;
+		m_scopes.pop_back();
+	} else {
+		fprintf(stdout, "Error: leave with 0-size stack\n");
+	}
 }

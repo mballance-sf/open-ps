@@ -23,6 +23,7 @@
 #include "StringTableBuilder.h"
 
 Z3ModelBuilder::Z3ModelBuilder() : m_prefix_valid(false),
+	m_action_builder(this),
 	m_expr_builder(this),
 	m_field_builder(this),
 	m_constraint_builder(this),
@@ -47,7 +48,7 @@ Z3ModelH Z3ModelBuilder::build(
 	m_z3_model = new Z3Model(m_strtab, root_action);
 
 	m_name_provider.enter(root_action->getName());
-	visit_action(root_action);
+	m_action_builder.build(root_action);
 	m_name_provider.leave(root_action->getName());
 
 

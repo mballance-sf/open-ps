@@ -19,7 +19,7 @@
  * permissions and limitations under the License.
  * 
  *
- *  Created on: May 3, 2016
+ *  Created on: May 26, 2018
  *      Author: ballance
  */
 
@@ -47,6 +47,8 @@ const std::string &Model2XML::traverse(IModel *model) {
 			"  xmlns:pss=\"http://accellera.org/PSS\"\n"
 			"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
 			"  xsi:schemaLocation=\"http://accellera.org/PSS/PSSModel.xsd\"");
+
+	visit_model(model);
 
 	std::vector<IBaseItem *>::const_iterator it=model->getItems().begin();
 
@@ -137,21 +139,21 @@ void Model2XML::process_pkg(IPackage *pkg) {
 }
 
 void Model2XML::process_action(IAction *a) {
-	IAction *super_a = a->getSuperType();
-
-	enter("action name=\"" + a->getName() + "\"");
-
-	if (super_a) {
-		type2hierarchical_id(super_a, "super");
-	}
-
-	process_body(a->getItems(), "action");
-
-	if (a->getActivity()) {
-		process_graph(a->getActivity());
-	}
-
-	exit("action");
+//	IAction *super_a = a->getSuperType();
+//
+//	enter("action name=\"" + a->getName() + "\"");
+//
+//	if (super_a) {
+//		type2hierarchical_id(super_a, "super");
+//	}
+//
+//	process_body(a->getItems(), "action");
+//
+//	if (a->getActivity()) {
+//		process_graph(a->getActivity());
+//	}
+//
+//	exit("action");
 }
 
 void Model2XML::process_struct(IStruct *str) {
@@ -704,18 +706,18 @@ void Model2XML::process_graph_stmt(IActivityStmt *stmt, const char *tag) {
 	case IActivityStmt::ActivityStmt_Traverse: {
 		IActivityTraverseStmt *t = dynamic_cast<IActivityTraverseStmt *>(stmt);
 
-		std::string tag = "traverse name=\"";
-		tag += path2string(t->getAction());
-		tag += "\"";
+//		std::string tag = "traverse name=\"";
+//		tag += path2string(t->getAction());
+//		tag += "\"";
 
 
-		if (t->getWith()) {
-			enter(tag);
-			process_constraint_set(t->getWith(), "with");
-			exit("traverse");
-		} else {
-			println("<pss:" + tag + "/>");
-		}
+//		if (t->getWith()) {
+//			enter(tag);
+//			process_constraint_set(t->getWith(), "with");
+//			exit("traverse");
+//		} else {
+//			println("<pss:" + tag + "/>");
+//		}
 
 	} break;
 

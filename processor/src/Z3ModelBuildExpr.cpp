@@ -146,67 +146,13 @@ void Z3ModelBuildExpr::visit_binary_expr(IBinaryExpr *be) {
 	} break;
 
 	case IBinaryExpr::BinOp_GE: {
-		uint32_t bits;
-		if (lhs.size() != rhs.size()) {
-			if (lhs.size() < rhs.size()) {
-				// upsize lhs
-				lhs = upsize(lhs, rhs.size());
-				bits = rhs.size();
-			} else {
-				// upsize rhs
-				rhs = upsize(rhs, lhs.size());
-				bits = lhs.size();
-			}
-		} else {
-			bits = lhs.size();
-		}
-		if (lhs.is_signed() && rhs.is_signed()) {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvsge(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							bits,
-							lhs.is_signed());
-		} else {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvuge(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							bits,
-							lhs.is_signed());
-		}
+		m_expr = mk_ge(lhs, rhs);
+
 	} break;
 
 	case IBinaryExpr::BinOp_GT: {
-		uint32_t bits;
-		if (lhs.size() != rhs.size()) {
-			if (lhs.size() < rhs.size()) {
-				// upsize lhs
-				lhs = upsize(lhs, rhs.size());
-				bits = rhs.size();
-			} else {
-				// upsize rhs
-				rhs = upsize(rhs, lhs.size());
-				bits = lhs.size();
-			}
-		} else {
-			bits = lhs.size();
-		}
-		if (lhs.is_signed() && rhs.is_signed()) {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvsgt(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							bits,
-							lhs.is_signed());
-		} else {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvugt(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							bits,
-							lhs.is_signed());
-		}
+		m_expr = mk_gt(lhs, rhs);
+
 	} break;
 	case IBinaryExpr::BinOp_LE: {
 		size_terms(lhs, rhs);
@@ -332,21 +278,12 @@ void Z3ModelBuildExpr::visit_literal_expr(ILiteral *l) {
 				false);
 		break;
 	case ILiteral::LiteralBool:
-		m_expr = Z3ExprTerm(
-				Z3_mk_int(m_builder->ctxt(),
-				l->getBool(),
-				Z3_mk_bv_sort(m_builder->ctxt(), 2)),
-				2,
-				false);
+		m_expr = mk_bool(l->getBool());
 		break;
 	case ILiteral::LiteralInt:
 		// TODO: determine size from the user
-		m_expr = Z3ExprTerm(
-				Z3_mk_int(m_builder->ctxt(),
-						l->getInt(),
-						Z3_mk_bv_sort(m_builder->ctxt(), 32)),
-				32,
-				true);
+		m_expr = mk_int(l->getInt(), 32);
+
 		break;
 	case ILiteral::LiteralBit:
 		m_expr = Z3ExprTerm(
@@ -373,8 +310,96 @@ void Z3ModelBuildExpr::visit_variable_ref(IVariableRef *ref) {
 
 	Z3ModelVar *var = m_builder->get_variable(full_name);
 
-	m_expr = Z3ExprTerm(var->var(), var->bits(), var->is_signed());
+	m_expr = mk_var(var);
+
 	fprintf(stdout, "m_expr=%p\n", m_expr);
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_ge(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	uint32_t bits;
+	if (lhs.size() != rhs.size()) {
+		if (lhs.size() < rhs.size()) {
+			// upsize lhs
+			lhs = upsize(lhs, rhs.size());
+			bits = rhs.size();
+		} else {
+			// upsize rhs
+			rhs = upsize(rhs, lhs.size());
+			bits = lhs.size();
+		}
+	} else {
+		bits = lhs.size();
+	}
+	if (lhs.is_signed() && rhs.is_signed()) {
+		return Z3ExprTerm(
+				Z3_mk_bvsge(m_builder->ctxt(),
+						lhs.expr(),
+						rhs.expr()),
+						bits,
+						lhs.is_signed());
+	} else {
+		return Z3ExprTerm(
+				Z3_mk_bvuge(m_builder->ctxt(),
+						lhs.expr(),
+						rhs.expr()),
+						bits,
+						lhs.is_signed());
+	}
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_gt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	uint32_t bits;
+	if (lhs.size() != rhs.size()) {
+		if (lhs.size() < rhs.size()) {
+			// upsize lhs
+			lhs = upsize(lhs, rhs.size());
+			bits = rhs.size();
+		} else {
+			// upsize rhs
+			rhs = upsize(rhs, lhs.size());
+			bits = lhs.size();
+		}
+	} else {
+		bits = lhs.size();
+	}
+	if (lhs.is_signed() && rhs.is_signed()) {
+		return Z3ExprTerm(
+				Z3_mk_bvsgt(m_builder->ctxt(),
+						lhs.expr(),
+						rhs.expr()),
+						bits,
+						lhs.is_signed());
+	} else {
+		return Z3ExprTerm(
+				Z3_mk_bvugt(m_builder->ctxt(),
+						lhs.expr(),
+						rhs.expr()),
+						bits,
+						lhs.is_signed());
+	}
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_bool(bool v) {
+	return Z3ExprTerm(
+			Z3_mk_int(
+					m_builder->ctxt(),
+					v,
+					Z3_mk_bv_sort(m_builder->ctxt(), 1)
+			),
+			1,
+			false);
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_int(int32_t v, uint32_t bits) {
+	return Z3ExprTerm(
+			Z3_mk_int(m_builder->ctxt(), v,
+					Z3_mk_bv_sort(m_builder->ctxt(), bits)),
+			bits,
+			true);
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_var(Z3ModelVar *var) {
+	return Z3ExprTerm(var->var(), var->bits(), var->is_signed());
 }
 
 void Z3ModelBuildExpr::size_terms(

@@ -99,6 +99,33 @@ end_exec:
 	run_test(src, "top", "entry", expected);
 }
 
+TEST(z3_model,select) {
+	const char *src = R"(
+		component top {
+			action entry {
+				action bit[4]		v, v1, v2, v3, v4;
+
+				activity {
+					select {
+						v1;
+						v2;
+						v3;
+						v4;
+					}
+				}
+			}
+		}
+	)";
+
+	const char *expected = R"(
+begin_exec:
+printf("Hello World 0 0 1 0 0\n");
+end_exec:
+	)";
+
+	run_test(src, "top", "entry", expected);
+}
+
 TEST(z3_model,two_level_action) {
 	const char *src = R"(
 		component top {

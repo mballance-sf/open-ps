@@ -17,4 +17,3 @@ public:
 
 };
 
-#endif /* XML_SRC_XML2MODEL_H_ */

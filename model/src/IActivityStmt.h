@@ -45,7 +45,10 @@ public:
 
 		/*! activity action-traversal statement */
 		ActivityStmt_Traverse,
-		ActivityStmt_DoAction
+		ActivityStmt_DoAction,
+
+		ActivityStmt_Sequence
+
 	};
 
 public:

@@ -50,6 +50,8 @@ public:
 
 	std::string toString();
 
+	bool solve(Z3ModelVar *var);
+
 	bool solve(const std::vector<Z3ModelVar *> &vars);
 
 	bool check();

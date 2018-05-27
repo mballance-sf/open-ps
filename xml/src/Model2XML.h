@@ -15,10 +15,10 @@
  * the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * Traverses a Semantic Model description using the PSI API
+ * Traverses a Semantic Model description using the IModel API
  * and writes an XML file as output
  *
- *  Created on: May 3, 2016
+ *  Created on: May 26, 2018
  *      Author: ballance
  */
 #pragma once
@@ -26,12 +26,13 @@
 #include <vector>
 #include <stdint.h>
 
+#include "ModelVisitor.h"
 #include "IModel.h"
 #include "IBaseItem.h"
 
 
 
-class Model2XML {
+class Model2XML : public virtual ModelVisitor {
 public:
 	Model2XML();
 

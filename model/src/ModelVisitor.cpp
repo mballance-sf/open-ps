@@ -404,7 +404,7 @@ void ModelVisitor::visit_activity_stmt(IActivityStmt *stmt) {
 	} break;
 
 	case IActivityStmt::ActivityStmt_Select: {
-		visit_activity_select_stmt(dynamic_cast<IActivityBlockStmt *>(stmt));
+		visit_activity_select_stmt(dynamic_cast<IActivitySelectStmt *>(stmt));
 	} break;
 
 	case IActivityStmt::ActivityStmt_Repeat: {
@@ -456,8 +456,24 @@ void ModelVisitor::visit_activity_if_else_stmt(IActivityIfElseStmt *stmt) {
 	}
 }
 
-void ModelVisitor::visit_activity_select_stmt(IActivityBlockStmt *s) {
-	visit_activity_block_stmt(s);
+void ModelVisitor::visit_activity_select_stmt(IActivitySelectStmt *s) {
+
+	for (std::vector<IActivitySelectBranchStmt *>::const_iterator it=s->getBranches().begin();
+			it!=s->getBranches().end(); it++) {
+		visit_activity_select_branch_stmt(*it);
+	}
+}
+
+void ModelVisitor::visit_activity_select_branch_stmt(IActivitySelectBranchStmt *b) {
+	if (b->getGuard()) {
+		visit_expr(b->getGuard());
+	}
+
+	if (b->getWeight()) {
+		visit_expr(b->getWeight());
+	}
+
+	visit_activity_stmt(b->getStmt());
 }
 
 void ModelVisitor::visit_activity_traverse_stmt(IActivityTraverseStmt *t) {

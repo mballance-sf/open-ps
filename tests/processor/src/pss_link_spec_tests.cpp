@@ -50,7 +50,7 @@ class pss_processor : public testing::TestWithParam<TestParam> {};
 class CheckRefsResolvedVisitor : public ModelVisitor {
 public:
 
-	virtual void visit_ref_type(IRefType *ref) {
+	virtual void visit_ref_type(IRefType *ref) override {
 		std::string type;
 		for (uint32_t i=0; i<ref->getTypeId().size(); i++) {
 			type += ref->getTypeId().at(i);

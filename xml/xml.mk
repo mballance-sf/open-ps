@@ -22,7 +22,7 @@ ifneq (1,$(RULES))
 
 MODEL_EXPORT_HEADERS=$(notdir $(wildcard $(MODEL_DIR)/src/I*.h))
 
-XML_SRC_FULL=$(wildcard $(XML_SRC_DIR)/src/*.cpp)
+XML_SRC_FULL=$(wildcard $(XML_DIR)/src/*.cpp)
 XML_SRC=$(notdir $(XML_SRC_FULL))
 
 SRC_DIRS += $(XML_DIR)/src

@@ -75,6 +75,13 @@ std::string Z3Model::toString() {
 	return ret;
 }
 
+bool Z3Model::solve(Z3ModelVar *var) {
+	std::vector<Z3ModelVar *> vars;
+	vars.push_back(var);
+
+	return solve(vars);
+}
+
 bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 	if (m_model) {
 		Z3_model_dec_ref(m_ctxt, m_model);
