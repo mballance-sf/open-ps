@@ -346,6 +346,7 @@ antlrcpp::Any PSS2ModelVisitor::visitActivity_select_stmt(PSSParser::Activity_se
 
 		IActivitySelectBranchStmt *branch = m_factory->mkActivitySelectBranchStmt(
 				stmt, guard, weight);
+		branches.push_back(branch);
 	}
 	IActivitySelectStmt *select = m_factory->mkActivitySelectStmt(branches);
 

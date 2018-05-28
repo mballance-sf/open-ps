@@ -122,12 +122,32 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 		it->second->invalidate(); // Ensure we query the value from the model
 	}
 
+	// First, determine the total number of variable bits and the
+	// initial number of hash bits
+	uint32_t total_bits = 0;
+	for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
+			it!=vars.end(); it++) {
+		if (!(*it)->fixed()) {
+			total_bits += (*it)->bits();
+		}
+	}
+
+	uint32_t hash_bits = 20;
+	if (total_bits == 0) {
+		fprintf(stdout, "Error: no random variables\n");
+	} else {
+		// At least one hash bit, but no more than 20
+		hash_bits = ((total_bits-1)/4)+1;
+
+		if (hash_bits > 20) {
+			hash_bits = 20;
+		}
+	}
+
 	for (uint32_t i=0; i<100; i++) {
 		Z3_solver_push(m_ctxt, m_solver);
 
 		Z3_ast term = 0;
-
-		uint32_t total_bits = 0;
 
 		for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
 				it!=vars.end(); it++) {
@@ -135,7 +155,6 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 				uint64_t coeff = m_lfsr.next();
 
 				Z3_ast var_ast = (*it)->var();
-				total_bits += (*it)->bits();
 				if ((*it)->bits() < 64) {
 					if ((*it)->is_signed()) {
 						var_ast = Z3_mk_sign_ext(m_ctxt, (64-(*it)->bits()), var_ast);
@@ -155,22 +174,6 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 			}
 		}
 
-		uint32_t hash_bits = 20;
-		if (total_bits == 0) {
-			fprintf(stdout, "Error: no random variables\n");
-		} else {
-			// At least one hash bit, but no more than 20
-			hash_bits = ((total_bits-1)/4)+1;
-
-			if (hash_bits > 20) {
-				hash_bits = 20;
-			}
-		}
-
-//		if (total_bits < hash_bits) {
-//			hash_bits = total_bits;
-//		}
-
 		if (term) {
 			Z3_ast sum = Z3_mk_extract(m_ctxt, (hash_bits-1), 0, term);
 			uint64_t hash = m_lfsr.next();
@@ -186,6 +189,10 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 			break;
 		} else {
 			fprintf(stdout, "Retry\n");
+			if (hash_bits > 1) {
+				fprintf(stdout, "  Decrease hash bits to %d\n", (hash_bits-1));
+				hash_bits--;
+			}
 			Z3_solver_pop(m_ctxt, m_solver, 1);
 		}
 	}
@@ -215,13 +222,19 @@ bool Z3Model::check() {
 }
 
 void Z3Model::add_variable(Z3ModelVar *var) {
+	fprintf(stdout, "Z3Model::add_variable %s\n", var->name().c_str());
 	m_variables[var->name()] = var;
 }
 
 Z3ModelVar *Z3Model::get_variable(const std::string &name) {
 	std::map<std::string, Z3ModelVar *>::iterator it = m_variables.find(name);
-
-	return it->second;
+	if (it == m_variables.end()) {
+		fprintf(stdout, "Error: failed to get variable %s\n", name.c_str());
+		fflush(stdout);
+		return 0;
+	} else {
+		return it->second;
+	}
 }
 
 VarVal Z3Model::get_value(const std::string &path) {

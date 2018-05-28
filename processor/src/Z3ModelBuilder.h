@@ -73,6 +73,8 @@ public:
 
 	Z3ModelVar *get_variable(const std::string &name);
 
+	void add_assert(const Z3ExprTerm &t);
+
 	void inc_expr_depth();
 
 	void dec_expr_depth();

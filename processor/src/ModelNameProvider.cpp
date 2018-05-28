@@ -39,6 +39,7 @@ void ModelNameProvider::leave(const std::string &name) {
 }
 
 void ModelNameProvider::enter(IActivitySelectStmt *s) {
+	m_name_valid = false;
 	if (m_scopes.back().m_idx != -1) {
 		m_scopes.back().m_idx++;
 	}
@@ -51,6 +52,7 @@ void ModelNameProvider::leave(IActivitySelectStmt *s) {
 
 void ModelNameProvider::enter(IActivitySelectBranchStmt *s) {
 	// TODO: need uniquified id
+	m_name_valid = false;
 	m_scopes.back().m_idx++;
 	m_scopes.push_back(ScopeInfo("branch"));
 }

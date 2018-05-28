@@ -198,9 +198,20 @@ void Z3ModelEvalAction::visit_activity_select_stmt(IActivitySelectStmt *s) {
 	m_evaluator->name_provider().enter(s);
 	Z3ModelVar *select_var = m_evaluator->get_variable(
 			m_evaluator->name_provider().name() + ".__select_idx");
+	// Need a new value
+	select_var->reset();
+
 	fprintf(stdout, "TODO: activity_select_stmt %p\n", select_var);
 	m_evaluator->solve(select_var);
-	fprintf(stdout, "  select: %lld\n", m_evaluator->get_val(select_var).si);
+	VarVal select_v = m_evaluator->get_val(select_var);
+
+	if (select_v.si >= 0) {
+		fprintf(stdout, "Visit branch %lld\n", select_v.si);
+		fflush(stdout);
+		visit_activity_stmt(s->getBranches().at(select_v.si)->getStmt());
+	} else {
+		fprintf(stdout, "Error: Failed to solve select\n");
+	}
 
 	m_evaluator->name_provider().leave(s);
 }

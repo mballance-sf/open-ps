@@ -7,6 +7,7 @@
 
 #pragma once
 #include "ModelVisitor.h"
+#include "Z3ExprTerm.h"
 #include "z3.h"
 
 class Z3ModelBuilder;
@@ -27,8 +28,12 @@ public:
 
 	virtual void visit_activity_select_stmt(IActivitySelectStmt *s) override;
 
+	virtual void visit_activity_select_branch_stmt(IActivitySelectBranchStmt *s) override;
+
 
 private:
+	uint32_t				m_branch_idx;
+	Z3ExprTerm				m_expr;
 	Z3ModelBuilder			*m_builder;
 };
 

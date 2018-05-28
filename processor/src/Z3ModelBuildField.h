@@ -35,7 +35,7 @@ public:
 
 	void build(IField *field);
 
-	Z3ModelVar *mkIntVar(const std::string &name);
+	Z3ModelVar *mkIntVar(const std::string &name, uint32_t bits=32);
 
 protected:
 

@@ -102,15 +102,33 @@ end_exec:
 TEST(z3_model,select) {
 	const char *src = R"(
 		component top {
+			action print1 {
+				exec body C = """
+					printf("Hello World (1)\n");
+				""";
+			}
+			action print2 {
+				exec body C = """
+					printf("Hello World (2)\n");
+				""";
+			}
+			action print3 {
+				exec body C = """
+					printf("Hello World (3)\n");
+				""";
+			}
 			action entry {
-				action bit[4]		v, v1, v2, v3, v4;
+				print1		v1;
+				print2		v2;
+				print3		v3;
 
 				activity {
+					repeat (4) {
 					select {
 						v1;
 						v2;
 						v3;
-						v4;
+					}
 					}
 				}
 			}

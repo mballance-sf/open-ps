@@ -44,49 +44,12 @@ void Z3ModelBuildExpr::visit_binary_expr(IBinaryExpr *be) {
 
 	switch (be->getBinOpType()) {
 	case IBinaryExpr::BinOp_And: {
-		uint32_t bits;
-		if (lhs.size() != rhs.size()) {
-			if (lhs.size() < rhs.size()) {
-				// upsize lhs
-				lhs = upsize(lhs, rhs.size());
-				bits = rhs.size();
-			} else {
-				// upsize rhs
-				rhs = upsize(rhs, lhs.size());
-				bits = lhs.size();
-			}
-		} else {
-			bits = lhs.size();
-		}
-		m_expr = Z3ExprTerm(
-				Z3_mk_bvand(m_builder->ctxt(),
-						lhs.expr(),
-						rhs.expr()),
-				lhs.size(),
-				lhs.is_signed());
+		m_expr = mk_bitwise_and(lhs, rhs);
+
 	} break;
 	case IBinaryExpr::BinOp_AndAnd: {
-		// TODO: bool AND?
-		uint32_t bits;
-		if (lhs.size() != rhs.size()) {
-			if (lhs.size() < rhs.size()) {
-				// upsize lhs
-				lhs = upsize(lhs, rhs.size());
-				bits = rhs.size();
-			} else {
-				// upsize rhs
-				rhs = upsize(rhs, lhs.size());
-				bits = lhs.size();
-			}
-		} else {
-			bits = lhs.size();
-		}
-		m_expr = Z3ExprTerm(
-				Z3_mk_bvand(m_builder->ctxt(),
-						lhs.expr(),
-						rhs.expr()),
-				lhs.size(),
-				lhs.is_signed());
+		m_expr = mk_logical_and(lhs, rhs);
+
 	} break;
 //	case IBinaryExpr::BinOp_ArrayRef:
 //		break;
@@ -98,26 +61,8 @@ void Z3ModelBuildExpr::visit_binary_expr(IBinaryExpr *be) {
 //		fprintf(stdout, "TODO: '=' not supported\n");
 //		break;
 	case IBinaryExpr::BinOp_EqEq: {
-		uint32_t bits;
-		if (lhs.size() != rhs.size()) {
-			if (lhs.size() < rhs.size()) {
-				// upsize lhs
-				lhs = upsize(lhs, rhs.size());
-				bits = rhs.size();
-			} else {
-				// upsize rhs
-				rhs = upsize(rhs, lhs.size());
-				bits = lhs.size();
-			}
-		} else {
-			bits = lhs.size();
-		}
-		m_expr = Z3ExprTerm(
-				Z3_mk_eq(m_builder->ctxt(),
-						lhs.expr(),
-						rhs.expr()),
-				lhs.size(),
-				lhs.is_signed());
+		m_expr = mk_eq(lhs, rhs);
+
 	} break;
 
 	case IBinaryExpr::BinOp_NotEq: {
@@ -155,48 +100,19 @@ void Z3ModelBuildExpr::visit_binary_expr(IBinaryExpr *be) {
 
 	} break;
 	case IBinaryExpr::BinOp_LE: {
-		size_terms(lhs, rhs);
-		if (lhs.is_signed() && rhs.is_signed()) {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvsle(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							lhs.size(),
-							lhs.is_signed());
-		} else {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvule(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							lhs.size(),
-							lhs.is_signed());
-		}
+		m_expr = mk_le(lhs, rhs);
+
 	} break;
 
 	case IBinaryExpr::BinOp_LT: {
-		size_terms(lhs, rhs);
-		if (lhs.is_signed() && rhs.is_signed()) {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvslt(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							lhs.size(),
-							lhs.is_signed());
-		} else {
-			m_expr = Z3ExprTerm(
-					Z3_mk_bvult(m_builder->ctxt(),
-							lhs.expr(),
-							rhs.expr()),
-							lhs.size(),
-							lhs.is_signed());
-		}
+		m_expr = mk_lt(lhs, rhs);
+
 	} break;
+
 	case IBinaryExpr::BinOp_OrOr: {
-		Z3_ast args[] = {lhs.expr(), rhs.expr()};
-		m_expr = Z3ExprTerm(
-				Z3_mk_or(m_builder->ctxt(), 2, args),
-				1,
-				lhs.is_signed());
+		m_expr = mk_logical_or(lhs, rhs);
+
+
 	} break;
 	default:
 		fprintf(stdout, "Error: unhandled binary expr %d\n",
@@ -315,40 +231,32 @@ void Z3ModelBuildExpr::visit_variable_ref(IVariableRef *ref) {
 	fprintf(stdout, "m_expr=%p\n", m_expr);
 }
 
-Z3ExprTerm Z3ModelBuildExpr::mk_ge(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+Z3ExprTerm Z3ModelBuildExpr::mk_bitwise_and(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
 	uint32_t bits;
 	if (lhs.size() != rhs.size()) {
-		if (lhs.size() < rhs.size()) {
-			// upsize lhs
-			lhs = upsize(lhs, rhs.size());
-			bits = rhs.size();
-		} else {
-			// upsize rhs
-			rhs = upsize(rhs, lhs.size());
-			bits = lhs.size();
-		}
-	} else {
-		bits = lhs.size();
-	}
-	if (lhs.is_signed() && rhs.is_signed()) {
+		Z3ExprTerm lhs_t = size_lhs(lhs, rhs);
+		Z3ExprTerm rhs_t = size_rhs(lhs, rhs);
+
 		return Z3ExprTerm(
-				Z3_mk_bvsge(m_builder->ctxt(),
-						lhs.expr(),
-						rhs.expr()),
-						bits,
-						lhs.is_signed());
+				Z3_mk_bvand(m_builder->ctxt(),
+						lhs_t.expr(),
+						rhs_t.expr()),
+				lhs_t.size(),
+				lhs_t.is_signed());
 	} else {
 		return Z3ExprTerm(
-				Z3_mk_bvuge(m_builder->ctxt(),
+				Z3_mk_bvand(m_builder->ctxt(),
 						lhs.expr(),
 						rhs.expr()),
-						bits,
-						lhs.is_signed());
+				lhs.size(),
+				lhs.is_signed());
 	}
 }
 
-Z3ExprTerm Z3ModelBuildExpr::mk_gt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+Z3ExprTerm Z3ModelBuildExpr::mk_logical_and(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	// TODO: bool AND?
 	uint32_t bits;
+	Z3_ast terms[2];
 	if (lhs.size() != rhs.size()) {
 		if (lhs.size() < rhs.size()) {
 			// upsize lhs
@@ -360,21 +268,196 @@ Z3ExprTerm Z3ModelBuildExpr::mk_gt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs)
 			bits = lhs.size();
 		}
 	} else {
-		bits = lhs.size();
-	}
-	if (lhs.is_signed() && rhs.is_signed()) {
+		terms[0] = lhs.expr();
+		terms[1] = rhs.expr();
 		return Z3ExprTerm(
-				Z3_mk_bvsgt(m_builder->ctxt(),
+				Z3_mk_and(m_builder->ctxt(),
+						2,
+						terms),
+				1,
+				false);
+	}
+
+
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_bitwise_or(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	if (lhs.size() != rhs.size()) {
+		lhs = size_lhs(lhs, rhs);
+		rhs = size_rhs(lhs, rhs);
+	}
+
+	return Z3ExprTerm(
+			Z3_mk_bvor(m_builder->ctxt(),
+					lhs.expr(),
+					rhs.expr()),
+					lhs.size(),
+					lhs.is_signed());
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_logical_or(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	Z3_ast args[] = {lhs.expr(), rhs.expr()};
+	return Z3ExprTerm(
+			Z3_mk_or(m_builder->ctxt(), 2, args),
+			1,
+			lhs.is_signed());
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_eq(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	if (lhs.size() != rhs.size()) {
+		Z3ExprTerm lhs_t = size_lhs(lhs, rhs);
+		Z3ExprTerm rhs_t = size_rhs(lhs, rhs);
+		return Z3ExprTerm(
+				Z3_mk_eq(m_builder->ctxt(),
+						lhs_t.expr(),
+						rhs_t.expr()),
+				lhs_t.size(),
+				lhs_t.is_signed());
+	} else {
+		return Z3ExprTerm(
+				Z3_mk_eq(m_builder->ctxt(),
 						lhs.expr(),
 						rhs.expr()),
-						bits,
+				lhs.size(),
+				lhs.is_signed());
+	}
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_ge(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	if (lhs.size() != rhs.size()) {
+		Z3ExprTerm lhs_t = size_lhs(lhs, rhs);
+		Z3ExprTerm rhs_t = size_rhs(lhs, rhs);
+		if (lhs_t.is_signed() && rhs_t.is_signed()) {
+			return Z3ExprTerm(
+					Z3_mk_bvsge(m_builder->ctxt(),
+							lhs_t.expr(),
+							rhs_t.expr()),
+							lhs_t.size(),
+							lhs_t.is_signed());
+		} else {
+			return Z3ExprTerm(
+					Z3_mk_bvuge(m_builder->ctxt(),
+							lhs_t.expr(),
+							rhs_t.expr()),
+							lhs_t.size(),
+							lhs_t.is_signed());
+		}
+	} else {
+		if (lhs.is_signed() && rhs.is_signed()) {
+			return Z3ExprTerm(
+					Z3_mk_bvsge(m_builder->ctxt(),
+							lhs.expr(),
+							rhs.expr()),
+							lhs.size(),
+							lhs.is_signed());
+		} else {
+			return Z3ExprTerm(
+					Z3_mk_bvuge(m_builder->ctxt(),
+							lhs.expr(),
+							rhs.expr()),
+							lhs.size(),
+							lhs.is_signed());
+		}
+	}
+
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_gt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	if (lhs.size() != rhs.size()) {
+		Z3ExprTerm lhs_t = size_lhs(lhs, rhs);
+		Z3ExprTerm rhs_t = size_rhs(lhs, rhs);
+		if (lhs_t.is_signed() && rhs_t.is_signed()) {
+			return Z3ExprTerm(
+					Z3_mk_bvsgt(m_builder->ctxt(),
+							lhs_t.expr(),
+							rhs_t.expr()),
+							lhs_t.size(),
+							lhs_t.is_signed());
+		} else {
+			return Z3ExprTerm(
+					Z3_mk_bvugt(m_builder->ctxt(),
+							lhs_t.expr(),
+							rhs_t.expr()),
+							lhs_t.size(),
+							lhs_t.is_signed());
+		}
+	} else {
+
+		if (lhs.is_signed() && rhs.is_signed()) {
+			return Z3ExprTerm(
+					Z3_mk_bvsgt(m_builder->ctxt(),
+							lhs.expr(),
+							rhs.expr()),
+							lhs.size(),
+							lhs.is_signed());
+		} else {
+			return Z3ExprTerm(
+					Z3_mk_bvugt(m_builder->ctxt(),
+							lhs.expr(),
+							rhs.expr()),
+							lhs.size(),
+							lhs.is_signed());
+		}
+	}
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_le(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	if (lhs.size() != rhs.size()) {
+		Z3ExprTerm lhs_t = size_lhs(lhs, rhs);
+		Z3ExprTerm rhs_t = size_rhs(lhs, rhs);
+		if (lhs_t.is_signed() && rhs_t.is_signed()) {
+			return Z3ExprTerm(
+					Z3_mk_bvsle(m_builder->ctxt(),
+							lhs_t.expr(),
+							rhs_t.expr()),
+							lhs_t.size(),
+							lhs_t.is_signed());
+		} else {
+			return Z3ExprTerm(
+					Z3_mk_bvule(m_builder->ctxt(),
+							lhs_t.expr(),
+							rhs_t.expr()),
+							lhs_t.size(),
+							lhs_t.is_signed());
+		}
+	} else {
+		if (lhs.is_signed() && rhs.is_signed()) {
+			return Z3ExprTerm(
+					Z3_mk_bvsle(m_builder->ctxt(),
+							lhs.expr(),
+							rhs.expr()),
+							lhs.size(),
+							lhs.is_signed());
+		} else {
+			return Z3ExprTerm(
+					Z3_mk_bvule(m_builder->ctxt(),
+							lhs.expr(),
+							rhs.expr()),
+							lhs.size(),
+							lhs.is_signed());
+		}
+	}
+}
+
+Z3ExprTerm Z3ModelBuildExpr::mk_lt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs) {
+	if (lhs.size() != rhs.size()) {
+		lhs = size_lhs(lhs, rhs);
+		rhs = size_rhs(lhs, rhs);
+	}
+
+	if (lhs.is_signed() && rhs.is_signed()) {
+		return Z3ExprTerm(
+				Z3_mk_bvslt(m_builder->ctxt(),
+						lhs.expr(),
+						rhs.expr()),
+						lhs.size(),
 						lhs.is_signed());
 	} else {
 		return Z3ExprTerm(
-				Z3_mk_bvugt(m_builder->ctxt(),
+				Z3_mk_bvult(m_builder->ctxt(),
 						lhs.expr(),
 						rhs.expr()),
-						bits,
+						lhs.size(),
 						lhs.is_signed());
 	}
 }
@@ -414,6 +497,30 @@ void Z3ModelBuildExpr::size_terms(
 			// upsize rhs
 			rhs = upsize(rhs, lhs.size());
 		}
+	}
+}
+
+Z3ExprTerm Z3ModelBuildExpr::size_lhs(
+		const Z3ExprTerm &lhs,
+		const Z3ExprTerm &rhs) {
+
+	if (lhs.size() < rhs.size()) {
+		// upsize lhs
+		return upsize(lhs, rhs.size());
+	} else {
+		return lhs;
+	}
+}
+
+Z3ExprTerm Z3ModelBuildExpr::size_rhs(
+		const Z3ExprTerm &lhs,
+		const Z3ExprTerm &rhs) {
+
+	if (lhs.size() > rhs.size()) {
+		// upsize rhs
+		return upsize(rhs, lhs.size());
+	} else {
+		return rhs;
 	}
 }
 

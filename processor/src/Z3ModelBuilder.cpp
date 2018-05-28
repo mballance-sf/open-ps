@@ -102,5 +102,11 @@ Z3ModelVar *Z3ModelBuilder::get_variable(const std::string &name) {
 	return m_z3_model->get_variable(name);
 }
 
+void Z3ModelBuilder::add_assert(const Z3ExprTerm &t) {
+	Z3_solver_assert(
+			m_z3_model->ctxt(),
+			m_z3_model->solver(),
+			t.expr());
+}
 
 

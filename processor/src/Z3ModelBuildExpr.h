@@ -43,11 +43,23 @@ public:
 
 	virtual void visit_variable_ref(IVariableRef *ref) override;
 
-	Z3ExprTerm mk_and(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+	Z3ExprTerm mk_bitwise_and(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_logical_and(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_bitwise_or(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_logical_or(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_eq(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
 
 	Z3ExprTerm mk_ge(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
 
 	Z3ExprTerm mk_gt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_le(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm mk_lt(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
 
 	Z3ExprTerm mk_bool(bool v);
 
@@ -60,6 +72,10 @@ public:
 private:
 
 	void size_terms(Z3ExprTerm &lhs, Z3ExprTerm &rhs);
+
+	Z3ExprTerm size_lhs(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
+
+	Z3ExprTerm size_rhs(const Z3ExprTerm &lhs, const Z3ExprTerm &rhs);
 
 private:
 	Z3ModelBuilder					*m_builder;
