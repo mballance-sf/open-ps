@@ -20,7 +20,7 @@ TESTS_DATA_DIR := $(shell cd $(TESTS_PARSER_DIR)/../data ; pwd)
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../tests.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../scripts/common.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../model/model.mk
-MK_INCLUDES += $(TESTS_PARSER_DIR)/../../parser/src/pss-parser.mk
+MK_INCLUDES += $(TESTS_PARSER_DIR)/../../compiler/compiler.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../processor/processor.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../opsc/opsc.mk
 MK_INCLUDES += $(TESTS_PARSER_DIR)/../../pss-cpp/pss-cpp.mk
@@ -57,6 +57,12 @@ all : $(UNPACK_TARGETS)
 	$(MAKE) -C $(BUILD_DIR) -f $(TESTS_PARSER_DIR)/Makefile BUILD=true \
 		VERBOSE=$(VERBOSE) \
 		-j$(NUM_CORES) TESTS_PARSER_DIR=$(TESTS_PARSER_DIR) __run
+		
+debug : $(UNPACK_TARGETS)		
+	$(MAKE) -C $(BUILD_DIR) -f $(TESTS_PARSER_DIR)/Makefile BUILD=true \
+		VERBOSE=$(VERBOSE) \
+		-j$(NUM_CORES) TESTS_PARSER_DIR=$(TESTS_PARSER_DIR) unittest$(EXEEXT)
+	cd $(BUILD_DIR) ; gdb --args unittest$(EXEEXT) $(GTEST_ARGS)
 	
 ifeq (1,$(USE_VALGRIND))
 VALGRIND=valgrind --tool=memcheck
@@ -73,9 +79,10 @@ unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
 		$(OPSC_DEPS) \
 		$(XML_DEPS) \
 		$(MODEL_DEPS) \
+		$(PSS_COMPILER_DEPS) \
 		$(ANTLR4_DEPS) \
 		gtest-all.o gtest_main.o
-	$(Q)echo "OPSC_DEPS=$(OPSC_DEPS) ; OPSC_SRC=$(OPSC_SRC)"
+	$(Q)echo "DEPS=$^"
 	$(Q)$(LINK_EXE) -lpthread
 
 clean :

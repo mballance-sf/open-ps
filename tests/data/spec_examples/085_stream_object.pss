@@ -1,0 +1,6 @@
+
+struct mem_segment_s { /* ... */};
+stream data_stream_s {
+ rand mem_segment_s seg;
+ };
+ 

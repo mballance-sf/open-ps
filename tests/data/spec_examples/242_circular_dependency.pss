@@ -1,0 +1,7 @@
+
+compile if (compile has(FIELD2)) {
+ static const int FIELD1 = 1;
+}
+compile if (compile has (FIELD1)) {
+ static const int FIELD2 = 2;
+}

@@ -1,0 +1,25 @@
+
+// example
+component top {
+ action my_action1 { /* ... */ }
+ action my_action2 { /* ... */ }
+ action my_action3 { /* ... */ }
+// example
+
+action my_test {
+my_action1 action1;
+my_action2 action2;
+my_action3 action3;
+ rand int in [0..4] a;
+ activity {
+ select {
+ (a == 0)[20]: action1;
+ (a in [0..3])[30]: action2;
+ [50]: action3;
+ }
+ }
+}
+
+// example
+}
+// example

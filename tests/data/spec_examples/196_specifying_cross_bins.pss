@@ -1,0 +1,16 @@
+
+struct s {
+rand bit[4] a, b;
+covergroup {
+coverpoint a {
+bins low[] = [0..127];
+bins high = [128..255];
+}
+coverpoint b {
+bins two[] = b with (b%2 == 0);
+}
+X : cross a, b {
+bins small_a_b = X with (a <= 10 && b<=10);
+}
+} cov;
+}

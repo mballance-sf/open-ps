@@ -1,0 +1,25 @@
+
+package config_pkg {
+}
+
+//<example>
+component top {
+//</example>
+
+compile if (
+	compile has(config_pkg::PROTOCOL_VER_1_2) &&
+config_pkg::PROTOCOL_VER_1_2) {
+ action new_flow {
+ activity { /* ... */}
+ }
+} else {
+ action old_flow {
+ 	activity { /* ... */}
+ }
+ 
+}
+
+//<example>
+}
+//</example>
+

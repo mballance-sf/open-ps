@@ -1,0 +1,26 @@
+
+component top {
+enum rsrc_kind_e {A, B, C, D};
+resource rsrc_obj {
+rand rsrc_kind_e kind;
+}
+pool[2] rsrc_obj rsrc_pool;
+bind rsrc_pool *;
+action do_something {
+share rsrc_obj my_rsrc_inst;
+constraint my_rsrc_inst.kind != A;
+}
+action do_something_else {
+lock rsrc_obj my_rsrc_inst;
+}
+action test {
+activity {
+parallel {
+do do_something with { my_rsrc_inst.kind != B; };
+ do do_something with { my_rsrc_inst.kind != C; };
+ do do_something_else;
+}
+}
+}
+}
+

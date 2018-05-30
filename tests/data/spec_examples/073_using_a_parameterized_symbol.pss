@@ -1,0 +1,26 @@
+
+component entity {
+ action a { }
+ action b { }
+ action c { }
+ action top {
+ a a1, a2, a3;
+ b b1, b2, b3;
+ c c1, c2, c3;
+ symbol ab_or_ba (a aa, b bb) {
+ select {
+ { aa; bb; }
+ { bb; aa; }
+ }
+ }
+ activity {
+ ab_or_ba(a1,b1);
+ ab_or_ba(a2,b2);
+ ab_or_ba(a3,b3);
+ c1;
+ c2;
+ c3;
+ }
+ }
+}
+

@@ -15,10 +15,12 @@ endif
 OPEN_PS_RLS_DIR = $(OPEN_PS_BUILD_DIR)/ops-$(version)
 
 MK_INCLUDES += $(OPEN_PS_DIR)/parser/src/pss-parser.mk
-MK_INCLUDES += $(OPEN_PS_DIR)/ops/ops.mk
+MK_INCLUDES += $(OPEN_PS_DIR)/opsc/opsc.mk
+#MK_INCLUDES += $(OPEN_PS_DIR)/opsg/opsg.mk
 MK_INCLUDES += $(OPEN_PS_DIR)/etc/open-ps.info
 MK_INCLUDES += $(OPEN_PS_DIR)/model/model.mk
 MK_INCLUDES += $(OPEN_PS_DIR)/processor/processor.mk
+MK_INCLUDES += $(OPEN_PS_DIR)/xml/xml.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/qpssc/qpssc.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/qpsrt/qpsrt.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/pss2psi/pss2psi.mk
@@ -57,6 +59,17 @@ all :
 		echo "Running from remote build dir"; \
 		$(MAKE) BUILD=true -f $(SCRIPTS_DIR)/Makefile __release ; \
 	fi 
+
+ifeq (true,$(BUILD))	
+fetch-packages : $(PACKAGES)
+	$(Q)echo "PACKAGES: $(PACKAGES)"
+else
+fetch-packages : 
+	$(MAKE) BUILD=true -f $(SCRIPTS_DIR)/Makefile fetch-packages
+endif
+
+clean-packages :
+	$(Q)rm -rf $(PACKAGES_DIR)
 	
 clean :
 	$(Q)if test "x$(PWD)" = "x$(SCRIPTS_DIR)"; then \

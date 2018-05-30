@@ -1,9 +1,0 @@
-
-// Example: 12.1.4.3
-
-struct transaction {
-	rand bit[31:0] addr;
-	constraint addr_c {
- 		addr in [0x0000..0xFFFF];
- 	}
-}

@@ -1,0 +1,26 @@
+
+resource cpu_core_s {}
+component dma_c {
+ resource channel_s {}
+ pool[2] channel_s channels;
+ bind channels {*}; // accessible to all actions
+ // under this component (and its sub-tree)
+ action transfer {
+ lock channel_s chan;
+ lock cpu_core_s core;
+ }
+}
+component pss_top {
+ dma_c dma0,dma1;
+ pool[4] cpu_core_s cpu;
+ bind cpu {dma0.*, dma1.*};// accessible to all actions
+ // under the two sub-components
+ action par_dma_xfers {
+ dma_c::transfer xfer_a;
+ dma_c::transfer xfer_b;
+  // ...
+ constraint {xfer_a.core.instance_id != xfer_b.core.instance_id;};
+ constraint {xfer_a.chan.instance_id == xfer_b.chan.instance_id;};
+ }
+}
+

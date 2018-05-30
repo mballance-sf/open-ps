@@ -1,0 +1,22 @@
+
+component entity {
+action a { }
+action b { }
+action c { }
+action top {
+ a a1, a2, a3;
+ b b1, b2, b3;
+ c c1, c2, c3;
+ symbol a_or_b {
+ select {a1; b1; }
+ select {a2; b2; }
+ select {a3; b3; }
+ }
+ activity {
+a_or_b;
+ c1;
+ c2;
+ c3;
+ }
+}
+}

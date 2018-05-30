@@ -1,0 +1,7 @@
+
+struct s {
+rand bit[4] a, b;
+covergroup {
+aXb : cross a, b;
+} cov;
+}

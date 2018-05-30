@@ -1,0 +1,19 @@
+
+// example
+component top {
+// example
+
+action my_test {
+ A a;
+ B b;
+ activity {
+ a;
+ b;
+ {a; b;};
+ sequence{a; b;};
+ }
+};
+
+// example
+}
+// example

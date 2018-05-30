@@ -1,0 +1,12 @@
+
+component vid_pipe_c { /* ... */};
+component codec_c {
+ vid_pipe_c pipeA, pipeB;
+ action decode { /* ... */};
+};
+component multimedia_ss_c {
+ codec_c codecs[4];
+};
+component pss_top {
+ multimedia_ss_c multimedia_ss;
+};

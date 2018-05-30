@@ -1,0 +1,12 @@
+
+//<example>
+struct S {
+ rand bit[32] addr;
+//</example>
+constraint addr_c {
+ addr in [0x0000..0xFFFF];
+ }
+ 
+//<example>
+}
+//</example>

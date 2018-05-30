@@ -1,0 +1,31 @@
+
+//<example>
+component top {
+//</example>
+
+action my_sub_flow {
+ A a; B b; C c; D d;
+ activity {
+ sequence {
+ a;
+ schedule {
+ b; c; d;
+ };
+ };
+ };
+};
+action my_top_flow {
+ my_sub_flow sf1, sf2;
+ activity {
+ schedule {
+ sf1;
+ sf2;
+ };
+ };
+ constraint sequence {sf1.a, sf2.b};
+ constraint parallel {sf1.b, sf2.b, sf2.d};
+};
+
+//<example>
+}
+//</example>

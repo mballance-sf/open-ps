@@ -28,19 +28,27 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <iostream>
+#include <ostream>
+#include <sstream>
 
 
 Model2XML::Model2XML() : m_ind_incr(4), m_fixed_inline_addr(false) {
-	// TODO Auto-generated constructor stub
-
+	m_out = 0;
 }
 
 Model2XML::~Model2XML() {
 	// TODO Auto-generated destructor stub
 }
 
-const std::string &Model2XML::traverse(IModel *model) {
-	m_content.clear();
+std::string Model2XML::convert(IModel *model) {
+	std::ostringstream out;
+
+	return out.str();
+}
+
+void Model2XML::convert(std::ostream &out, IModel *model) {
+	m_out = &out;
 
 	println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	enter("model \n"
@@ -50,95 +58,27 @@ const std::string &Model2XML::traverse(IModel *model) {
 
 	visit_model(model);
 
-	std::vector<IBaseItem *>::const_iterator it=model->getItems().begin();
-
-	for (; it!=model->getItems().end(); it++) {
-		IBaseItem *i = *it;
-
-		switch (i->getType()) {
-			case IBaseItem::TypeAction:
-				break;
-
-			case IBaseItem::TypeComponent:
-				process_component(dynamic_cast<IComponent *>(i));
-				break;
-
-			case IBaseItem::TypePackage:
-				process_pkg(dynamic_cast<IPackage *>(i));
-				break;
-
-			case IBaseItem::TypeStruct:
-				process_struct(dynamic_cast<IStruct *>(i));
-				break;
-
-			case IBaseItem::TypeExec:
-				process_exec(dynamic_cast<IExec *>(i));
-				break;
-
-			case IBaseItem::TypeExtend:
-				process_extend(dynamic_cast<IExtend *>(i));
-				break;
-
-			case IBaseItem::TypeImportFunc:
-				process_import_func(dynamic_cast<IImportFunc *>(i));
-				break;
-			default:
-				error("Unknown global-scope item %d\n", i->getType());
-				break;
-		}
-	}
-
 	exit("model");
-
-	return m_content;
 }
 
-void Model2XML::process_pkg(IPackage *pkg) {
-	if (pkg->getName() != "") {
-		enter("package name=\"" + pkg->getName() + "\"");
-	}
+void Model2XML::visit_package(IPackage *pkg) {
+	enter("package name=\"" + pkg->getName() + "\"");
 
-	std::vector<IBaseItem *>::const_iterator it=pkg->getItems().begin();
+	ModelVisitor::visit_package(pkg);
 
-	for (; it!=pkg->getItems().end(); it++) {
-		IBaseItem *i = *it;
-
-		switch (i->getType()) {
-			case IBaseItem::TypeAction:
-				break;
-
-			case IBaseItem::TypeComponent:
-				process_component(dynamic_cast<IComponent *>(i));
-				break;
-
-			case IBaseItem::TypeStruct:
-				process_struct(dynamic_cast<IStruct *>(i));
-				break;
-
-			case IBaseItem::TypeExec:
-				process_exec(dynamic_cast<IExec *>(i));
-				break;
-
-			case IBaseItem::TypeExtend:
-				process_extend(dynamic_cast<IExtend *>(i));
-				break;
-
-			case IBaseItem::TypeImportFunc:
-				process_import_func(dynamic_cast<IImportFunc *>(i));
-				break;
-
-			default:
-				error("Unsupported package item: %d\n", i->getType());
-				break;
-		}
-	}
-
-	if (pkg->getName() != "") {
-		exit("package");
-	}
+	exit("package");
 }
 
-void Model2XML::process_action(IAction *a) {
+void Model2XML::visit_action(IAction *a) {
+	enter("action name=\"" + a->getName() + "\"");
+	if (a->getSuperType()) {
+		fprintf(stdout, "TODO: type identifier\n");
+	}
+
+	ModelVisitor::visit_action(a);
+
+	exit("action");
+
 //	IAction *super_a = a->getSuperType();
 //
 //	enter("action name=\"" + a->getName() + "\"");
@@ -156,7 +96,18 @@ void Model2XML::process_action(IAction *a) {
 //	exit("action");
 }
 
-void Model2XML::process_struct(IStruct *str) {
+void Model2XML::visit_bind(IBind *b) {
+	enter("bind");
+
+	for (std::vector<IBindPath *>::const_iterator it=b->getTargets().begin();
+			it!=b->getTargets().end(); it++) {
+		to_hierarchical_id((*it)->getPath(), "bindpath");
+	}
+
+	exit("bind");
+}
+
+void Model2XML::visit_struct(IStruct *str) {
 	IStruct *super_s = 0; // TODO: super-type
 	std::string tag = "struct name=\"" + str->getName() + "\"";
 
@@ -174,20 +125,78 @@ void Model2XML::process_struct(IStruct *str) {
 		type2hierarchical_id(str->getSuperType(), "super");
 	}
 
-	process_body(str->getItems(), "struct");
+	ModelVisitor::visit_struct(str);
 
 	exit("struct");
 }
 
-void Model2XML::process_bind(IBind *b) {
-	enter("bind");
+void Model2XML::visit_component(IComponent *c) {
 
-	for (std::vector<IBindPath *>::const_iterator it=b->getTargets().begin();
-			it!=b->getTargets().end(); it++) {
-		to_hierarchical_id((*it)->getPath(), "bindpath");
+	enter(std::string("component name=\"") + c->getName() + "\"");
+
+	// TODO: super type
+//	if (c->getSu)
+
+	ModelVisitor::visit_component(c);
+
+//	process_comp_pkg_body(c->getItems());
+//	process_body(c->getItems(), "component");
+
+	exit("component");
+}
+
+void Model2XML::visit_constraint(IConstraintBlock *c) {
+	std::vector<IConstraint *>::const_iterator it = c->getConstraints().begin();
+
+	if (c->getName() == "") {
+		enter("constraint");
+	} else {
+		enter("constraint name=\"" + c->getName() + "\"");
 	}
 
-	exit("bind");
+	ModelVisitor::visit_constraint(c);
+
+	exit("constraint");
+}
+
+void Model2XML::visit_constraint_expr_stmt(IConstraintExpr *c) {
+	enter("stmt");
+	visit_expr(c->getExpr());
+	exit("stmt");
+}
+
+void Model2XML::visit_constraint_if_stmt(IConstraintIf *c) {
+	enter("if");
+	enter("cond");
+	visit_expr(c->getCond());
+	exit("cond");
+	enter("true");
+	visit_constraint_stmt(c->getTrue());
+	exit("true");
+	if (c->getFalse()) {
+		enter("false");
+		visit_constraint_stmt(c->getFalse());
+		exit("false");
+	}
+	exit("if");
+}
+
+void Model2XML::visit_constraint_implies_stmt(IConstraintImplies *c) {
+	enter("implies");
+	enter("cond");
+	visit_expr(c->getCond());
+	exit("cond");
+	enter("body");
+	visit_constraint_stmt(c->getImp());
+	exit("body");
+	exit("implies");
+}
+
+void Model2XML::visit_constraint_block(IConstraintBlock *block) {
+	enter("block");
+	ModelVisitor::visit_constraint_block(block);
+	exit("block");
+
 }
 
 void Model2XML::process_body(
@@ -195,167 +204,105 @@ void Model2XML::process_body(
 		const std::string				&ctxt) {
 	std::vector<IBaseItem *>::const_iterator it = items.begin();
 
-	for (; it!=items.end(); it++) {
-		IBaseItem *i = *it;
-
-		switch (i->getType()) {
-		case IBaseItem::TypeBind:
-			process_bind(dynamic_cast<IBind *>(i));
-			break;
-
-		case IBaseItem::TypeConstraint:
-			process_constraint_block(dynamic_cast<IConstraintBlock *>(i));
-			break;
-
-		case IBaseItem::TypeAction:
-			process_action(dynamic_cast<IAction *>(i));
-			break;
-
-		case IBaseItem::TypeField:
-			process_field(dynamic_cast<IField *>(i));
-			break;
-
-		case IBaseItem::TypeStruct:
-			process_struct(dynamic_cast<IStruct *>(i));
-			break;
-
-		case IBaseItem::TypeExec:
-			process_exec(dynamic_cast<IExec *>(i));
-			break;
-
-		case IBaseItem::TypeImportFunc:
-			process_import_func(dynamic_cast<IImportFunc *>(i));
-			break;
-
-		case IBaseItem::TypeVendor:
-			fprintf(stdout, "Note: Vendor item detected\n");
-			break;
-
-		default:
-			fprintf(stdout, "Error: Unknown body item %d\n", i->getType());
-		}
-	}
+//	for (; it!=items.end(); it++) {
+//		IBaseItem *i = *it;
+//
+//		switch (i->getType()) {
+//		case IBaseItem::TypeBind:
+//			process_bind(dynamic_cast<IBind *>(i));
+//			break;
+//
+//		case IBaseItem::TypeConstraint:
+//			process_constraint_block(dynamic_cast<IConstraintBlock *>(i));
+//			break;
+//
+//		case IBaseItem::TypeAction:
+//			process_action(dynamic_cast<IAction *>(i));
+//			break;
+//
+//		case IBaseItem::TypeField:
+//			process_field(dynamic_cast<IField *>(i));
+//			break;
+//
+//		case IBaseItem::TypeStruct:
+//			process_struct(dynamic_cast<IStruct *>(i));
+//			break;
+//
+//		case IBaseItem::TypeExec:
+//			process_exec(dynamic_cast<IExec *>(i));
+//			break;
+//
+//		case IBaseItem::TypeImportFunc:
+//			process_import_func(dynamic_cast<IImportFunc *>(i));
+//			break;
+//
+//		case IBaseItem::TypeVendor:
+//			fprintf(stdout, "Note: Vendor item detected\n");
+//			break;
+//
+//		default:
+//			fprintf(stdout, "Error: Unknown body item %d\n", i->getType());
+//		}
+//	}
 }
 
-void Model2XML::process_component(IComponent *c) {
 
-	enter(std::string("component name=\"") + c->getName() + "\"");
-
-	// TODO: super type
-//	if (c->getSu)
-
-//	process_comp_pkg_body(c->getItems());
-	process_body(c->getItems(), "component");
-
-	exit("component");
-}
 
 void Model2XML::process_comp_pkg_body(const std::vector<IBaseItem *> &items) {
 	std::vector<IBaseItem *>::const_iterator it=items.begin();
 
-	for (; it!=items.end(); it++) {
-		switch ((*it)->getType()) {
-			case IBaseItem::TypeAction:
-				process_action(dynamic_cast<IAction *>(*it));
-				break;
-
-			case IBaseItem::TypeStruct:
-				process_struct(dynamic_cast<IStruct *>(*it));
-				break;
-		}
-	}
+//	for (; it!=items.end(); it++) {
+//		switch ((*it)->getType()) {
+//			case IBaseItem::TypeAction:
+//				process_action(dynamic_cast<IAction *>(*it));
+//				break;
+//
+//			case IBaseItem::TypeStruct:
+//				process_struct(dynamic_cast<IStruct *>(*it));
+//				break;
+//		}
+//	}
 
 }
 
 void Model2XML::process_constraint_set(IConstraint *c, const char *tag) {
-	if (tag) {
-		enter(tag);
-	}
-
-	if (c->getConstraintType() == IConstraint::ConstraintType_Block) {
-		IConstraintBlock *b = dynamic_cast<IConstraintBlock *>(c);
-		for (std::vector<IConstraint *>::const_iterator it=b->getConstraints().begin();
-				it!=b->getConstraints().end(); it++) {
-			process_constraint(*it);
-		}
-	} else {
-		process_constraint(c);
-	}
-
-	if (tag) {
-		exit(tag);
-	}
+//	if (tag) {
+//		enter(tag);
+//	}
+//
+//	if (c->getConstraintType() == IConstraint::ConstraintType_Block) {
+//		IConstraintBlock *b = dynamic_cast<IConstraintBlock *>(c);
+//		for (std::vector<IConstraint *>::const_iterator it=b->getConstraints().begin();
+//				it!=b->getConstraints().end(); it++) {
+//			process_constraint(*it);
+//		}
+//	} else {
+//		process_constraint(c);
+//	}
+//
+//	if (tag) {
+//		exit(tag);
+//	}
 }
 
-void Model2XML::process_constraint(IConstraint *c) {
-	switch (c->getConstraintType()) {
-	case IConstraint::ConstraintType_Block: {
-		IConstraintBlock *b = dynamic_cast<IConstraintBlock *>(c);
-		println("<block>");
-		inc_indent();
 
-		for (std::vector<IConstraint *>::const_iterator it=b->getConstraints().begin();
-				it!=b->getConstraints().end(); it++) {
-			process_constraint(*it);
-		}
 
-		dec_indent();
-		println("</block>");
-	} break;
-
-	case IConstraint::ConstraintType_Expr:
-		process_expr(dynamic_cast<IConstraintExpr *>(c)->getExpr(), "stmt");
-		break;
-
-	case IConstraint::ConstraintType_If: {
-		IConstraintIf *c_if = dynamic_cast<IConstraintIf *>(c);
-
-		enter("if");
-		enter("cond");
-		process_expr(c_if->getCond());
-		exit("cond");
-
-		process_constraint_set(c_if->getTrue(), "true");
-
-		if (c_if->getFalse()) {
-			process_constraint_set(c_if->getFalse(), "false");
-		}
-
-		exit("if");
-		} break;
-
-	case IConstraint::ConstraintType_Implies: {
-		IConstraintImplies *c_imp = dynamic_cast<IConstraintImplies *>(c);
-
-		enter("implies");
-
-		enter("cond");
-		process_expr(c_imp->getCond());
-		exit("cond");
-
-		process_constraint_set(c_imp->getImp(), "body");
-
-		exit("implies");
-	} break;
-	}
-}
-
-void Model2XML::process_constraint_block(IConstraintBlock *block) {
-	std::vector<IConstraint *>::const_iterator it = block->getConstraints().begin();
-
-	if (block->getName() == "") {
-		enter("constraint");
-	} else {
-		enter("constraint name=\"" + block->getName() + "\"");
-	}
-
-	for (; it!=block->getConstraints().end(); it++) {
-		IConstraint *c = *it;
-		process_constraint(c);
-	}
-
-	exit("constraint");
-}
+//void Model2XML::process_constraint_block(IConstraintBlock *block) {
+////	std::vector<IConstraint *>::const_iterator it = block->getConstraints().begin();
+////
+////	if (block->getName() == "") {
+////		enter("constraint");
+////	} else {
+////		enter("constraint name=\"" + block->getName() + "\"");
+////	}
+////
+////	for (; it!=block->getConstraints().end(); it++) {
+////		IConstraint *c = *it;
+////		process_constraint(c);
+////	}
+////
+////	exit("constraint");
+//}
 
 void Model2XML::process_exec(IExec *exec) {
 	std::string kind_s = "UNKNOWN";
@@ -395,11 +342,17 @@ void Model2XML::process_exec(IExec *exec) {
 					default: op_s = "None"; break;
 					}
 					enter("assign op=\"" + op_s + "\"");
-					process_expr(e_stmt->getLhs(), "lhs");
-					process_expr(e_stmt->getRhs(), "rhs");
+					enter("lhs");
+					visit_expr(e_stmt->getLhs());
+					exit("lhs");
+					enter("rhs");
+					visit_expr(e_stmt->getRhs());
+					exit("rhs");
 					exit("assign");
 				} else {
-					process_expr(e_stmt->getLhs(), "expr");
+					enter("expr");
+					visit_expr(e_stmt->getLhs());
+					exit("expr");
 				}
 			} break;
 			}
@@ -473,126 +426,66 @@ void Model2XML::process_exec(IExec *exec) {
 	exit("exec");
 }
 
-void Model2XML::process_expr(IExpr *e, const char *tag) {
-	if (!e) {
-		fprintf(stdout, "Error: null expression\n");
-		return;
+void Model2XML::visit_binary_expr(IBinaryExpr *be) {
+	std::string op = "<unknown>";
+	switch (be->getBinOpType()) {
+	case IBinaryExpr::BinOp_EqEq: op = "EqEq"; break;
+	case IBinaryExpr::BinOp_NotEq: op = "NotEq"; break;
+	case IBinaryExpr::BinOp_GE: op = "GE"; break;
+	case IBinaryExpr::BinOp_GT: op = "GT"; break;
+	case IBinaryExpr::BinOp_LE: op = "LE"; break;
+	case IBinaryExpr::BinOp_LT: op = "LT"; break;
+	case IBinaryExpr::BinOp_And: op = "And"; break;
+	case IBinaryExpr::BinOp_AndAnd: op = "AndAnd"; break;
+	case IBinaryExpr::BinOp_Or: op = "Or"; break;
+	case IBinaryExpr::BinOp_OrOr: op = "OrOr"; break;
+	case IBinaryExpr::BinOp_Minus: op = "Minus"; break;
+	case IBinaryExpr::BinOp_Plus: op = "Plus"; break;
+	case IBinaryExpr::BinOp_Multiply: op = "Mul"; break;
+	case IBinaryExpr::BinOp_Divide: op = "Div"; break;
+	case IBinaryExpr::BinOp_Mod: op = "Mod"; break;
+	case IBinaryExpr::BinOp_ArrayRef: op = "ArrRef"; break;
 	}
-	if (tag) {
-		enter(tag);
-	}
-	switch (e->getType()) {
-		case IExpr::ExprType_BinOp: {
-			IBinaryExpr *be = dynamic_cast<IBinaryExpr *>(e);
-			std::string op = "<unknown>";
-			switch (be->getBinOpType()) {
-			case IBinaryExpr::BinOp_EqEq: op = "EqEq"; break;
-			case IBinaryExpr::BinOp_NotEq: op = "NotEq"; break;
-			case IBinaryExpr::BinOp_GE: op = "GE"; break;
-			case IBinaryExpr::BinOp_GT: op = "GT"; break;
-			case IBinaryExpr::BinOp_LE: op = "LE"; break;
-			case IBinaryExpr::BinOp_LT: op = "LT"; break;
-			case IBinaryExpr::BinOp_And: op = "And"; break;
-			case IBinaryExpr::BinOp_AndAnd: op = "AndAnd"; break;
-			case IBinaryExpr::BinOp_Or: op = "Or"; break;
-			case IBinaryExpr::BinOp_OrOr: op = "OrOr"; break;
-			case IBinaryExpr::BinOp_Minus: op = "Minus"; break;
-			case IBinaryExpr::BinOp_Plus: op = "Plus"; break;
-			case IBinaryExpr::BinOp_Multiply: op = "Mul"; break;
-			case IBinaryExpr::BinOp_Divide: op = "Div"; break;
-			case IBinaryExpr::BinOp_Mod: op = "Mod"; break;
-			case IBinaryExpr::BinOp_ArrayRef: op = "ArrRef"; break;
-			}
-			enter("binexp op=\"" + op + "\"");
-			process_expr(be->getLHS(), "lhs");
-			process_expr(be->getRHS(), "rhs");
-			exit("binexp");
-			} break;
-
-		case IExpr::ExprType_Literal: {
-			ILiteral *l = dynamic_cast<ILiteral *>(e);
-			std::string tag;
-			char val[64];
-
-			switch (l->getLiteralType()) {
-			case ILiteral::LiteralBit: {
-				sprintf(val, "0x%llx", (long long)l->getBit());
-			} break;
-			case ILiteral::LiteralInt: {
-				sprintf(val, "0x%llx", (long long)l->getInt());
-			} break;
-			case ILiteral::LiteralBool: {
-				if (l->getBool()) {
-					strcpy(val, "true");
-				} else {
-					strcpy(val, "false");
-				}
-			} break;
-			default:
-				strcpy(val, "UNKNOWN");
-			}
-
-			tag = "<pss:number>";
-			tag += val;
-			tag += "</pss:number>";
-
-			println(tag);
-
-			} break;
-
-		case IExpr::ExprType_FieldRef: {
-			const std::vector<IField *> &fields =
-					dynamic_cast<IFieldRef *>(e)->getFieldPath();
-
-			enter("ref");
-
-			for (uint32_t i=0; i<fields.size(); i++) {
-				IField *field = fields.at(i);
-				println(std::string("<pss:path>") + field->getName() + "</pss:path>");
-			}
-			exit("ref");
-			} break;
-
-		case IExpr::ExprType_MethodCall: {
-			IMethodCallExpr *call = dynamic_cast<IMethodCallExpr *>(e);
-			enter("call");
-
-			type2hierarchical_id(call->getFunc(), "function");
-			enter("parameters");
-			for (std::vector<IExpr *>::const_iterator it=call->getParameters().begin();
-					it != call->getParameters().end(); it++) {
-				process_expr(*it, "parameter");
-			}
-			exit("parameters");
-
-			exit("call");
-
-			} break;
-	}
-	if (tag) {
-		exit(tag);
-	}
+	enter("binexp op=\"" + op + "\"");
+	enter("lhs");
+	visit_expr(be->getLHS());
+	exit("lhs");
+	enter("rhs");
+	visit_expr(be->getRHS());
+	exit("rhs");
+	exit("binexp");
 }
 
-void Model2XML::process_extend(IExtend *e) {
-	enter("extend");
-	type2hierarchical_id(e->getTarget(), "type");
+void Model2XML::visit_literal_expr(ILiteral *l) {
+	std::string tag;
+	char val[64];
 
-	std::string tag = "unknown-extend-type";
-	switch (e->getExtendType()) {
-	case IExtend::ExtendType_Action: tag = "action"; break;
-	case IExtend::ExtendType_Component: tag = "component"; break;
-	case IExtend::ExtendType_Struct: tag = "struct"; break;
+	switch (l->getLiteralType()) {
+	case ILiteral::LiteralBit: {
+		sprintf(val, "0x%llx", (long long)l->getBit());
+	} break;
+	case ILiteral::LiteralInt: {
+		sprintf(val, "0x%llx", (long long)l->getInt());
+	} break;
+	case ILiteral::LiteralBool: {
+		if (l->getBool()) {
+			strcpy(val, "true");
+		} else {
+			strcpy(val, "false");
+		}
+	} break;
+	default:
+		strcpy(val, "UNKNOWN");
 	}
 
-	enter(tag);
-	process_body(dynamic_cast<IScopeItem *>(e)->getItems(), "");
-	exit(tag);
+	tag = "<pss:number>";
+	tag += val;
+	tag += "</pss:number>";
 
-	exit("extend");
+	println(tag);
 }
 
-void Model2XML::process_field(IField *f) {
+void Model2XML::visit_field(IField *f) {
 	char msb_s[64], lsb_s[64];
 	std::string tag = std::string("field name=\"") + f->getName() + "\"";
 
@@ -622,11 +515,86 @@ void Model2XML::process_field(IField *f) {
 	type2data_type(f->getDataType());
 
 	if (f->getArrayDim()) {
-		process_expr(f->getArrayDim(), "dim");
+		enter("dim");
+		visit_expr(f->getArrayDim());
+		exit("dim");
 	}
 
 	exit("field");
 }
+
+
+//void Model2XML::process_expr(IExpr *e, const char *tag) {
+//	if (!e) {
+//		fprintf(stdout, "Error: null expression\n");
+//		return;
+//	}
+//	if (tag) {
+//		enter(tag);
+//	}
+//	visit_expr(e);
+//	switch (e->getType()) {
+//		case IExpr::ExprType_BinOp: {
+//
+//			} break;
+//
+//		case IExpr::ExprType_Literal: {
+//
+//
+//			} break;
+//
+//		case IExpr::ExprType_FieldRef: {
+//			const std::vector<IField *> &fields =
+//					dynamic_cast<IFieldRef *>(e)->getFieldPath();
+//
+//			enter("ref");
+//
+//			for (uint32_t i=0; i<fields.size(); i++) {
+//				IField *field = fields.at(i);
+//				println(std::string("<pss:path>") + field->getName() + "</pss:path>");
+//			}
+//			exit("ref");
+//			} break;
+//
+//		case IExpr::ExprType_MethodCall: {
+//			IMethodCallExpr *call = dynamic_cast<IMethodCallExpr *>(e);
+//			enter("call");
+//
+//			type2hierarchical_id(call->getFunc(), "function");
+//			enter("parameters");
+//			for (std::vector<IExpr *>::const_iterator it=call->getParameters().begin();
+//					it != call->getParameters().end(); it++) {
+//				process_expr(*it, "parameter");
+//			}
+//			exit("parameters");
+//
+//			exit("call");
+//
+//			} break;
+//	}
+//	if (tag) {
+//		exit(tag);
+//	}
+//}
+
+void Model2XML::process_extend(IExtend *e) {
+	enter("extend");
+	type2hierarchical_id(e->getTarget(), "type");
+
+	std::string tag = "unknown-extend-type";
+	switch (e->getExtendType()) {
+	case IExtend::ExtendType_Action: tag = "action"; break;
+	case IExtend::ExtendType_Component: tag = "component"; break;
+	case IExtend::ExtendType_Struct: tag = "struct"; break;
+	}
+
+	enter(tag);
+	process_body(dynamic_cast<IScopeItem *>(e)->getItems(), "");
+	exit(tag);
+
+	exit("extend");
+}
+
 
 void Model2XML::process_graph(IActivityStmt *activity) {
 	std::vector<IActivityStmt *>::const_iterator it;
@@ -695,7 +663,9 @@ void Model2XML::process_graph_stmt(IActivityStmt *stmt, const char *tag) {
 		enter(tag);
 
 		if (r->getRepeatType() != IActivityRepeatStmt::RepeatType_Forever) {
-			process_expr(r->getCond(), "expr");
+			enter("expr");
+			visit_expr(r->getCond());
+			exit("expr");
 		}
 
 		process_graph_stmt(r->getBody(), "body");
@@ -848,13 +818,24 @@ void Model2XML::type2data_type(IBaseItem *dt_i, const std::string &tag) {
 				has_bitwidth = false;
 			} else if (st->getScalarType() == IScalarType::ScalarType_String) {
 				tname = "string";
-				has_bitwidth = "false";
+				has_bitwidth = false;
 			}
 
 			if (has_bitwidth) {
 				enter(tname);
-				process_expr(st->getMSB(), "msb");
-				process_expr(st->getLSB(), "lsb");
+
+				if (st->getLSB() && st->getMSB()) {
+					enter("msb");
+					visit_expr(st->getMSB());
+					exit("msb");
+					enter("lsb");
+					visit_expr(st->getLSB());
+					exit("lsb");
+				} else {
+					enter("width");
+					visit_expr(st->getLSB());
+					exit("width");
+				}
 				exit(tname);
 			} else {
 				println(std::string("<pss:") + tname + "/>");
@@ -863,6 +844,19 @@ void Model2XML::type2data_type(IBaseItem *dt_i, const std::string &tag) {
 				dt_i->getType() == IBaseItem::TypeStruct ||
 				dt_i->getType() == IBaseItem::TypeComponent) {
 			type2hierarchical_id(dt_i, "user");
+		} else if (dt_i->getType() == IBaseItem::TypeRefType) {
+			IRefType *rt = dynamic_cast<IRefType *>(dt_i);
+			if (rt->getTargetType()) {
+				type2hierarchical_id(rt->getTargetType(), "user");
+			} else {
+				enter("user resolved=\"false\"");
+				for (std::vector<std::string>::const_iterator it=rt->getTypeId().begin();
+						it!=rt->getTypeId().end(); it++) {
+					println("<pss:path>" + (*it) + "</pss:path>");
+				}
+
+				exit("user");
+			}
 		} else {
 			println("<pss:unknown-type/>");
 		}
@@ -942,9 +936,9 @@ void Model2XML::error(const char *fmt, ...) {
 }
 
 void Model2XML::println(const std::string &str) {
-	m_content.append(m_ind);
-	m_content.append(str);
-	m_content.append("\n");
+	(*m_out) << m_ind;
+	(*m_out) << str;
+	(*m_out) << "\n";
 }
 
 void Model2XML::inc_indent() {

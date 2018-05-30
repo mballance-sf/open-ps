@@ -15,6 +15,7 @@
 #include "PSS2ModelVisitor.h"
 #include "ResolveRefsProcessor.h"
 #include "EntryFinder.h"
+#include "Model2XML.h"
 
 using namespace antlr4;
 
@@ -88,7 +89,9 @@ bool OPSC::elab(
 }
 
 bool OPSC::write(std::ostream &out) {
-	fprintf(stdout, "TODO: QPSC::write\n");
+	Model2XML toxml;
 
-	return false;
+	toxml.convert(out, m_model.get());
+
+	return true;
 }

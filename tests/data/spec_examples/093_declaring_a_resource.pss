@@ -1,0 +1,4 @@
+
+resource DMA_channel_s {
+ rand bit[3:0] priority;
+};

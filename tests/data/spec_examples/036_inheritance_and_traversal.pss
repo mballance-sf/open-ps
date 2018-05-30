@@ -1,0 +1,24 @@
+
+component pss_top {
+ action A { }
+ action B { }
+ action C { }
+ action base {
+ activity {
+ do A;
+ }
+ }
+ action ext1 : base {
+ activity {
+ do B;
+ }
+ }
+ action ext2 : base {
+ activity {
+ super;
+ do C;
+ }
+ }
+}
+
+

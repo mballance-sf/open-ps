@@ -1,0 +1,7 @@
+
+import class base {
+ void base_method();
+}
+import class ext : base {
+ void ext_method();
+}

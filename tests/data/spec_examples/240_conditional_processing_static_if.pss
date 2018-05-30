@@ -1,0 +1,21 @@
+
+package config_pkg {
+ const bool PROTOCOL_VER_1_2 = false;
+}
+
+//<example>
+component top {
+//</example>
+compile if (config_pkg::PROTOCOL_VER_1_2) {
+ action new_flow {
+ activity { /* ... */ }
+ }
+} else {
+ action old_flow {
+ activity { /* ... */ }
+ }
+}
+
+//<example>
+}
+//</example>

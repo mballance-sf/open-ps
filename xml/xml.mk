@@ -46,7 +46,7 @@ endif
 
 else # Rules
 
-$(DLIBPREF)pss_xml$(DLIBEXT) : $(XML_SRC:.cpp=.o)
+$(DLIBPREF)pss_xml$(DLIBEXT) : $(XML_SRC:.cpp=.o) $(MODEL_DEPS)
 	$(Q)$(LINK_DLIB)
 
 ifeq (true,$(IS_WIN))
@@ -67,7 +67,7 @@ libxml2.d : $(PACKAGES_DIR)/libxml2-sources-$(LIBXML2_SRC_VERSION).tar.gz
 	$(Q)cd $(LIBXML2_SRC_DIR) ; $(MAKE) install
 	$(Q)touch $@
 
-$(PACKAGES_DIR)/$(LIBXML2_SRC_DIR).tar.gz :
+$(PACKAGES_DIR)/libxml2-sources-$(LIBXML2_SRC_VERSION).tar.gz :
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(WGET) -O $@ $(LIBXML2_SRC_URL)
 	

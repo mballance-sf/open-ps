@@ -1,0 +1,21 @@
+
+component top {
+function bit is_last_one();
+action do_something {
+bit last_one;
+exec post_solve {
+last_one = comp.is_last_one();
+}
+exec body C = """
+printf("Do Something\n");
+""";
+}
+action entry {
+do_something s1;
+activity {
+repeat {
+s1;
+} while (!s1.last_one);
+}
+}
+}

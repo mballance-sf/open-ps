@@ -1,8 +1,0 @@
-
-// Example: 16.4.4
-
-package known_c_methods {
-
-	import C function generic_methods::compute_expected_value;
-
-}

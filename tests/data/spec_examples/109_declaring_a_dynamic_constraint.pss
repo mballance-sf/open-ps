@@ -1,0 +1,20 @@
+
+//<example>
+component top {
+//</example>
+
+action B {
+ action bit[31:0] addr;
+
+ dynamic constraint dyn_addr1_c {
+ addr in [0x1000..0x1FFF];
+ }
+
+ dynamic constraint dyn_addr2_c {
+ addr in [0x2000..0x2FFF];
+ }
+}
+
+//<example>
+}
+//</example>

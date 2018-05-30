@@ -1,0 +1,16 @@
+
+component pss_top {
+ action A { };
+ action B { };
+ action C { };
+ action entry {
+ activity {
+ schedule {
+ do A;
+ do B;
+ do C;
+ }
+ }
+ }
+}
+

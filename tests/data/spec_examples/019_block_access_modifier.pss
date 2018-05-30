@@ -1,0 +1,10 @@
+
+struct S2 {
+ private:
+ rand int w; // private accessibility
+ rand int x; // private accessibility
+ public rand int y; // public accessibility
+ rand int z; // private accessibility
+ public:
+ rand int s; // public accessibility
+}

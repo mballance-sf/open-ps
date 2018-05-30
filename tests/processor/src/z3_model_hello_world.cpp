@@ -118,12 +118,15 @@ TEST(z3_model,select) {
 				""";
 			}
 			action entry {
+				rand bit[8] count;
 				print1		v1;
 				print2		v2;
 				print3		v3;
 
+				constraint count <= 10 && count > 0;
+
 				activity {
-					repeat (4) {
+					repeat (count) {
 					select {
 						v1;
 						v2;

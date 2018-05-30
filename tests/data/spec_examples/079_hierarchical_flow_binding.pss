@@ -1,0 +1,26 @@
+
+// example
+component top {
+ buffer data_buf { /* ... */ }
+// example
+
+action sub_a {
+ input data_buf din;
+ output data_buf dout;
+}
+action compound_a {
+ input data_buf data_in;
+ output data_buf data_out;
+ sub_a a1, a2;
+ activity {
+ a1;
+ a2;
+ bind a1.dout a2.din;
+ bind data_in a1.din;
+ bind data_out a2.dout;
+ }
+}
+
+// example
+}
+// example

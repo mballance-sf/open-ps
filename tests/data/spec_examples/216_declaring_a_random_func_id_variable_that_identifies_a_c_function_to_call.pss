@@ -1,0 +1,10 @@
+
+component top {
+action A {
+rand bit[1:0] func_id;
+rand bit[3:0] a;
+exec body C = """
+ func_{{func_id}}({{a}});
+""";
+}
+}

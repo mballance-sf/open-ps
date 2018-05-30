@@ -32,6 +32,8 @@
 #include "PSSParser.h"
 #include "ModelVisitor.h"
 #include "ModelImpl.h"
+#include "Model2XML.h"
+#include "OPSC.h"
 
 using namespace antlr4;
 
@@ -72,6 +74,7 @@ public:
 TEST_P(pss_processor,spec_examples) {
 	CheckRefsResolvedVisitor v;
 	ResolveRefsProcessor	 refs_processor;
+	OPSC opsc;
 	IModel *model = new ModelImpl();
 
 //	fprintf(stdout, "--> %s\n", GetParam().second.c_str());
@@ -79,24 +82,34 @@ TEST_P(pss_processor,spec_examples) {
 	std::ifstream in(GetParam().second);
 	ASSERT_EQ(true, in.is_open());
 
-	if (in.is_open()) {
-		ANTLRInputStream input(in);
-		PSSLexer lexer(&input);
 
-		CommonTokenStream tokens(&lexer);
-		PSSParser parser(&tokens);
-		PSSParser::ModelContext *ctxt = parser.model();
+	ASSERT_TRUE(opsc.parse(in, GetParam().second));
 
-		ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
+	ASSERT_TRUE(opsc.link());
 
-		PSS2ModelVisitor pss2psi(model, GetParam().second);
-		pss2psi.visitModel(ctxt);
-
-//		GTEST_TEST_BOOLEAN_()
-		ASSERT_TRUE(refs_processor.process(model));
-
-		v.visit_model(model);
-	}
+//	if (in.is_open()) {
+//
+//		ANTLRInputStream input(in);
+//		PSSLexer lexer(&input);
+//
+//		CommonTokenStream tokens(&lexer);
+//		PSSParser parser(&tokens);
+//		PSSParser::ModelContext *ctxt = parser.model();
+//
+//		ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
+//
+//		PSS2ModelVisitor pss2psi(model, GetParam().second);
+//		pss2psi.visitModel(ctxt);
+//
+////		GTEST_TEST_BOOLEAN_()
+//		ASSERT_TRUE(refs_processor.process(model));
+//
+//		v.visit_model(model);
+//
+//		Model2XML m2x;
+//		std::string xml = m2x.convert(model);
+//		fprintf(stdout, "XML:\n%s\n", xml.c_str());
+//	}
 
 //	fprintf(stdout, "<-- %s\n", GetParam().second.c_str());
 
@@ -107,7 +120,8 @@ static std::vector<TestParam> ReadTestCasesFromDisk() {
 	std::vector<TestParam> ret;
 	struct dirent *ent;
 	DIR *spec_examples;
-	const char *spec_examples_dir = ::getenv("SPEC_EXAMPLES");
+//	const char *spec_examples_dir = ::getenv("SPEC_EXAMPLES");
+	const char *spec_examples_dir = DATA_DIR(TESTS_DATA_DIR, "/spec_examples");
 
 	EXPECT_TRUE((spec_examples_dir != 0));
 

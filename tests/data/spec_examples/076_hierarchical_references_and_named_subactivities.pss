@@ -1,0 +1,42 @@
+
+//<example>
+component top {
+//</example>
+
+action A { rand int x; };
+action B {
+ A a;
+ activity {
+ a;
+ my_seq: sequence {
+ A a;
+ a;
+ parallel {
+	 my_rep: repeat (3) {
+	 	A a;
+	 	a;
+	 };
+	 
+	 sequence { A a; a; }; // this 'a' is declared in unnamed scope
+	 A a; // can't be accessed from outside
+	a;
+ };
+};
+};
+};
+ 
+action C {
+ B b1, b2;
+ constraint b1.a.x == 1;
+ constraint b1.my_seq.a.x == 2;
+ constraint b1.my_seq.my_rep.a.x == 3; // applies to all three iterations
+ // of the loop
+ activity {
+ b1;
+ b2 with { my_seq.my_rep.a.x == 4; }; // likewise
+ }
+};
+
+//<example>
+}
+//</example>

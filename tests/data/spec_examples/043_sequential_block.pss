@@ -1,0 +1,19 @@
+
+// example
+component top {
+action A { /* ... */ }
+action B { /* ... */ }
+// example
+
+action my_test {
+ A a;
+ B b;
+ activity {
+ a;
+ b;
+ }
+};
+
+// example
+}
+// example

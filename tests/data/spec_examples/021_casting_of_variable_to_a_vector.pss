@@ -1,0 +1,13 @@
+
+package external_fn_pkg {
+ enum align_e {byte_aligned=1, short_aligned = 2, word_aligned=4};
+ function bit[31:0] alloc_addr(bit[31:0] size, bit[3:0] align);
+ buffer mem_seg_s {
+ rand bit[31:0] size;
+ bit[31:0] addr;
+ align_e al;
+ exec post_solve {
+ addr = alloc_addr(size, (bit[3:0])al);
+ }
+ }
+}

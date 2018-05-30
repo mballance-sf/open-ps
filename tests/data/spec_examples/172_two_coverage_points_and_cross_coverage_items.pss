@@ -1,0 +1,8 @@
+
+enum color_e {red, green, blue};
+struct s {
+rand color_e color;
+covergroup {
+c : coverpoint color;
+} cs1;
+}

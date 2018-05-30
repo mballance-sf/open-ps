@@ -1,0 +1,26 @@
+
+
+//<example>
+component top {
+//</example>
+
+action A {
+ rand bit[3:0] val;
+}
+
+action my_action {
+ A a, b, c;
+ constraint abc_c {
+ a.val < b.val;
+ b.val < c.val;
+ }
+ activity {
+ a;
+ b;
+ c;
+ }
+}
+
+//<example>
+}
+//</example>

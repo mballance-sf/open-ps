@@ -124,24 +124,27 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 
 	// First, determine the total number of variable bits and the
 	// initial number of hash bits
-	uint32_t total_bits = 0;
-	for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
-			it!=vars.end(); it++) {
-		if (!(*it)->fixed()) {
-			total_bits += (*it)->bits();
-		}
-	}
-
 	uint32_t hash_bits = 20;
-	if (total_bits == 0) {
+
+	if (vars.size() == 0) {
 		fprintf(stdout, "Error: no random variables\n");
-	} else {
+	} else if (vars.size() > 1) {
+		uint32_t total_bits = 0;
+		for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
+				it!=vars.end(); it++) {
+			if (!(*it)->fixed()) {
+				total_bits += (*it)->bits();
+			}
+		}
+
 		// At least one hash bit, but no more than 20
 		hash_bits = ((total_bits-1)/4)+1;
 
 		if (hash_bits > 20) {
 			hash_bits = 20;
 		}
+	} else {
+		hash_bits = vars.at(0)->bits();
 	}
 
 	for (uint32_t i=0; i<100; i++) {
@@ -149,6 +152,7 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 
 		Z3_ast term = 0;
 
+		if (vars.size() > 1) {
 		for (std::vector<Z3ModelVar *>::const_iterator it=vars.begin();
 				it!=vars.end(); it++) {
 			if (!(*it)->fixed()) {
@@ -172,17 +176,25 @@ bool Z3Model::solve(const std::vector<Z3ModelVar *> &vars) {
 					term = this_t;
 				}
 			}
+			if (term) {
+				Z3_ast sum = Z3_mk_extract(m_ctxt, (hash_bits-1), 0, term);
+				uint64_t hash = m_lfsr.next();
+				//		fprintf(stdout, "Hash[7:0]=0x%08x\n", (uint32_t)(hash & ((1 << hash_bits)-1)));
+				Z3_ast eq = Z3_mk_eq(m_ctxt, sum,
+						Z3_mk_unsigned_int64(m_ctxt, hash, Z3_mk_bv_sort(m_ctxt, hash_bits)));
+
+				Z3_solver_assert(m_ctxt, m_solver, eq);
+			}
 		}
-
-		if (term) {
-			Z3_ast sum = Z3_mk_extract(m_ctxt, (hash_bits-1), 0, term);
+		} else { // single variable
+			Z3_ast low = Z3_mk_extract(m_ctxt, (hash_bits-1), 0, vars.at(0)->var());
 			uint64_t hash = m_lfsr.next();
-//		fprintf(stdout, "Hash[7:0]=0x%08x\n", (uint32_t)(hash & ((1 << hash_bits)-1)));
-			Z3_ast eq = Z3_mk_eq(m_ctxt, sum,
-				Z3_mk_unsigned_int64(m_ctxt, hash, Z3_mk_bv_sort(m_ctxt, hash_bits)));
-
+			fprintf(stdout, "Single Var: hash=%llx hash_bits=%d\n", hash, hash_bits);
+			Z3_ast eq = Z3_mk_eq(m_ctxt, low,
+					Z3_mk_unsigned_int64(m_ctxt, hash, Z3_mk_bv_sort(m_ctxt, hash_bits)));
 			Z3_solver_assert(m_ctxt, m_solver, eq);
 		}
+
 
 		result = Z3_solver_check(m_ctxt, m_solver);
 		if (result == Z3_L_TRUE) {

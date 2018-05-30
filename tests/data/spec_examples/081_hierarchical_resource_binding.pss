@@ -1,0 +1,31 @@
+
+// example
+component top {
+  resource reslk_r { /* ... */ }
+  resource resshr_r { /* ... */ }
+// example
+
+action sub_a {
+ lock reslk_r rlkA, rlkB;
+ share resshr_r rshA, rshB;
+}
+
+action compound_a {
+ lock reslk_r crlkA, crlkB;
+ share resshr_r crshA, crshB;
+ sub_a a1, a2;
+ activity {
+ schedule {
+ a1;
+ a2;
+ }
+ bind crlkA {a1.rlkA, a2.rlkA};
+ bind crshA {a1.rshA, a2.rshA};
+ bind crlkB {a1.rlkB, a2.rshB};
+ bind crshB {a1.rshB, a2.rlkB}; //illegal
+ }
+}
+
+// example
+}
+// example

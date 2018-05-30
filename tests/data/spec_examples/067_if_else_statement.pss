@@ -1,0 +1,22 @@
+
+// example
+component top {
+ action A { /* ... */ }
+ action B { /* ... */ }
+// example
+
+action my_test {
+ rand int in [1..10] x;
+ A a;
+ B b;
+ activity {
+ if (x > 5)
+ a;
+ else
+ b;
+ }
+};
+
+// example
+}
+// example

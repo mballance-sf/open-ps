@@ -1,0 +1,22 @@
+
+function bit[3:0] compute_val1(bit[3:0] v);
+function bit[3:0] compute_val2(bit[3:0] v);
+component pss_top {
+
+ action A {
+ rand bit[3:0] x;
+ bit[3:0] y1, y2;
+
+ constraint assume_y_c {
+ y1 >= x && y1 <= x+2;
+ y2 >= x && y2 <= x+3;
+
+ y1 <= y2;
+ }
+
+ exec body {
+ y1 = compute_val1(x);
+ y2 = compute_val2(x);
+ }
+ }
+}

@@ -1,0 +1,17 @@
+
+//<example>
+component top {
+//</example>
+
+action sub_a {/* ... */};
+action compound_a {
+ sub_a a1, a2;
+ activity {
+ a1;
+ a2;
+ }
+}
+
+//<example>
+}
+//</example>

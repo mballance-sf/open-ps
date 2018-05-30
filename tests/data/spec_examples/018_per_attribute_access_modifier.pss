@@ -1,0 +1,6 @@
+
+struct S1 {
+ rand int a; // public accessibility (default)
+ private rand int b; // private accessibility
+ rand int c; // public accessibility (default)
+}

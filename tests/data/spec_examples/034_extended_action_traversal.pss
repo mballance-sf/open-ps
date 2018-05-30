@@ -1,0 +1,22 @@
+
+component pss_top {
+ action A { };
+ action B { };
+ action C { };
+ action entry {
+ activity {
+ do A;
+ }
+ }
+ extend action entry {
+ activity {
+ do B;
+ }
+ }
+ extend action entry {
+ activity {
+ do C;
+ }
+ }
+}
+

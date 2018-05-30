@@ -1,0 +1,18 @@
+
+enum obj_type_e {my_int8,my_int16,my_int32,my_int64};
+function string get_unique_obj_name();
+import solve function get_unique_obj_name;
+
+buffer mem_buff_s {
+ rand obj_type_e obj_type;
+ string obj_name;
+
+ exec post_solve {
+ obj_name = get_unique_obj_name();
+ }
+
+ // declare an object in global space
+ exec declaration C = """
+ static {{obj_type}} {{obj_name}};
+ """;
+};

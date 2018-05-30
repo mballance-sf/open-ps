@@ -1,0 +1,32 @@
+
+// example
+component top {
+// example
+
+action A {};
+action B {
+ int x;
+ activity {
+ L1: parallel { // 'L1' is 1st level named sub-activity
+ if (x > 10) {
+ L2: { // 'L2' is 2nd level named sub-activity
+ A a;
+ a;
+ }
+ {
+ A a; // OK - this is a separate naming scope for variables
+ a;
+ }
+ }
+ L2: { // Error - this 'L2' conflicts with 'L2' above
+ A a;
+ a;
+ }
+ }
+ }
+};
+
+// example
+}
+// example
+

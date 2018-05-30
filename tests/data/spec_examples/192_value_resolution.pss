@@ -1,0 +1,15 @@
+
+struct s {
+rand bit[3] p1;
+int [3] p2;
+covergroup c1 {
+coverpoint p1 {
+bins b1 = [1, 2..5, 6..10];
+bins b2 = [-1, 1..10, 15];
+}
+coverpoint p2 {
+bins b3 = [1, 2..5, 6..10];
+bins b4 = [-1, 1..10, 15];
+}
+}
+}

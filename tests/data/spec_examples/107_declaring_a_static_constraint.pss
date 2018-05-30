@@ -1,0 +1,16 @@
+
+//<example>
+component top {
+//</example>
+
+action A {
+ rand bit[31:0] addr;
+
+ constraint addr_c {
+ addr == 0x1000;
+ }
+}
+
+//<example>
+}
+//</example>

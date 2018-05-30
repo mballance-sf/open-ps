@@ -1,0 +1,15 @@
+
+component usb_c {
+ action write {/* ... */}
+}
+component uart_c {
+ action write {/* ... */}
+}
+component pss_top {
+ uart_c s1;
+ usb_c s2;
+ action entry {
+ uart_c::write wr; //refers to the write action in uart_c
+ // ...
+ }
+}

@@ -1,0 +1,34 @@
+
+component vid_pipe_c { 
+//<example>
+ action program { /* ... */ }
+//</example>
+/* ... */ 
+};
+
+component codec_c {
+ vid_pipe_c pipeA, pipeB;
+ bit mode1_enable;
+
+ 
+ action decode {
+ 	rand bit mode;
+ 
+	constraint set_mode {
+		comp.mode1_enable==0 -> mode == 0;
+	}
+	
+	activity {
+ 		do vid_pipe_c::program with { comp == this.comp.pipeA; };
+	}
+ 
+  };
+};
+
+component multimedia_ss_c {
+ codec_c codecs[2];
+ exec init {
+	codecs[0].mode1_enable = 0;
+	codecs[1].mode1_enable = 1;
+ };
+};

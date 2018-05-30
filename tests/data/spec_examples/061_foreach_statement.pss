@@ -1,0 +1,23 @@
+
+// example
+component top {
+// example
+
+action my_action1 {
+ rand bit in [0..3] val;
+ // ...
+}
+action my_test {
+ rand bit [4] in [0..3] a[16];
+ my_action1 action1;
+
+ activity {
+ foreach (a[j]) {
+ action1 with { action1.val <= a[j]; };
+ }
+ }
+};
+
+// example
+}
+// example

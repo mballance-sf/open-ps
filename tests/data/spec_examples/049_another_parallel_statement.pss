@@ -1,0 +1,27 @@
+
+// example
+component top {
+// example
+
+resource R{ /* ... */}
+
+pool [4] R R_pool;
+
+bind R_pool *;
+
+action A { lock R r; }
+action B {}
+action C {}
+action D { lock R r;}
+action my_test {
+activity {
+parallel {
+{do A; do B;}
+{do C; do D;}
+}
+}
+}
+
+// example
+}
+// example

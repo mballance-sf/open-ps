@@ -1,0 +1,31 @@
+
+component pss_top {
+ state config_s {};
+ pool config_s config_var;
+ bind config_var *;
+ buffer data_buff_s {};
+ pool data_buff_s data_mem;
+ bind data_mem *;
+ stream data_stream_s {};
+ pool data_stream_s data_bus;
+ bind data_bus *;
+ action setup_A {
+ output config_s new_cfg;
+ };
+ action setup_B {
+ output config_s new_cfg;
+ };
+ action load_data {
+ input config_s curr_cfg;
+ constraint !curr_cfg.initial;
+ output data_buff_s out_data;
+ };
+ action send_data {
+ input data_buff_s src_data;
+ output data_stream_s out_data;
+ };
+ action receive_data {
+ input data_stream_s in_data;
+ };
+};
+

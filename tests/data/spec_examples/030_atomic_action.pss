@@ -1,0 +1,16 @@
+
+//<example>
+component top {
+buffer data_buf { /* ... */ }
+//</example>
+action write {
+ output data_buf data;
+ rand int size;
+ // implementation details
+ // ...
+};
+
+
+//<example>
+}
+//</example>

@@ -1,0 +1,9 @@
+
+struct s {
+rand bit[4] a;
+covergroup {
+coverpoint a {
+illegal_bins illegal_vals = [7, 8];
+}
+} cs23;
+}

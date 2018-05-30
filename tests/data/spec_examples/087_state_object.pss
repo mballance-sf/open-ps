@@ -1,0 +1,6 @@
+
+enum mode_e { /* ... */ };
+state config_s {
+ rand mode_e mode;
+ /* ... */
+};

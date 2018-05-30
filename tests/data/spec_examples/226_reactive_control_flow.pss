@@ -1,0 +1,28 @@
+
+component my_ip_c {
+ function int sample_DUT_state();
+ import target C function sample_DUT_state;
+ // specify mapping to target C function by that same name
+ action check_state {
+ int curr_val;
+ exec body {
+ curr_val = comp.sample_DUT_state();
+ // value only known during execution on target platform
+ }
+ };
+ action A { };
+ action B { };
+ action my_test {
+ check_state cs;
+ activity {
+ repeat {
+ cs;
+ if (cs.curr_val % 2 == 0) {
+ do A;
+ } else {
+ do B;
+ }
+ } while (cs.curr_val < 10);
+ }
+ };
+};

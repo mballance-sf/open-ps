@@ -1,0 +1,11 @@
+
+covergroup cs1 (bit[64] a_var, bit[64] b_var) {
+option.per_instance = 1;
+option.comment = "This is CS1";
+a : coverpoint a_var {
+option.auto_bin_max = 128;
+}
+b : coverpoint b_var {
+option.weight = 10;
+}
+}

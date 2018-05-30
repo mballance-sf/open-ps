@@ -1,0 +1,25 @@
+
+//<example>
+component top {
+//</example>
+
+ action send_pkt {
+ rand bit[15:0] pkt_sz;
+ constraint pkt_sz_c { pkt_sz > 0; }
+ constraint interesting_sz_c { small_pkt_c || jumbo_pkt_c; }
+ dynamic constraint small_pkt_c { pkt_sz >= 100; }
+ dynamic constraint jumbo_pkt_c {pkt_sz > 1500; }
+ }
+ action scenario {
+ activity {
+ do send_pkt; // Send a packet with size in [1..100, 1500..65535]
+ do send_pkt with {pkt_sz >= 100; }; // Send a small packet with
+ // a directly-specified inline constraint
+ do send_pkt with {small_pkt_c; }; // Send a small packet by
+ // referencing a dynamic constraint
+ }
+ }
+ 
+//<example>
+}
+//</example>

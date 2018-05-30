@@ -14,6 +14,9 @@ endif
 
 ifneq (1,$(RULES))
 
+PACKAGES += $(PACKAGES_DIR)/z3-$(Z3_VERSION)-x64-win.zip
+PACKAGES += $(PACKAGES_DIR)/z3-$(Z3_VERSION)-x64-ubuntu-14.04.zip
+
 # LIB_TARGETS += $(PACKAGES_DIR)/$(Z3_ZIP)
 PROCESSOR_DEPS = $(DLIBPREF)pss_processor$(DLIBEXT)
 UNPACK_TARGETS += $(BUILD_DIR)/z3.unpack
@@ -45,9 +48,13 @@ $(BUILD_DIR)/z3.unpack : $(PACKAGES_DIR)/$(Z3_ZIP)
 	$(Q)cd $(BUILD_DIR) ; $(UNZIP) $^
 	$(Q)touch $@
 
-$(PACKAGES_DIR)/$(Z3_ZIP) : 
+$(PACKAGES_DIR)/z3-$(Z3_VERSION)-x64-win.zip :
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
-	$(Q)$(WGET) -O $@ $(Z3_URL)/$(Z3_ZIP)
+	$(Q)$(WGET) -O $@ $(Z3_URL)/z3-$(Z3_VERSION)-x64-win.zip
+	
+$(PACKAGES_DIR)/z3-$(Z3_VERSION)-x64-ubuntu-14.04.zip :
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(Q)$(WGET) -O $@ $(Z3_URL)/z3-$(Z3_VERSION)-x64-ubuntu-14.04.zip
 
 endif
 

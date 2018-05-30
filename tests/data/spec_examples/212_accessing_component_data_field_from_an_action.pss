@@ -1,0 +1,29 @@
+
+component sub_c {
+bit[31:0] base_addr = 0x1000;
+action A {
+exec body {
+// reference base_addr in context component
+activate(comp.base_addr + 0x16);
+// activate() is an imported function
+}
+}
+}
+component pss_top {
+sub_c s1, s2;
+exec init {
+s1.base_addr = 0x1000;
+s2.base_addr = 0x2000;
+}
+action entry {
+sub_c::A a;
+activity {
+repeat (2) {
+a; // Runs sub_c::A with 0x1000 as base_addr when
+// associated with s1
+// Runs sub_c::A with 0x2000 as base_addr when
+// associated with s2;
+}
+}
+}
+}

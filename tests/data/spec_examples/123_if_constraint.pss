@@ -1,0 +1,11 @@
+struct if_else_s {
+ rand bit[7:0] a, b;
+
+ constraint ab_c {
+ if (a > 5) {
+ b == 1;
+ } else {
+ b < a;
+ }
+ }
+}

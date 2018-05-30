@@ -70,8 +70,8 @@ void Z3ModelBuildAction::visit_activity_select_stmt(IActivitySelectStmt *s) {
 								eb.mk_int(s->getBranches().size()))
 			);
 	m_builder->add_assert(select_c);
-	Z3ExprTerm tmp = eb.mk_eq(sv_e, eb.mk_int(s->getBranches().size()-1));
-	m_builder->add_assert(tmp);
+//	Z3ExprTerm tmp = eb.mk_eq(sv_e, eb.mk_int(s->getBranches().size()-1));
+//	m_builder->add_assert(tmp);
 
 	// Build each branch, and the conditions under which
 	// the branch may be executed

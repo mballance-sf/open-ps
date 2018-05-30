@@ -1,0 +1,23 @@
+
+
+//<example>
+component top {
+//</example>
+
+action A {
+ rand bit[3:0] a;
+ }
+
+ action B {
+ action bit[3:0] a_bit;
+ A a_1;
+
+ activity {
+ a_bit;
+ a_1;
+ }
+ }
+ 
+//<example>
+}
+//</example>

@@ -1,0 +1,9 @@
+
+struct s {
+rand bit[8] x;
+covergroup {
+a: coverpoint x {
+bins mod3[] = a with (item % 3 == 0);
+}
+} cs;
+}

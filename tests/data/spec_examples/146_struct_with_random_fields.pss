@@ -1,0 +1,8 @@
+
+struct abc_s {
+rand bit[4] in [0..15] a_val, b_val, c_val;
+constraint {
+a_val < b_val;
+b_val < c_val;
+}
+}

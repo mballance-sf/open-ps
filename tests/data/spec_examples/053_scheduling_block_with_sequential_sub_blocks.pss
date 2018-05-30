@@ -1,0 +1,22 @@
+
+// example
+component top {
+// example
+
+action A {}
+action B {}
+action C {}
+action D {}
+action my_test {
+activity {
+schedule {
+{do A; do B;}
+{do C; do D;}
+}
+}
+}
+
+
+// example
+}
+// example

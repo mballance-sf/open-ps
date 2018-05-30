@@ -1,0 +1,21 @@
+
+// example
+component top {
+ action my_action1 { /* ... */ }
+ action my_action2 { /* ... */ }
+// example
+
+action my_test {
+ my_action1 action1;
+ my_action2 action2;
+ activity {
+ select {
+ action1;
+ action2;
+ }
+ }
+}
+
+// example
+}
+// example

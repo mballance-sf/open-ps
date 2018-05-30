@@ -1,0 +1,27 @@
+
+enum mode_e { M0, M1, M2 }
+buffer b1 {
+rand mode_e mode;
+covergroup {
+option.per_instance = true;
+coverpoint mode;
+} cs;
+}
+component pss_top {
+pool b1 b1_p;
+bind b1_p *;
+action P_a {
+output b1 b1_out;
+}
+action C_a {
+input b1 b1_in;
+}
+action entry {
+activity {
+repeat (10) {
+do C_a;
+}
+}
+}
+}
+

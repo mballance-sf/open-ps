@@ -55,7 +55,7 @@ StructImpl::StructImpl(
 	} else if (t == IStruct::Resource) {
 		IField *field = new FieldImpl("instance_id",
 				new ScalarTypeImpl(IScalarType::ScalarType_Bit,
-						new LiteralImpl((uint64_t)32), 0, 0),
+						0, new LiteralImpl((uint64_t)32), 0),
 				IField::FieldAttr_Rand, 0);
 		add(field);
 	}

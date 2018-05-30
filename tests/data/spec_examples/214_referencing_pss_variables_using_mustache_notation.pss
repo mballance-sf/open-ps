@@ -1,0 +1,13 @@
+
+component top {
+struct S {
+rand int b;
+}
+action A {
+rand int a;
+rand S s1;
+exec body C = """
+ printf("a={{a}} s1.b={{s1.b}} a+b={{a+s1.b}}\n");
+""";
+}
+}

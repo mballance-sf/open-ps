@@ -1,0 +1,19 @@
+
+//<example>
+component top {
+//</example>
+resource DMA_channel_s {
+ rand bit[3:0] priority;
+};
+
+resource CPU_core_s { /* ... */ };
+action two_chan_transfer {
+ lock DMA_channel_s chan_A;
+ lock DMA_channel_s chan_B;
+ share CPU_core_s ctrl_core;
+ /* ... */
+};
+
+//<example>
+}
+//</example>

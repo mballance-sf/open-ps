@@ -1,8 +1,0 @@
-
-// Example: 13.7.5
-
-coverspec size_cs (bit[12] size) {
-	size_cp : coverpoint size {
-		bins size_bins [0..1000]/4 [1001..4095]/8;
-	}
-}

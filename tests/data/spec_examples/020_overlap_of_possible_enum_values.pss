@@ -1,0 +1,20 @@
+
+//<example>
+component top {
+//</example>
+	
+enum config_modes_e {UNKNOWN, MODE_A=10, MODE_B=20};
+enum foo_e {A=10, B, C};
+
+action my_a {
+ rand config_modes_e cfg;
+ rand foo_e foo;
+ constraint cfg == (config_modes_e)11; // illegal
+ constraint cfg == (config_modes_e)foo; // cfg==MODE_A,
+ // the only value in the numeric domain of both cfg and foo
+ // ...
+}
+
+//<example>
+}
+//</example>

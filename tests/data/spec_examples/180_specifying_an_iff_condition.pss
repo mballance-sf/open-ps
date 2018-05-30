@@ -1,0 +1,8 @@
+
+struct s {
+rand bit[3:0] s0;
+rand bit is_s0_enabled;
+covergroup {
+coverpoint s0 iff (is_s0_enabled);
+} cs4;
+}

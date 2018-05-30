@@ -152,6 +152,9 @@
     <complexType name="action_declaration">
     	<complexContent>
     		<extension base="pss:action_body">
+		<sequence minOccurs="0" maxOccurs="1">
+  				<element name="super" type="pss:type_identifier"/>
+		</sequence>
 		    	<attribute name="name" type="string"></attribute>
     			<attribute name="abstract" type="boolean"/>
     		</extension>
@@ -160,7 +163,9 @@
     
     <complexType name="action_body">
 	   	<choice maxOccurs="unbounded" minOccurs="0">
+	   	<!--
     		<element name="super" type="pss:hierarchical_id"/>
+    	-->
     		
     		<element name="activity" type="pss:activity_declaration"/>
     		<!-- TODO:
@@ -329,7 +334,7 @@
 	<complexType name="struct_declaration">
 		<sequence minOccurs="1" maxOccurs="1">
 		<sequence minOccurs="0" maxOccurs="1">
-			<element name="super" type="pss:hierarchical_id"/>
+			<element name="super" type="pss:type_identifier"/>
 		</sequence>
 		<choice minOccurs="0" maxOccurs="unbounded">
 			
@@ -433,6 +438,9 @@
 	<complexType name="component_declaration">
 		<complexContent>
 			<extension base="pss:component_body">
+				<sequence minOccurs="0" maxOccurs="1">
+					<element name="super" type="pss:type_identifier"/>
+				</sequence>
 				<attribute name="name" type="string" use="required"/>
 			</extension>
 		</complexContent>
@@ -440,7 +448,9 @@
 	
 	<complexType name="component_body">
 		<choice minOccurs="0" maxOccurs="unbounded">
+		<!-- 
 			<element name="super" type="pss:hierarchical_id"/>
+		-->
 		
 			<!-- TODO:
 			<element name="overrides" type="pss:overrides_declaration"/>
@@ -587,10 +597,13 @@
 	<complexType name="string_type"/>
 	
 	<complexType name="integer_type">
+		<choice minOccurs="0" maxOccurs="1">
 		<sequence minOccurs="0" maxOccurs="1">
 			<element name="msb" type="pss:expression"/>
 			<element name="lsb" type="pss:expression"/>
 		</sequence>
+		<element name="width" type="pss:expression"/>
+		</choice>
 	</complexType>
 	
 	<complexType name="bit_type">
@@ -603,7 +616,9 @@
 	<!-- TODO: is this too verbose? -->
 	<complexType name="user_defined_type">
 		<complexContent>
-			<extension base="pss:hierarchical_id"/>
+			<extension base="pss:hierarchical_id">
+			<attribute name="resolved" type="string" use="optional"/>
+			</extension>
 		</complexContent>
 	</complexType>	
 	
@@ -809,7 +824,12 @@
 	<simpleType name="number">
 		<restriction base="string"/>
 	</simpleType>
-	
 
+
+    <complexType name="type_identifier">
+    	<sequence minOccurs="1" maxOccurs="unbounded">
+    		<element name="path" type="string"/>
+    	</sequence>
+    </complexType>
 </schema>
 

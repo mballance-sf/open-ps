@@ -1,8 +1,0 @@
-
-// Example: 16.2
-
-package generic_methods {
-	function int compute_value(
-		int val,
-		output int out_val);
-}

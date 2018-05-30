@@ -1,0 +1,18 @@
+
+component top{
+ buffer B {int a;};
+ action P {
+ output B out;
+ };
+ action C {
+ input B inp;
+ };
+ action T {
+ P p;
+ C c;
+ activity {
+ p; c;
+ bind p.out c.inp;
+ };
+ }
+};
