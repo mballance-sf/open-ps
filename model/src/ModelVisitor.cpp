@@ -256,9 +256,6 @@ void ModelVisitor::visit_expr(IExpr *e) {
 		case IExpr::ExprType_BinOp:
 			visit_binary_expr(dynamic_cast<IBinaryExpr *>(e));
 			break;
-		case IExpr::ExprType_FieldRef:
-			visit_fieldref_expr(dynamic_cast<IFieldRef *>(e));
-			break;
 		case IExpr::ExprType_Literal:
 			visit_literal_expr(dynamic_cast<ILiteral *>(e));
 			break;
@@ -310,10 +307,6 @@ void ModelVisitor::visit_extend_enum(IExtendEnum *e) {
 void ModelVisitor::visit_binary_expr(IBinaryExpr *be) {
 	visit_expr(be->getLHS());
 	visit_expr(be->getRHS());
-}
-
-void ModelVisitor::visit_fieldref_expr(IFieldRef *ref) {
-
 }
 
 void ModelVisitor::visit_in_expr(IInExpr *in) {
@@ -665,22 +658,6 @@ std::string ModelVisitor::type2string(IBaseItem *it) {
 		}
 
 		it = it->getParent();
-	}
-
-	return ret;
-}
-
-std::string ModelVisitor::path2string(IFieldRef *f) {
-	std::string ret;
-	std::vector<IField *>::const_iterator it;
-
-	for (it=f->getFieldPath().begin(); it!=f->getFieldPath().end(); ) {
-		IField *field = *(it);
-		ret += field->getName();
-		it++;
-		if (it != f->getFieldPath().end()) {
-			ret += ".";
-		}
 	}
 
 	return ret;

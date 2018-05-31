@@ -1051,7 +1051,7 @@ package_identifier: type_identifier ;
 
 action_type_identifier: type_identifier;
 
-type_identifier : (explicit_global='::')? ID ('::' ID)* ;
+type_identifier: (explicit_global='::')? ID ('::' ID)* ;
 
 hierarchical_id:
 	identifier ('.' identifier)*

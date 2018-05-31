@@ -27,7 +27,10 @@ XML_SRC=$(notdir $(XML_SRC_FULL))
 
 SRC_DIRS += $(XML_DIR)/src
 
-XML_DEPS := $(DLIBPREF)pss_xml$(DLIBEXT)
+LIBXML2_DEPS = $(PLATFORM_LIB_DIR)/$(DLIBPREF)xml2$(DLIBEXT)
+LIBZLIB_DEPS = $(PLATFORM_LIB_DIR)/$(DLIBPREF)z$(DLIBEXT)
+
+XML_DEPS += $(PLATFORM_LIB_DIR)/$(DLIBPREF)pss_xml$(DLIBEXT) $(LIBXML2_DEPS) $(LIBZLIB_DEPS)
 
 ifeq (true,$(IS_WIN))
 ifeq (gcc,$(COMPILER))
@@ -38,7 +41,7 @@ endif
 
 else # Linux
 
-XML_DEPS = $(XML_SRC:.cpp=.o) $(LIBXML2_SRC_DIR)/output/lib/libxml2.so $(ZLIB_SRC_DIR)/output/lib/libzlib.so
+#XML_DEPS = $(XML_SRC:.cpp=.o) $(LIBXML2_SRC_DIR)/output/lib/libxml2.so $(ZLIB_SRC_DIR)/output/lib/libzlib.so
 CXXFLAGS += -I$(LIBXML2_SRC_DIR)/output/include -I$(ZLIB_SRC_DIR)/output/include
 
 
@@ -46,18 +49,26 @@ endif
 
 else # Rules
 
-$(DLIBPREF)pss_xml$(DLIBEXT) : $(XML_SRC:.cpp=.o) $(MODEL_DEPS)
+$(PLATFORM_LIB_DIR)/$(DLIBPREF)pss_xml$(DLIBEXT) : \
+		$(XML_SRC:.cpp=.o) \
+		$(MODEL_DEPS) \
+		$(LIBXML2_DEPS) \
+		$(LIBZLIB_DEPS)
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(LINK_DLIB)
 
 ifeq (true,$(IS_WIN))
 else # Linux
 
-$(LIBXML2_SRC_DIR)/output/lib/libxml2.so : libxml2.d
+#$(LIBXML2_SRC_DIR)/output/lib/libxml2.so : libxml2.d
 
-$(ZLIB_SRC_DIR)/output/lib/libzlib.so : zlib.d
+#$(ZLIB_SRC_DIR)/output/lib/libzlib.so : zlib.d
 
-$(XML_SRC_FULL) : libxml2.d zlib.d
+$(XML_SRC_FULL) : $(LIBXML2_DEPS) $(LIBZLIB_DEPS)
 
+$(PLATFORM_LIB_DIR)/$(DLIBPREF)xml2$(DLIBEXT) : libxml2.d
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(Q)cp $(LIBXML2_SRC_DIR)/output/lib/libxml2.so $@
 
 libxml2.d : $(PACKAGES_DIR)/libxml2-sources-$(LIBXML2_SRC_VERSION).tar.gz
 	$(Q)rm -rf $(LIBXML2_SRC_DIR)
@@ -66,6 +77,11 @@ libxml2.d : $(PACKAGES_DIR)/libxml2-sources-$(LIBXML2_SRC_VERSION).tar.gz
 	$(Q)cd $(LIBXML2_SRC_DIR) ; $(MAKE)
 	$(Q)cd $(LIBXML2_SRC_DIR) ; $(MAKE) install
 	$(Q)touch $@
+	
+$(PLATFORM_LIB_DIR)/$(DLIBPREF)z$(DLIBEXT) : zlib.d
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(Q)cd $(ZLIB_SRC_DIR)/output/lib ; tar cf - $(DLIBPREF)z$(DLIBEXT)* | \
+		(cd `dirname $@` ; tar xvf -)
 
 $(PACKAGES_DIR)/libxml2-sources-$(LIBXML2_SRC_VERSION).tar.gz :
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi

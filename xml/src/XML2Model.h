@@ -6,6 +6,7 @@
  */
 #pragma once
 #include "IModel.h"
+#include <iostream>
 
 class XML2Model {
 public:
@@ -13,7 +14,10 @@ public:
 
 	virtual ~XML2Model();
 
-	IModelPtr xml2model();
+	bool read(
+			std::istream		&in,
+			const std::string	&in_name,
+			IModel				*model);
 
 };
 

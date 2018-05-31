@@ -45,7 +45,6 @@
 #include "ExecExprStmtImpl.h"
 #include "ExtendImpl.h"
 #include "FieldImpl.h"
-#include "FieldRefImpl.h"
 #include "ActivityBlockStmtImpl.h"
 #include "ActivityRepeatStmtImpl.h"
 #include "ActivityTraverseStmtImpl.h"

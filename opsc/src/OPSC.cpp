@@ -72,6 +72,13 @@ bool OPSC::link() {
 bool OPSC::elab(
 		const std::string		&comp,
 		const std::string		&action) {
+	return elab(comp, action, std::vector<std::string>());
+}
+
+bool OPSC::elab(
+		const std::string				&comp,
+		const std::string				&action,
+		const std::vector<std::string>	&packages) {
 	fprintf(stdout, "TODO: QPSC::elab\n");
 
 	std::tuple<IComponent *, IAction *> entry;

@@ -3,6 +3,8 @@ SCRIPTS_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 OPEN_PS_DIR:=$(abspath $(SCRIPTS_DIR)/..)
 PACKAGES_DIR := $(OPEN_PS_DIR)/packages
 
+BUILD_RESULT_DIR := $(BUILD_DIR)/result
+
 uname_o := $(shell uname -o)
 
 ifneq (1,$(RULES))
@@ -23,6 +25,13 @@ else
 DLIBEXT := .so
 EXEEXT :=
 PLATFORM := linux_x86_64
+endif
+
+PLATFORM_BIN_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
+ifeq (true,$(IS_WIN))
+PLATFORM_LIB_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
+else
+PLATFORM_LIB_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/lib
 endif
 
 ifeq (true,$(IS_WIN))

@@ -76,8 +76,7 @@ antlrcpp::Any PSS2ModelVisitor::visitAction_declaration(PSSParser::Action_declar
 	enter("visitAction_declaration");
 
 	if (ctx->action_super_spec()) {
-		super_type = m_factory->mkRefType(scope(),
-				type2vector(ctx->action_super_spec()->type_identifier()));
+		super_type = ctx->action_super_spec()->type_identifier()->accept(this);
 	}
 
 	IAction *action = m_factory->mkAction(
@@ -195,8 +194,7 @@ antlrcpp::Any PSS2ModelVisitor::visitActivity_action_traversal_stmt(PSSParser::A
 	if (ctx->is_do) {
 		// Do <type>
 		IActivityDoActionStmt *stmt = m_factory->mkActivityDoActionStmt(
-				m_factory->mkRefType(scope(),
-						type2vector(ctx->type_identifier())),
+				ctx->type_identifier()->accept(this),
 				with_c);
 		ret = stmt;
 	} else if (ctx->variable_ref()) {
@@ -458,8 +456,7 @@ antlrcpp::Any PSS2ModelVisitor::visitStruct_declaration(PSSParser::Struct_declar
 	enter("visitStruct_declaration");
 
 	if (ctx->struct_super_spec()) {
-		super_type = m_factory->mkRefType(scope(),
-				type2vector(ctx->struct_super_spec()->type_identifier()));
+		super_type = ctx->struct_super_spec()->type_identifier()->accept(this);
 	}
 
 	IStruct::StructType t;
@@ -973,8 +970,7 @@ antlrcpp::Any PSS2ModelVisitor::visitComponent_declaration(PSSParser::Component_
 	enter("visitComponent_declaration");
 
 	if (ctx->component_super_spec()) {
-		super_type = m_factory->mkRefType(scope(),
-				type2vector(ctx->component_super_spec()->type_identifier()));
+		super_type = ctx->component_super_spec()->type_identifier()->accept(this);
 	}
 
 	IComponent *comp = m_factory->mkComponent(
@@ -1544,81 +1540,81 @@ antlrcpp::Any PSS2ModelVisitor::visitUser_defined_datatype(PSSParser::User_defin
 }
 
 
-IFieldRef *PSS2ModelVisitor::elaborate_field_ref(
-			const std::vector<PSSParser::Variable_refContext *> &path) {
-	std::vector<IField *> fields;
-
-	enter("elaborate_field_ref");
-
-    // This is the active scope
-    IScopeItem *active_scope = dynamic_cast<IScopeItem *>(scope());
-
-    // First, find the root
-        // Traverse through the reference path built up above
-        for (uint32_t i=0; i<path.size(); i++) {
-        	const std::string &name = path.at(i)->getText();
-            IBaseItem *t_it = 0;
-
-            IScopeItem *search_s = active_scope;
-            while (search_s) {
-//                debug_high("Searching for %s in scope %s\n",
-//                        name.c_str(), getName(search_s));
-                for (std::vector<IBaseItem *>::const_iterator s_it=search_s->getItems().begin();
-                        s_it!=search_s->getItems().end(); s_it++) {
-                    if ((*s_it)->getType() == IBaseItem::TypeField &&
-                            dynamic_cast<IField *>(*s_it)->getName() == name) {
-                        t_it = *s_it;
-                        break;
-                    }
-                }
-                if (t_it) {
-                    break;
-                }
-
-                // Traverse the inheritance hierarchy
-                search_s = getSuperType(search_s);
-            }
-
-            if (t_it) {
-                if (t_it->getType() == IBaseItem::TypeField) {
-                    IField *field = dynamic_cast<IField *>(t_it);
-
-                    fields.push_back(field);
-
-                    if (i < path.size()) {
-                        if (field->getDataType()) {
-                            active_scope = dynamic_cast<IScopeItem *>(field->getDataType());
-
-                            if (!active_scope) {
-                                break;
-                            }
-                        } else {
-                            error("field %s doesn't have a type",
-                            		field->getName().c_str());
-                            break;
-                        }
-                    }
-                } else {
-                	error("Field \"%s\" is not a field", name.c_str());
-                }
-            } else {
-            	std::string error = "Failed to find field ";
-            	for (uint32_t j=0; j<path.size(); j++) {
-            		error += path.at(j)->getText();
-            		if (j+1<path.size()) {
-            			error += ".";
-            		}
-            	}
-//            	error += " at " + path.at(0)->getStart()->getLine();
-            	fatal(path.at(0)->getStart(), error);
-//                	error("failed to find field %s", name.c_str());
-            }
-    }
-
-	leave("elaborate_field_ref");
-
-	return m_factory->mkFieldRef(fields);
-}
+//IFieldRef *PSS2ModelVisitor::elaborate_field_ref(
+//			const std::vector<PSSParser::Variable_refContext *> &path) {
+//	std::vector<IField *> fields;
+//
+//	enter("elaborate_field_ref");
+//
+//    // This is the active scope
+//    IScopeItem *active_scope = dynamic_cast<IScopeItem *>(scope());
+//
+//    // First, find the root
+//        // Traverse through the reference path built up above
+//        for (uint32_t i=0; i<path.size(); i++) {
+//        	const std::string &name = path.at(i)->getText();
+//            IBaseItem *t_it = 0;
+//
+//            IScopeItem *search_s = active_scope;
+//            while (search_s) {
+////                debug_high("Searching for %s in scope %s\n",
+////                        name.c_str(), getName(search_s));
+//                for (std::vector<IBaseItem *>::const_iterator s_it=search_s->getItems().begin();
+//                        s_it!=search_s->getItems().end(); s_it++) {
+//                    if ((*s_it)->getType() == IBaseItem::TypeField &&
+//                            dynamic_cast<IField *>(*s_it)->getName() == name) {
+//                        t_it = *s_it;
+//                        break;
+//                    }
+//                }
+//                if (t_it) {
+//                    break;
+//                }
+//
+//                // Traverse the inheritance hierarchy
+//                search_s = getSuperType(search_s);
+//            }
+//
+//            if (t_it) {
+//                if (t_it->getType() == IBaseItem::TypeField) {
+//                    IField *field = dynamic_cast<IField *>(t_it);
+//
+//                    fields.push_back(field);
+//
+//                    if (i < path.size()) {
+//                        if (field->getDataType()) {
+//                            active_scope = dynamic_cast<IScopeItem *>(field->getDataType());
+//
+//                            if (!active_scope) {
+//                                break;
+//                            }
+//                        } else {
+//                            error("field %s doesn't have a type",
+//                            		field->getName().c_str());
+//                            break;
+//                        }
+//                    }
+//                } else {
+//                	error("Field \"%s\" is not a field", name.c_str());
+//                }
+//            } else {
+//            	std::string error = "Failed to find field ";
+//            	for (uint32_t j=0; j<path.size(); j++) {
+//            		error += path.at(j)->getText();
+//            		if (j+1<path.size()) {
+//            			error += ".";
+//            		}
+//            	}
+////            	error += " at " + path.at(0)->getStart()->getLine();
+//            	fatal(path.at(0)->getStart(), error);
+////                	error("failed to find field %s", name.c_str());
+//            }
+//    }
+//
+//	leave("elaborate_field_ref");
+//
+//	return m_factory->mkFieldRef(fields);
+//}
 
 IImportFunc *PSS2ModelVisitor::find_import_func(
 		PSSParser::Function_symbol_callContext *func
@@ -1861,7 +1857,7 @@ antlrcpp::Any PSS2ModelVisitor::visitExec_body_stmt(PSSParser::Exec_body_stmtCon
 	} else {
 		// Just an expression statement
 		// TODO: must support expression on LHS
-		ret = m_factory->mkExecExprStmt((IFieldRef *)expr, IExecExprStmt::AssignOp_None, 0);
+		ret = m_factory->mkExecExprStmt(expr, IExecExprStmt::AssignOp_None, 0);
 	}
 
 	leave("visitExec_body_stmt\n");
@@ -1875,8 +1871,7 @@ antlrcpp::Any PSS2ModelVisitor::visitExtend_stmt(PSSParser::Extend_stmtContext *
 
 	enter("visitExtend_stmt");
 
-	IRefType *target = m_factory->mkRefType(scope(),
-			type2vector(ctx->type_identifier()));
+	IRefType *target = ctx->type_identifier()->accept(this);
 
 	if (type == "action") {
 		IExtendComposite *ext = m_factory->mkExtendComposite(IExtend::ExtendType_Action, target);
@@ -1938,8 +1933,7 @@ antlrcpp::Any PSS2ModelVisitor::visitImport_stmt(PSSParser::Import_stmtContext *
 	IBaseItem *ret = 0;
 	enter("visitImport_stmt");
 	IImport *imp = m_factory->mkImport(
-			m_factory->mkRefType(scope(),
-					type2vector(ctx->package_import_pattern()->type_identifier())),
+			ctx->package_import_pattern()->type_identifier()->accept(this),
 			ctx->package_import_pattern()->wildcard);
 
 	ret = imp;
@@ -2040,7 +2034,7 @@ antlrcpp::Any PSS2ModelVisitor::visitType_identifier(PSSParser::Type_identifierC
 		type.push_back(ctx->ID(i)->getText());
 	}
 
-	ret = m_factory->mkRefType(scope(), type);
+	ret = m_factory->mkRefType(scope(), type, ctx->explicit_global);
 
 	leave("visitType_identifier");
 
@@ -2130,6 +2124,13 @@ std::vector<std::string> PSS2ModelVisitor::type2vector(PSSParser::Type_identifie
 	}
 
 	return ret;
+}
+
+IRefType *PSS2ModelVisitor::mk_ref_type(PSSParser::Type_identifierContext *ctx) {
+	return m_factory->mkRefType(
+			scope(),
+			type2vector(ctx),
+			ctx->explicit_global);
 }
 
 void PSS2ModelVisitor::enter(const char *fmt, ...) {

@@ -37,6 +37,8 @@ public:
 
 	virtual const std::vector<std::string> &getTypeId() const = 0;
 
+	virtual bool fullyQualified() const = 0;
+
 	virtual IBaseItem *getTargetType() const = 0;
 
 	virtual void setTargetType(IBaseItem *) = 0;

@@ -16,3 +16,11 @@ XML2Model::~XML2Model() {
 	// TODO Auto-generated destructor stub
 }
 
+bool XML2Model::read(
+		std::istream		&in,
+		const std::string	&in_name,
+		IModel				*model) {
+
+	return true;
+}
+

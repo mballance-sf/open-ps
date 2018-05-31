@@ -27,13 +27,17 @@
 #include <stdint.h>
 #include <string>
 #include "IBaseItem.h"
-#include "IFieldRef.h"
 #include "INamedItem.h"
+#include "IExpr.h"
 
 class IField :
 		public virtual IBaseItem,
 		public virtual INamedItem {
 public:
+
+	// Kind: None, Rand, Input, Inout, Output, Pool, Lock, Share, Action, Comp
+	// Protection: Public|Protected|Private
+	// Attributes: built-in
 
 	enum FieldAttr {
 		FieldAttr_None = 0,
@@ -46,6 +50,12 @@ public:
 		FieldAttr_Share,
 		FieldAttr_Action,
 		FieldAttr_Comp
+	};
+
+	enum Visibility {
+		Visibility_Public,
+		Visibility_Protected,
+		Visibility_Private
 	};
 
 public:

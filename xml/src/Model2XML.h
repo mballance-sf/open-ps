@@ -95,9 +95,7 @@ private:
 //	virtual void visit_extend_enum(IExtendEnum *e) override;
 //
 	virtual void visit_binary_expr(IBinaryExpr *be) override;
-//
-//	virtual void visit_fieldref_expr(IFieldRef *ref) override;
-//
+
 //	virtual void visit_in_expr(IInExpr *in) override;
 //
 	virtual void visit_literal_expr(ILiteral *l) override;
@@ -144,7 +142,7 @@ private:
 //
 //	virtual void visit_symbol(ISymbol *s);
 //
-//	virtual void visit_variable_ref(IVariableRef *ref);
+	virtual void visit_variable_ref(IVariableRef *ref);
 
 	void process_body(
 			const std::vector<IBaseItem *>  &items,
@@ -178,11 +176,11 @@ private:
 
 	void type2data_type(IBaseItem *it, const std::string &tag="pss:type");
 
-	void process_fieldref(IFieldRef *ref, const std::string &tag="ref");
+//	void process_fieldref(IFieldRef *ref, const std::string &tag="ref");
 
 	void to_hierarchical_id(const std::vector<IBaseItem *> &path, const char *tag=0);
 
-	static std::string path2string(IFieldRef *f);
+//	static std::string path2string(IFieldRef *f);
 
 	void println(const std::string &str);
 

@@ -51,7 +51,6 @@
 #include "ActivityTraverseStmtImpl.h"
 #include "BinaryExprImpl.h"
 #include "InExprImpl.h"
-#include "FieldRefImpl.h"
 #include "LiteralImpl.h"
 #include "ConstraintBlockImpl.h"
 #include "ConstraintExprImpl.h"
@@ -66,7 +65,7 @@
 #include "RefTypeImpl.h"
 #include "VariableRefImpl.h"
 #include "SymbolImpl.h"
-
+#include "ModelImpl.h"
 
 
 
@@ -77,6 +76,11 @@ ItemFactoryImpl::ItemFactoryImpl() {
 
 ItemFactoryImpl::~ItemFactoryImpl() {
 	// TODO Auto-generated destructor stub
+}
+
+
+IModel *ItemFactoryImpl::mkModel() {
+	return new ModelImpl();
 }
 
 IArrayType *ItemFactoryImpl::mkArrayType(
@@ -297,11 +301,6 @@ IInExpr *ItemFactoryImpl::mkInExpr(
 	return new InExprImpl(lhs, rhs);
 }
 
-IFieldRef *ItemFactoryImpl::mkFieldRef(
-		const std::vector<IField *>		&field_path) {
-	return new FieldRefImpl(field_path);
-}
-
 ILiteral *ItemFactoryImpl::mkIntLiteral(int64_t v) {
 	return new LiteralImpl(v);
 }
@@ -320,8 +319,9 @@ ILiteral *ItemFactoryImpl::mkStringLiteral(const std::string &v) {
 
 IRefType *ItemFactoryImpl::mkRefType(
 		IScopeItem							*scope,
-		const std::vector<std::string>		&type) {
-	return new RefTypeImpl(scope, type);
+		const std::vector<std::string>		&type,
+		bool								fully_qualified) {
+	return new RefTypeImpl(scope, type, fully_qualified);
 }
 
 IConstraintBlock *ItemFactoryImpl::mkConstraintBlock(

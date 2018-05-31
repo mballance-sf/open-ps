@@ -31,13 +31,16 @@ class RefTypeImpl: public BaseItemImpl,
 public:
 	RefTypeImpl(
 			IScopeItem 						*scope,
-			const std::vector<std::string>	&path);
+			const std::vector<std::string>	&path,
+			bool							fully_qualified);
 
 	virtual ~RefTypeImpl();
 
 	virtual IScopeItem *getScope() const;
 
 	virtual const std::vector<std::string> &getTypeId() const;
+
+	virtual bool fullyQualified() const { return m_fully_qualified; }
 
 	virtual IBaseItem *getTargetType() const;
 
@@ -51,6 +54,7 @@ private:
 
 	IScopeItem					*m_scope;
 	std::vector<std::string>	m_typeid;
+	bool						m_fully_qualified;
 	IBaseItem					*m_target;
 
 };

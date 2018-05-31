@@ -523,6 +523,15 @@ void Model2XML::visit_field(IField *f) {
 	exit("field");
 }
 
+void Model2XML::visit_variable_ref(IVariableRef *ref) {
+	if (ref->getTarget()) {
+		// TODO: emit a fully-qualified path
+	} else {
+		// TODO: emit a relative path
+
+	}
+}
+
 
 //void Model2XML::process_expr(IExpr *e, const char *tag) {
 //	if (!e) {
@@ -847,7 +856,30 @@ void Model2XML::type2data_type(IBaseItem *dt_i, const std::string &tag) {
 		} else if (dt_i->getType() == IBaseItem::TypeRefType) {
 			IRefType *rt = dynamic_cast<IRefType *>(dt_i);
 			if (rt->getTargetType()) {
-				type2hierarchical_id(rt->getTargetType(), "user");
+				std::vector<INamedItem *> p;
+				IBaseItem *it = rt->getTargetType();
+				enter("user resolved=\"true\"");
+
+
+				while (it) {
+					INamedItem *ni = dynamic_cast<INamedItem *>(it);
+
+					// Don't display the global package in paths
+					if (ni && ni->getName() != "") {
+						p.insert(p.begin(), ni);
+					} else {
+						break;
+					}
+
+					it = it->getParent();
+				}
+
+				for (std::vector<INamedItem *>::const_iterator it=p.begin();
+						it!=p.end(); it++) {
+					println("<pss:path>" + (*it)->getName() + "</pss:path>");
+				}
+
+				exit("user");
 			} else {
 				enter("user resolved=\"false\"");
 				for (std::vector<std::string>::const_iterator it=rt->getTypeId().begin();
@@ -868,16 +900,16 @@ void Model2XML::type2data_type(IBaseItem *dt_i, const std::string &tag) {
 	println("</" + tag + ">");
 }
 
-void Model2XML::process_fieldref(IFieldRef *ref, const std::string &tag) {
-	enter(tag);
-
-	for (std::vector<IField *>::const_iterator it=ref->getFieldPath().begin();
-			it!=ref->getFieldPath().end(); it++) {
-		println(std::string("<pss:path>") + (*it)->getName() + "</pss:path>");
-	}
-
-	exit(tag);
-}
+//void Model2XML::process_fieldref(IFieldRef *ref, const std::string &tag) {
+//	enter(tag);
+//
+//	for (std::vector<IField *>::const_iterator it=ref->getFieldPath().begin();
+//			it!=ref->getFieldPath().end(); it++) {
+//		println(std::string("<pss:path>") + (*it)->getName() + "</pss:path>");
+//	}
+//
+//	exit(tag);
+//}
 
 void Model2XML::to_hierarchical_id(const std::vector<IBaseItem *> &path, const char *tag) {
 	if (tag) {
@@ -899,21 +931,21 @@ void Model2XML::to_hierarchical_id(const std::vector<IBaseItem *> &path, const c
 	}
 }
 
-std::string Model2XML::path2string(IFieldRef *f) {
-	std::string ret;
-	std::vector<IField *>::const_iterator it;
-
-	for (it=f->getFieldPath().begin(); it!=f->getFieldPath().end(); ) {
-		IField *field = *(it);
-		ret += field->getName();
-		it++;
-		if (it != f->getFieldPath().end()) {
-			ret += ".";
-		}
-	}
-
-	return ret;
-}
+//std::string Model2XML::path2string(IFieldRef *f) {
+//	std::string ret;
+//	std::vector<IField *>::const_iterator it;
+//
+//	for (it=f->getFieldPath().begin(); it!=f->getFieldPath().end(); ) {
+//		IField *field = *(it);
+//		ret += field->getName();
+//		it++;
+//		if (it != f->getFieldPath().end()) {
+//			ret += ".";
+//		}
+//	}
+//
+//	return ret;
+//}
 
 void Model2XML::enter(const std::string &t) {
 	println(std::string("<pss:" + t + ">"));

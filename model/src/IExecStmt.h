@@ -26,7 +26,6 @@
 #include <vector>
 #include "IExpr.h"
 #include "IImportFunc.h"
-#include "IFieldRef.h"
 
 class IExecStmt {
 public:

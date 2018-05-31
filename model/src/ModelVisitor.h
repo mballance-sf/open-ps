@@ -91,8 +91,6 @@ protected:
 
 	virtual void visit_binary_expr(IBinaryExpr *be);
 
-	virtual void visit_fieldref_expr(IFieldRef *ref);
-
 	virtual void visit_in_expr(IInExpr *in);
 
 	virtual void visit_literal_expr(ILiteral *l);
@@ -158,8 +156,6 @@ protected:
 	virtual IBaseItem *pop_scope();
 
 	static std::string type2string(IBaseItem *it);
-
-	static std::string path2string(IFieldRef *f);
 
 	static std::string path2string(const std::vector<IField *> &path);
 

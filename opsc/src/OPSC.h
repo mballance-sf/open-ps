@@ -27,14 +27,19 @@ public:
 	 * Load a .psi (incremental) file
 	 */
 	bool load(
-			std::istream 		&in,
-			const std::string	&path);
+			std::istream 					&in,
+			const std::string				&path);
 
 	bool link();
 
 	bool elab(
-			const std::string	&comp,
-			const std::string	&action);
+			const std::string				&comp,
+			const std::string				&action);
+
+	bool elab(
+			const std::string				&comp,
+			const std::string				&action,
+			const std::vector<std::string>	&packages);
 
 	bool write(std::ostream &out);
 

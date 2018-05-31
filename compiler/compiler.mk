@@ -42,8 +42,8 @@ SRC_DIRS += grammar expr_grammar
 ANTLR4_CXXFLAGS += $(CXXFLAGS)
 ANTLR4_CXXFLAGS += -DANTLR4CPP_EXPORTS
 
-PSS_COMPILER_DEPS = $(DLIBPREF)pss_compiler$(DLIBEXT) 
-ANTLR4_DEPS = antlr/$(DLIBPREF)antlr_runtime$(DLIBEXT)
+PSS_COMPILER_DEPS = $(PLATFORM_LIB_DIR)/$(DLIBPREF)pss_compiler$(DLIBEXT) 
+ANTLR4_DEPS = $(PLATFORM_LIB_DIR)/$(DLIBPREF)antlr_runtime$(DLIBEXT)
 LIB_TARGETS += $(PSS_COMPILER_DEPS) $(ANTLR4_DEPS)
 UNPACK_TARGETS += $(BUILD_DIR)/runtime.unpack
 
@@ -61,14 +61,16 @@ PACKAGES += $(PACKAGES_DIR)/$(ANTLR_RUNTIME_WIN_ZIP)
 
 else # Rules
 
-$(DLIBPREF)pss_compiler$(DLIBEXT) : \
+$(PLATFORM_LIB_DIR)/$(DLIBPREF)pss_compiler$(DLIBEXT) : \
 		$(PSS_GRAMMAR_SRC:.cpp=.o) \
 		$(EXPR_GRAMMAR_SRC:.cpp=.o) \
 		$(PSS_COMPILER_SRC:.cpp=.o) \
 		$(ANTLR4_DEPS)
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(LINK_DLIB)
 
-antlr/$(DLIBPREF)antlr_runtime$(DLIBEXT) : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),antlr/$(o))
+$(PLATFORM_LIB_DIR)/$(DLIBPREF)antlr_runtime$(DLIBEXT) : $(foreach o,$(ANTLR_RT_SRC:.cpp=.o),antlr/$(o))
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(LINK_DLIB) 
 
 ifeq (cl,$(COMPILER))

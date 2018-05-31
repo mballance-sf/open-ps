@@ -41,7 +41,7 @@ StructImpl::StructImpl(
 		std::vector<std::string> type;
 		type.push_back(name);
 
-		RefTypeImpl *this_t = new RefTypeImpl(0, type);
+		RefTypeImpl *this_t = new RefTypeImpl(0, type, false);
 		this_t->setTargetType(this);
 
 		IField *field = new FieldImpl("initial",

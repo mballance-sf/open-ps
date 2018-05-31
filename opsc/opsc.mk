@@ -8,7 +8,7 @@ OPSC_SRC_FULL = $(wildcard $(OPSC_SRC_DIR)/*.cpp)
 OPSC_SRC = $(notdir $(OPSC_SRC_FULL))
 
 SRC_DIRS += $(OPSC_SRC_DIR)
-EXE_TARGETS := opsc$(EXEEXT)
+EXE_TARGETS += $(PLATFORM_BIN_DIR)/opsc$(EXEEXT)
 
 RELEASE_TARGETS += $(OPEN_PS_RLS_DIR)/bin/opsc
 RELEASE_TARGETS += $(OPEN_PS_RLS_DIR)/$(PLATFORM)/bin/opsc$(EXEEXT)
@@ -47,7 +47,15 @@ print :
 
 $(OPS_SRC_FULL) : pss-grammar.gen
 
-opsc$(EXEEXT) : $(OPSC_EXE_DEPS)
+$(PLATFORM_BIN_DIR)/opsc$(EXEEXT) : \
+		$(OPSC_SRC:.cpp=.o) \
+		$(PSS_COMPILER_DEPS) \
+		$(PROCESSOR_DEPS) \
+		$(XML_DEPS) \
+		$(Z3_DEPS) \
+		$(MODEL_DEPS) \
+		$(ANTLR4_DEPS)
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)$(LINK_EXE) 
 	
 $(OPEN_PS_RLS_DIR)/$(PLATFORM)/bin/ops$(EXEEXT) : ops$(EXEEXT)

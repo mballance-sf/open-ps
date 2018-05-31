@@ -109,8 +109,8 @@ public:
 
 	antlrcpp::Any visitType_identifier(PSSParser::Type_identifierContext *ctx) override;
 
-	IFieldRef *elaborate_field_ref(
-			const std::vector<PSSParser::Variable_refContext *> &path);
+//	IFieldRef *elaborate_field_ref(
+//			const std::vector<PSSParser::Variable_refContext *> &path);
 
 	IImportFunc *find_import_func(
 			PSSParser::Function_symbol_callContext *func
@@ -136,6 +136,8 @@ private:
 	static IBaseItem *find_type(IScopeItem *scope, const std::string &name);
 
 	std::vector<std::string> type2vector(PSSParser::Type_identifierContext *type);
+
+	IRefType *mk_ref_type(PSSParser::Type_identifierContext *ctx);
 
 	void enter(const char *fmt, ...);
 

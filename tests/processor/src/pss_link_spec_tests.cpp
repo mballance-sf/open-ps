@@ -77,8 +77,6 @@ TEST_P(pss_processor,spec_examples) {
 	OPSC opsc;
 	IModel *model = new ModelImpl();
 
-//	fprintf(stdout, "--> %s\n", GetParam().second.c_str());
-
 	std::ifstream in(GetParam().second);
 	ASSERT_EQ(true, in.is_open());
 
@@ -87,31 +85,11 @@ TEST_P(pss_processor,spec_examples) {
 
 	ASSERT_TRUE(opsc.link());
 
-//	if (in.is_open()) {
-//
-//		ANTLRInputStream input(in);
-//		PSSLexer lexer(&input);
-//
-//		CommonTokenStream tokens(&lexer);
-//		PSSParser parser(&tokens);
-//		PSSParser::ModelContext *ctxt = parser.model();
-//
-//		ASSERT_EQ(0, parser.getNumberOfSyntaxErrors());
-//
-//		PSS2ModelVisitor pss2psi(model, GetParam().second);
-//		pss2psi.visitModel(ctxt);
-//
-////		GTEST_TEST_BOOLEAN_()
-//		ASSERT_TRUE(refs_processor.process(model));
-//
-//		v.visit_model(model);
-//
-//		Model2XML m2x;
-//		std::string xml = m2x.convert(model);
-//		fprintf(stdout, "XML:\n%s\n", xml.c_str());
-//	}
+	std::ostringstream out;
 
-//	fprintf(stdout, "<-- %s\n", GetParam().second.c_str());
+	opsc.write(out);
+
+	fprintf(stdout, "XML:\n%s\n", out.str().c_str());
 
 	delete model;
 }

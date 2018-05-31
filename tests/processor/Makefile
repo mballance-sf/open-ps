@@ -42,7 +42,7 @@ ifeq (true,$(IS_WIN))
 	export PATH
 else
 	GCC_BINDIR := $(dir $(shell which g++))
-	LD_LIBRARY_PATH := $(Z3_DIR)/bin:.:./antlr:$(GCC_BINDIR)/../lib64:$(LD_LIBRARY_PATH)
+	LD_LIBRARY_PATH := $(PLATFORM_LIB_DIR):$(GCC_BINDIR)/../lib64:$(LD_LIBRARY_PATH)
 	export LD_LIBRARY_PATH
 endif
 
@@ -86,7 +86,7 @@ unittest$(EXEEXT) : $(PARSER_TESTS_SRC:.cpp=.o) \
 	$(Q)$(LINK_EXE) -lpthread
 
 clean :
-	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*$(DLIBEXT)
+	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*$(DLIBEXT) $(BUILD_DIR)/result
 	
 clean-all :
 	rm -rf $(BUILD_DIR)

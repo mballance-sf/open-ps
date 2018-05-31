@@ -23,9 +23,11 @@
 
 RefTypeImpl::RefTypeImpl(
 		IScopeItem						*scope,
-		const std::vector<std::string>	&path) :
+		const std::vector<std::string>	&path,
+		bool							fully_qualified) :
 		BaseItemImpl(IBaseItem::TypeRefType),
-		m_scope(scope), m_typeid(path), m_target(0) {
+		m_scope(scope), m_typeid(path),
+		m_fully_qualified(fully_qualified), m_target(0) {
 
 }
 

@@ -1,9 +1,0 @@
-
-struct foo {
-  rand int a, b;
-
-  constraint {
-    a == b>0?1:0;
-  }
-}
-

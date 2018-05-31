@@ -77,6 +77,8 @@ public:
 	 * Data pss_types
 	 */
 
+	virtual IModel *mkModel() = 0;
+
 	virtual IArrayType *mkArrayType(
 			IBaseItem			*target,
 			bool				has_sum,
@@ -208,9 +210,6 @@ public:
 			IExpr					*index_lhs,
 			IExpr					*index_rhs) = 0;
 
-	virtual IFieldRef *mkFieldRef(
-			const std::vector<IField *>		&field_path) = 0;
-
 	/**
 	 * Creates a new block statement. parallel, schedule, pss_select, and
 	 * Block statements are all, fundamentally, block statements.
@@ -254,7 +253,8 @@ public:
 
 	virtual IRefType *mkRefType(
 			IScopeItem 						*scope,
-			const std::vector<std::string>	&type) = 0;
+			const std::vector<std::string>	&type,
+			bool							fully_qualified) = 0;
 
 	/**
 	 * Construct a new constraint block. The constraint block is
