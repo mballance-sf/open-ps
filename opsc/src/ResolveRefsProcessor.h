@@ -39,6 +39,8 @@ public:
 
 	virtual bool process(IModel *model);
 
+	void set_debug(bool d) { m_debug = d; }
+
 protected:
 
 	virtual void visit_ref_type(IRefType *ref) override;
@@ -77,6 +79,7 @@ private:
 	void todo(const char *fmt, ...);
 
 	std::string type2string(const std::vector<std::string> &type);
+
 
 private:
 

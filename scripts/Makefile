@@ -12,14 +12,9 @@ endif
 
 include $(SCRIPTS_DIR)/common.mk
 
-
-
-OPEN_PS_RLS_DIR = $(OPEN_PS_BUILD_DIR)/ops-$(version)
-
 MK_INCLUDES += $(OPEN_PS_DIR)/compiler/compiler.mk
 MK_INCLUDES += $(OPEN_PS_DIR)/opsc/opsc.mk
 #MK_INCLUDES += $(OPEN_PS_DIR)/opsg/opsg.mk
-MK_INCLUDES += $(OPEN_PS_DIR)/etc/open-ps.info
 MK_INCLUDES += $(OPEN_PS_DIR)/model/model.mk
 MK_INCLUDES += $(OPEN_PS_DIR)/processor/processor.mk
 MK_INCLUDES += $(OPEN_PS_DIR)/xml/xml.mk

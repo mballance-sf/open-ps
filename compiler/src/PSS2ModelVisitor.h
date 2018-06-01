@@ -129,6 +129,8 @@ public:
 
 	static IScopeItem *getSuperType(IScopeItem *it);
 
+	void set_debug(bool d) { m_debug = d; }
+
 private:
 
 	std::pair<IBaseItem *, IScopeItem *> find_type(const std::string &name);

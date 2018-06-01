@@ -14,6 +14,20 @@
 #include <fstream>
 
 static void printhelp() {
+	fprintf(stdout, "Usage: opsc [options] <files>\n");
+	fprintf(stdout, "\n");
+	fprintf(stdout, "  Options:\n");
+	fprintf(stdout, "  -c                     - Performs incremental compile\n");
+	fprintf(stdout, "  -d|--debug             - Enables additional debug messages\n");
+	fprintf(stdout, "  -link                  - Performs linking even if elaboration is not done\n");
+	fprintf(stdout, "  -action <root_action>  - Specifies the root action for elaboration\n");
+	fprintf(stdout, "  -component <root_comp> - Specifies the root component for elaboration\n");
+	fprintf(stdout, "  -o <file>              - Specifies the output file name\n");
+//	fprintf(stdout, "  -v|--verbose\n");
+	fprintf(stdout, "  -h|-help|-?            - Displays this message\n");
+	fprintf(stdout, "\n");
+	fprintf(stdout, "  Files: source files with .pss extension or pre-compiled files with .psi\n");
+
 
 }
 
@@ -38,6 +52,7 @@ int main(int argc, char **argv) {
 	bool link = false;
 	bool elab = false;
 	bool incr = false;
+	bool debug = false;
 	std::string action, component;
 	std::string out;
 
@@ -48,6 +63,8 @@ int main(int argc, char **argv) {
 			// Option
 			if (arg == "-v" || arg == "--verbose") {
 				verbose = true;
+			} else if (arg == "-d" || arg == "--debug") {
+				debug = true;
 			} else if (arg == "-link") {
 				link = true;
 			} else if (arg == "-c") {
@@ -61,6 +78,11 @@ int main(int argc, char **argv) {
 			} else if (arg == "-o") {
 				i++;
 				out = argv[i];
+			} else if (arg == "-h" || arg == "-help" ||
+					arg == "--h" || arg == "--help" ||
+					arg == "-?") {
+				printhelp();
+				exit(1);
 			} else {
 				error_exit("unknown option \"%s\"", arg.c_str());
 			}
@@ -97,6 +119,9 @@ int main(int argc, char **argv) {
 	}
 
 	OPSC opsc;
+
+	opsc.set_debug(debug);
+
 	for (std::vector<std::string>::const_iterator it=files.begin();
 			it!=files.end(); it++) {
 		const std::string &file = *it;

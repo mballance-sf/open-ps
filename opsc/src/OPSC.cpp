@@ -21,6 +21,7 @@ using namespace antlr4;
 
 OPSC::OPSC() :
 	m_model(new ModelImpl()) {
+	m_debug = false;
 
 }
 
@@ -34,6 +35,8 @@ bool OPSC::parse(
 	PSS2ModelVisitor visitor(m_model.get(), path);
 	ANTLRInputStream input(in);
 	PSSLexer lexer(&input);
+
+	visitor.set_debug(m_debug);
 
 	CommonTokenStream tokens(&lexer);
 
@@ -65,6 +68,8 @@ bool OPSC::load(
 
 bool OPSC::link() {
 	ResolveRefsProcessor rp;
+
+	rp.set_debug(m_debug);
 
 	return rp.process(m_model.get());
 }

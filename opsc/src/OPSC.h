@@ -43,6 +43,8 @@ public:
 
 	bool write(std::ostream &out);
 
+	void set_debug(bool d) { m_debug = d; }
+
 	const IModelPtr &model() const { return m_model; }
 
 	IComponent *root_comp() const { return m_root_comp; }
@@ -50,6 +52,7 @@ public:
 	IAction *root_action() const { return m_root_action; }
 
 private:
+	bool				m_debug;
 	IModelPtr			m_model;
 	IComponent			*m_root_comp;
 	IAction				*m_root_action;

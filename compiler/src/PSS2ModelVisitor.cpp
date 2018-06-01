@@ -36,7 +36,7 @@ using namespace antlr4;
 
 PSS2ModelVisitor::PSS2ModelVisitor(IModel *model, const std::string &path) :
 		m_model(model), m_factory(model->getItemFactory()), m_file(path) {
-	m_debug = true;
+	m_debug = false;
 }
 
 PSS2ModelVisitor::~PSS2ModelVisitor() {

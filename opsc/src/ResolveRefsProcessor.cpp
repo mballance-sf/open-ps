@@ -27,7 +27,7 @@
 #include <stdarg.h>
 
 ResolveRefsProcessor::ResolveRefsProcessor() {
-	m_debug = true;
+	m_debug = false;
 	m_phase = 0;
 }
 

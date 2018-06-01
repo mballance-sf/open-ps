@@ -7,7 +7,11 @@ BUILD_RESULT_DIR := $(BUILD_DIR)/result
 
 uname_o := $(shell uname -o)
 
+
 ifneq (1,$(RULES))
+
+include $(OPEN_PS_DIR)/etc/open-ps.info
+OPS_VERSION=$(version)
 
 ifeq (Msys,$(uname_o))
 IS_WIN := true
@@ -27,12 +31,12 @@ EXEEXT :=
 PLATFORM := linux_x86_64
 endif
 
-BIN_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/bin
-PLATFORM_BIN_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
+BIN_DIR = $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/bin
+PLATFORM_BIN_DIR = $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
 ifeq (true,$(IS_WIN))
-PLATFORM_LIB_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
+PLATFORM_LIB_DIR = $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
 else
-PLATFORM_LIB_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/lib
+PLATFORM_LIB_DIR = $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/lib
 endif
 
 ifeq (true,$(IS_WIN))
