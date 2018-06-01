@@ -27,6 +27,7 @@ EXEEXT :=
 PLATFORM := linux_x86_64
 endif
 
+BIN_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/bin
 PLATFORM_BIN_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
 ifeq (true,$(IS_WIN))
 PLATFORM_LIB_DIR := $(BUILD_RESULT_DIR)/ops-$(OPS_VERSION)/$(PLATFORM)/bin
@@ -39,8 +40,13 @@ ifeq (true,$(IS_WIN))
 #		COMPILER := cl
 		COMPILER := gcc
 	endif
+	ifeq (cl, $(COMPILER))
+	else
+  	  LIB_TARGETS += win_gcc_libs.d
+  	endif
 else
 	COMPILER := gcc
+    LIB_TARGETS += linux_gcc_libs.d
 endif
 
 ifeq (cl, $(COMPILER))
@@ -115,6 +121,13 @@ else
 	@$(CXX) -c -o $@ $(CXXFLAGS) $^
 endif
 endif
+
+linux_gcc_libs.d :
+	$(Q)if test ! -d $(PLATFORM_LIB_DIR); then mkdir -p $(PLATFORM_LIB_DIR); fi
+	libstdcpp=`$(CXX) -print-file-name=libstdc++.so`; \
+	libdir=`dirname $$libstdcpp`; \
+	cd $$libdir ; tar cf - libstdc++.so.* | (cd $(PLATFORM_LIB_DIR) ; tar xf -)
+	touch $@
 
 endif # Rules
 

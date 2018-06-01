@@ -21,6 +21,8 @@ bool XML2Model::read(
 		const std::string	&in_name,
 		IModel				*model) {
 
+//	in.read(__s, __n)
+
 	return true;
 }
 

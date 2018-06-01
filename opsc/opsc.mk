@@ -9,6 +9,11 @@ OPSC_SRC = $(notdir $(OPSC_SRC_FULL))
 
 SRC_DIRS += $(OPSC_SRC_DIR)
 EXE_TARGETS += $(PLATFORM_BIN_DIR)/opsc$(EXEEXT)
+EXE_TARGETS += $(BIN_DIR)/opsc
+
+ifeq (true,$(IS_WIN))
+EXE_TARGETS += $(BIN_DIR)/opsc.bat
+endif
 
 RELEASE_TARGETS += $(OPEN_PS_RLS_DIR)/bin/opsc
 RELEASE_TARGETS += $(OPEN_PS_RLS_DIR)/$(PLATFORM)/bin/opsc$(EXEEXT)
@@ -65,7 +70,7 @@ ifneq (true,$(IS_WIN))
 	$(Q)chmod +x $@
 endif
 
-$(OPEN_PS_RLS_DIR)/bin/ops : $(OPS_SRC_DIR)/ops
+$(BIN_DIR)/opsc : $(SCRIPTS_DIR)/wrapper
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)cp $^ $@
 ifneq (true,$(IS_WIN))

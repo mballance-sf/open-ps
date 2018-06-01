@@ -1,0 +1,55 @@
+#!/bin/sh
+#****************************************************************************
+#* Wrapper script for Open-PS commands
+#*
+#*
+#* Licensed under the Apache License, Version 2.0 (the
+#*  "License"); you may not use this file except in
+#*  compliance with the License.  You may obtain a copy of
+#*  the License at
+#*
+#*  http://www.apache.org/licenses/LICENSE-2.0
+#*
+#* Unless required by applicable law or agreed to in
+#* writing, software distributed under the License is
+#* distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+#* CONDITIONS OF ANY KIND, either express or implied.  See
+#* the License for the specific language governing
+#* permissions and limitations under the License.
+#* 
+#****************************************************************************
+
+cmd=`basename $0`
+
+# First, determine where we are
+if test -f $0; then
+  ops_bindir=`dirname $0`
+  ops_bindir=`cd $ops_bindir; pwd`
+  export OPS_HOME=`dirname $ops_bindir`
+else
+  full_cmd=`which $cmd`
+  if "x$full_cmd" = "x"; then
+    echo "Error: $cmd is not in the path"
+    exit 1;
+  fi
+
+  ops_bindir=`dirname $ops`
+  export OPS_HOME=`dirname $ops_bindir`  
+fi
+
+uname_o=`uname -o`
+uname_m=`uname -m`
+if test $uname_o = "Msys" || test $uname_o = "Cygwin"; then
+  if test $uname_m = "x86_64"; then
+    OPS_PLATFORM=win64
+  else
+    OPS_PLATFORM=win32
+  fi
+#  export LD_LIBRARY_PATH=${OPS_HOME}/${OPS_PLATFORM}/lib:${LD_LIBRARY_PATH}
+else
+  OPS_PLATFORM=linux_x86_64
+  export LD_LIBRARY_PATH=${OPS_HOME}/${OPS_PLATFORM}/lib:${LD_LIBRARY_PATH}
+fi
+
+exec ${OPS_HOME}/${OPS_PLATFORM}/bin/$cmd ${1+"$@"}
+

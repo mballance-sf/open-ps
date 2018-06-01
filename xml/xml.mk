@@ -81,7 +81,7 @@ libxml2.d : $(PACKAGES_DIR)/libxml2-sources-$(LIBXML2_SRC_VERSION).tar.gz
 $(PLATFORM_LIB_DIR)/$(DLIBPREF)z$(DLIBEXT) : zlib.d
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(Q)cd $(ZLIB_SRC_DIR)/output/lib ; tar cf - $(DLIBPREF)z$(DLIBEXT)* | \
-		(cd `dirname $@` ; tar xvf -)
+		(cd `dirname $@` ; tar xf -)
 
 $(PACKAGES_DIR)/libxml2-sources-$(LIBXML2_SRC_VERSION).tar.gz :
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
